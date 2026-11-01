@@ -1,3 +1,18 @@
+# Fantasy Cartography
+
+**Fantasy Cartography** é um fork do [Fantasy Map Generator](https://github.com/Azgaar/Fantasy-Map-Generator), criado por **Max Haniyeu (Azgaar)** e distribuído sob a [licença MIT](LICENSE). Todo o gerador procedural, os editores e a renderização vêm do projeto original; este fork acrescenta:
+
+- **Assistente de mundo**: criação passo a passo, com cada ajuste definido à mão ou sorteado, e geração depois.
+- **Autoria das entidades**: o que você cria ou edita fica marcado e travado, e a regeneração não apaga.
+
+O aviso de copyright original foi mantido no arquivo [LICENSE](LICENSE). Detalhes técnicos do fork em [docs/architecture/authoring.md](docs/architecture/authoring.md).
+
+Agradecimentos ao Azgaar e aos colaboradores do projeto original. Para apoiar o trabalho deles, veja o [Patreon do Azgaar](https://www.patreon.com/azgaar).
+
+---
+
+_A partir daqui, o README original do Fantasy Map Generator:_
+
 # Fantasy Map Generator
 
 Azgaar's _Fantasy Map Generator_ is a free web application that helps fantasy writers, game masters, and cartographers create and edit fantasy maps.
