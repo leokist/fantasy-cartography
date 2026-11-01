@@ -6,7 +6,7 @@ import { AddedLabels } from "@/model/annotations/added-labels";
 import { type Label, type LabelNameMode, Labels } from "@/model/annotations/labels-generator";
 import { type Measurer, Measurers, type MeasurerType } from "@/model/annotations/measurers-generator";
 import { AUTHORABLE, type EntityOrigin } from "@/model/authoring/authoring";
-import { getDefaultAuthoring } from "@/model/authoring/world-spec";
+import { getDefaultAuthoring, getDefaultSeeds } from "@/model/authoring/world-spec";
 import { Goods } from "@/model/economy/goods-generator";
 import { Markets } from "@/model/economy/markets-generator";
 import { Production } from "@/model/economy/production-generator";
@@ -2359,9 +2359,13 @@ let preAuthoringMap = false;
 
 export function migrateAuthoringSettings(data: string[]): void {
   const settings = data[1] ? safeParseJSON(data[1]) : null;
-  preAuthoringMap = !!settings && typeof settings === "object" && !Object.hasOwn(settings, "authoring");
-  if (!preAuthoringMap) return;
-  settings.authoring = getDefaultAuthoring();
+  preAuthoringMap = false;
+  if (!settings || typeof settings !== "object") return;
+  preAuthoringMap = !Object.hasOwn(settings, "authoring");
+  if (preAuthoringMap) settings.authoring = getDefaultAuthoring();
+  else if (settings.authoring && typeof settings.authoring === "object" && !settings.authoring.seeds)
+    settings.authoring.seeds = getDefaultSeeds(); // the first authoring maps had no declared entities
+  else return;
   data[1] = JSON.stringify(settings);
 }
 

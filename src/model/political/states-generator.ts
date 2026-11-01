@@ -400,6 +400,7 @@ class StatesModule {
 
       const capitalCell = burgs[state.capital].cell;
       cells.state[capitalCell] = state.i;
+      if (state.lock) continue; // a locked state keeps its land as it is, like a locked culture
       const cultureCenter = cultures[state.culture].center!;
       const b = cells.biome[cultureCenter]; // state native biome
       queue.push({ e: state.center, p: 0, s: state.i, b }, 0);

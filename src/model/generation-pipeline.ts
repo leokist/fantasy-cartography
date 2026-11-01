@@ -3,6 +3,7 @@
 import { AddedLabels } from "@/model/annotations/added-labels";
 import { Legends } from "@/model/annotations/legends";
 import { Measurers } from "@/model/annotations/measurers-generator";
+import { WorldSeeds } from "@/model/authoring/seeds";
 import { Goods } from "@/model/economy/goods-generator";
 import { Markets } from "@/model/economy/markets-generator";
 import { Production } from "@/model/economy/production-generator";
@@ -52,14 +53,17 @@ const generationPipelineSteps = [
   { id: "goods", run: () => Goods.generate() },
   { id: "rankCells", run: () => Population.rankCells() },
   { id: "cultures", run: () => Cultures.generate() },
+  { id: "cultureSeeds", run: () => WorldSeeds.applyCultures() },
   { id: "culturesExpand", run: () => Cultures.expand() },
   { id: "burgs", run: () => Burgs.generate() },
+  { id: "capitalSeeds", run: () => WorldSeeds.applyCapitals() },
   { id: "states", run: () => States.generate() },
   { id: "routes", run: () => Routes.generate() },
   { id: "religions", run: () => Religions.generate() },
   { id: "burgsSpecify", run: () => Burgs.specify() },
   { id: "stateStatistics", run: () => States.collectStatistics() },
   { id: "stateForms", run: () => States.defineStateForms() },
+  { id: "stateSeeds", run: () => WorldSeeds.applyStates() },
   { id: "provinces", run: () => Provinces.generate() },
   { id: "provincePoles", run: () => Provinces.getPoles() },
   { id: "riversSpecify", run: () => Rivers.specify() },
@@ -72,7 +76,8 @@ const generationPipelineSteps = [
   { id: "zones", run: () => Zones.generate() },
   { id: "addedLabels", run: () => AddedLabels.initiate() },
   { id: "journeys", run: () => Journeys.generate() },
-  { id: "legends", run: () => Legends.initiate() }
+  { id: "legends", run: () => Legends.initiate() },
+  { id: "seedsFinish", run: () => WorldSeeds.finish() }
 ] as const satisfies PipelineStep<string, GenerationContext>[];
 
 type GenerationPipelineStepId = (typeof generationPipelineSteps)[number]["id"];

@@ -2,6 +2,8 @@
 
 import { regenerateMap } from "@/app/lifecycle";
 import { Controllers } from "@/controllers";
+import { bindSeeds, renderSeeds } from "@/controllers/world-wizard-seeds";
+import { WorldSeeds } from "@/model/authoring/seeds";
 import {
   type FieldInput,
   initialField,
@@ -12,7 +14,7 @@ import {
   WIZARD_STEPS,
   type WizardStep
 } from "@/model/authoring/spec-fields";
-import type { FieldMode, SpecField } from "@/model/authoring/world-spec";
+import { cleanSeeds, type FieldMode, type Seeds, type SpecField } from "@/model/authoring/world-spec";
 import { mapHistory } from "@/model/map-history";
 import { Pins } from "@/model/options/pins";
 import { Dialog } from "@/ui/dialog/dialog";
@@ -29,8 +31,14 @@ const STEP_TEXT: Record<WizardStep, { title: string; intro: string }> = {
   terrain: { title: t("Terrain"), intro: t("Choose the shape of the land. You can draw it by hand after generating.") },
   climate: { title: t("Climate and water"), intro: t("Temperature and rain decide rivers, lakes, ice and biomes.") },
   nature: { title: t("Nature"), intro: t("Biomes follow from the climate, so this step has nothing to set yet.") },
-  peoples: { title: t("Peoples"), intro: t("How many cultures and religions the world holds, and how they spread.") },
-  politics: { title: t("Politics"), intro: t("How many states, provinces and burgs the generator places.") },
+  peoples: {
+    title: t("Peoples"),
+    intro: t("How many cultures and religions the world holds, and the cultures you want for sure.")
+  },
+  politics: {
+    title: t("Politics"),
+    intro: t("How many states, provinces and burgs the generator places, and the states you want for sure.")
+  },
   economy: { title: t("Economy and history"), intro: t("The scale of population. Routes, places and lore follow it.") }
 };
 
@@ -44,6 +52,7 @@ const AFTER: Partial<
 
 let fields: Record<string, SpecField> = {};
 let seed: SpecField = { mode: "random", value: "" };
+let seeds: Seeds = { cultures: [], states: [] };
 let autoLock = true;
 let page = 0;
 
@@ -53,6 +62,7 @@ function open(): void {
   fields = Object.fromEntries(SPEC_FIELDS.map(def => [def.key, initialField(def, authoring)]));
   seed = authoring.fields.seed ?? { mode: "random", value: options.map.seed };
   autoLock = authoring.autoLock;
+  seeds = structuredClone(authoring.seeds);
   page = 0;
 
   Dialog.destroy(DIALOG_ID);
@@ -85,6 +95,14 @@ function render(): void {
       #${DIALOG_ID} .wizardRow .hint { font-size: 0.85em; opacity: 0.7 }
       #${DIALOG_ID} .wizardRow.random input, #${DIALOG_ID} .wizardRow.random select { opacity: 0.55 }
       #${DIALOG_ID} .wizardRow input, #${DIALOG_ID} .wizardRow select { width: 100%; box-sizing: border-box }
+      #${DIALOG_ID} .seedList, #${DIALOG_ID} .seedList > p { width: 100%; box-sizing: border-box }
+      #${DIALOG_ID} .seed { display: grid; grid-template-columns: 9em minmax(0, 1fr); gap: 0.6em; width: 100%; box-sizing: border-box; margin: 0.6em 0; padding-top: 0.6em; border-top: 1px solid #8884 }
+      #${DIALOG_ID} .spot { position: relative; cursor: crosshair; border: 1px solid #8888; background: linear-gradient(#8882 1px, transparent 1px) 0 0 / 100% 33.3%, linear-gradient(90deg, #8882 1px, transparent 1px) 0 0 / 33.3% 100%, #9bb5c033 }
+      #${DIALOG_ID} .dot { position: absolute; width: 0.7em; height: 0.7em; margin: -0.35em 0 0 -0.35em; border-radius: 50%; background: #c0392b; border: 1px solid #fff; pointer-events: none }
+      #${DIALOG_ID} .seedFields { display: flex; flex-wrap: wrap; gap: 0.3em; align-items: center; min-width: 0 }
+      #${DIALOG_ID} .seedFields > input, #${DIALOG_ID} .seedFields > select { flex: 1 1 12em; width: 12em; min-width: 0; box-sizing: border-box }
+      #${DIALOG_ID} .seedColor input.unset { opacity: 0.4 }
+      #${DIALOG_ID} .seedButtons { margin-left: auto }
       #${DIALOG_ID} .wizardNav { display: flex; gap: 0.4em; justify-content: space-between; margin-top: 0.8em; width: 100% }
     </style>
     <div class="wizardTabs">${tabs}</div>
@@ -110,6 +128,7 @@ function render(): void {
     input.addEventListener("input", () => showMode(input.dataset.key ?? "", "set"));
     input.addEventListener("change", () => setValue(input.dataset.key ?? "", input.value));
   });
+  bindSeeds(dialog, seeds, render);
   dialog.querySelector<HTMLInputElement>("#wizardAutoLock")?.addEventListener("change", event => {
     autoLock = (event.target as HTMLInputElement).checked;
   });
@@ -126,6 +145,8 @@ function renderStep(step: WizardStep): string {
   return /* html */ `
     <p style="margin-top: 0">${intro} ${roll}</p>
     ${rows.join("")}
+    ${step === "peoples" ? renderSeeds("cultures", seeds, hasMap()) : ""}
+    ${step === "politics" ? renderSeeds("states", seeds, hasMap()) : ""}
     ${step === "nature" ? `<p class="hint">${t("Fauna and flora catalogues arrive in a later version.")}</p>` : ""}
     ${afterButton}`;
 }
@@ -166,8 +187,17 @@ function renderReview(): string {
   const set = Object.values(fields).filter(field => field.mode === "set").length;
   const total = SPEC_FIELDS.length;
   const seedValue = escapeHtml(String(seed.value ?? ""));
+  const { cultures, states } = cleanSeeds(seeds);
+  const declared =
+    cultures.length || states.length
+      ? t("Declared: {{cultures}} cultures and {{states}} states.", {
+          cultures: cultures.length,
+          states: states.length
+        })
+      : "";
   return /* html */ `
-    <p style="margin-top: 0">${t("{{set}} of {{total}} settings are set by you; the generator rolls the rest.", { set, total })}</p>
+    <p style="margin-top: 0">${t("{{set}} of {{total}} settings are set by you; the generator rolls the rest.", { set, total })}
+      ${declared}</p>
     <div class="wizardRow ${seed.mode}">
       ${modeSelect("seed", seed.mode)}
       <div>${t("Map seed")}<div class="hint">${t("The same seed and settings rebuild the same world")}</div></div>
@@ -179,6 +209,8 @@ function renderReview(): string {
     </p>
     <p class="hint">${t("Generating replaces the current map. Save it first if you want to keep it.")}</p>`;
 }
+
+const hasMap = (): boolean => mapHistory.length > 0 && Boolean(pack.cells?.state);
 
 function go(next: number): void {
   page = Math.max(0, Math.min(REVIEW, next));
@@ -252,20 +284,29 @@ function confirmGenerate(editor?: AfterEditor): void {
 
 function generate(editor?: AfterEditor): void {
   if (options.app.mode) return void tip(t("Exit the edit mode first"), false, "error");
-  const spec = { ...fields, seed };
-  const lock = autoLock;
+  const planted = cleanSeeds(seeds);
+  const authoring = { autoLock, fields: structuredClone({ ...fields, seed }), seeds: planted };
 
   addEventListener(
     "map:generated",
     () => {
-      options.map.authoring = { autoLock: lock, fields: structuredClone(spec) };
+      options.map.authoring = authoring;
       if (editor) void Controllers[editor].open();
     },
     { once: true }
   );
 
+  // every declared culture and state needs a slot to fill
+  const pins = pinsOf(fields);
+  const atLeast = (key: string, count: number) => {
+    if (count) pins[key] = Math.max(Number(fields[key]?.value ?? 0), count);
+  };
+  atLeast("cultures", planted.cultures.length);
+  atLeast("statesNumber", planted.states.length);
+
   Dialog.close(DIALOG_ID);
-  Pins.overrideNext(pinsOf(fields));
+  WorldSeeds.planNext(planted);
+  Pins.overrideNext(pins);
   regenerateMap(seed.mode === "set" && seed.value ? { seed: String(seed.value) } : undefined);
 }
 

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { Authoring } from "@/model/authoring/authoring";
-import { getDefaultAuthoring } from "@/model/authoring/world-spec";
+import { cleanSeeds, getDefaultAuthoring } from "@/model/authoring/world-spec";
 import { Pipeline } from "@/model/pipeline";
 import { States } from "@/model/political/states-generator";
 import { Markers } from "@/model/story/markers-generator";
@@ -104,7 +104,7 @@ describe("migration of maps made before authoring", () => {
   });
 
   it("leaves a map that has authoring settings alone", () => {
-    const settings = JSON.stringify({ seed: "1", authoring: { autoLock: false, fields: {} } });
+    const settings = JSON.stringify({ seed: "1", authoring: { ...getDefaultAuthoring(), autoLock: false } });
     const data = ["", settings];
     migrateAuthoringSettings(data);
     expect(data[1]).toBe(settings);
@@ -112,5 +112,32 @@ describe("migration of maps made before authoring", () => {
     states()[1].lock = true;
     migrateAuthoringEntities();
     expect(states()[1].origin).toBeUndefined();
+  });
+});
+
+describe("seeds in the world spec", () => {
+  it("plant only named seeds and keep each state on the same culture", () => {
+    const planted = cleanSeeds({
+      cultures: [
+        { name: "", x: 1, y: 1 },
+        { name: "Aldorians", x: 2, y: 2 }
+      ],
+      states: [
+        { name: "Aldoria", culture: 1, x: 3, y: 3 },
+        { name: "Brennmark", culture: 0, x: 4, y: 4 },
+        { name: "", x: 5, y: 5 }
+      ]
+    });
+    expect(planted.cultures.map(culture => culture.name)).toEqual(["Aldorians"]);
+    expect(planted.states).toEqual([
+      { name: "Aldoria", culture: 0, x: 3, y: 3 },
+      { name: "Brennmark", x: 4, y: 4 }
+    ]);
+  });
+
+  it("are added to a map saved before seeds existed", () => {
+    const data = ["", JSON.stringify({ seed: "1", authoring: { autoLock: false, fields: {} } })];
+    migrateAuthoringSettings(data);
+    expect(JSON.parse(data[1]).authoring).toEqual({ autoLock: false, fields: {}, seeds: { cultures: [], states: [] } });
   });
 });

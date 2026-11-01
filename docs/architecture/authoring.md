@@ -23,6 +23,23 @@ Lockable entities (`AUTHORABLE` in [`authoring.ts`](../../src/model/authoring/au
 
 `Authoring.install()` wraps the models' edit methods once at boot (`rename`, `recolor`, `set*`, `move*`…, but not `setLocked`, `setHidden`, `setPinned`) and their `add`/`create`. Every editor, CSV upload and Assistant change goes through those methods, so no editor records anything itself. Work the generator does on its own behalf runs inside `Authoring.untracked()`: every `Pipeline.run` and `MapRestoration.transaction` is wrapped that way.
 
+## Declared cultures and states
+
+`authoring.seeds` holds the cultures and states the author declared, each at a spot given in percent of the map, since the land is not known before generation. The wizard hands them to `WorldSeeds.planNext()` ([`seeds.ts`](../../src/model/authoring/seeds.ts)), and four pipeline steps apply them right after the generator makes the random ones, so everything downstream builds on them:
+
+| Step | After | Does |
+| --- | --- | --- |
+| `cultureSeeds` | `cultures` | seed k renames culture k and moves its center to the nearest populated cell; it spreads in `culturesExpand` |
+| `capitalSeeds` | `burgs` | seed k moves capital k, so state k is founded there; its culture can be a declared one |
+| `stateSeeds` | `stateForms` | names, form, color and a picture emblem (`{ icon }`), after `stateForms` would rename them |
+| `seedsFinish` | `legends` | marks what was seeded `authored` and releases the plan |
+
+The wizard pins at least as many cultures and states as were declared. A seed with no culture or capital to take is skipped with a warning.
+
+## Adding to a generated map
+
+[`Additions`](../../src/model/authoring/additions.ts) founds a declared state or culture on the map on screen. The newcomer is unlocked while the unlocked entities are recalculated around it, then locked. Locked states keep their land, provinces and data unchanged: a locked state no longer grows when states expand, like a locked culture. Rebuilding provinces keeps the locked ones and those of locked states (`Provinces.generate(true)`), which `States.recalculate()` does not.
+
 ## Migration
 
-A map without `authoring` settings was made before the fork, whatever its version. `migrateAuthoringSettings` adds the defaults before the settings are applied, and `migrateAuthoringEntities` marks the entities its author locked as `edited` ([`auto-update.ts`](../../src/services/io/auto-update.ts)).
+A map without `authoring` settings was made before the fork, whatever its version. `migrateAuthoringSettings` adds the defaults before the settings are applied (and `seeds` to maps from the first fork version), and `migrateAuthoringEntities` marks the entities its author locked as `edited` ([`auto-update.ts`](../../src/services/io/auto-update.ts)).
