@@ -35,6 +35,7 @@ const TEMPLATE = /* html */ `
     <button id="overviewFeaturesButton" data-tip="${t("Geographical Features Overview")}" data-shortcut="Shift + F">
       ${t("Features")}
     </button>
+    <button id="editSpeciesButton" data-tip="${t("Fauna and Flora")}">${t("Fauna & Flora")}</button>
     <button id="editGoods" data-tip="${t("Goods Editor")}" data-shortcut="Shift + G">${t("Goods")}</button>
     <button
       id="editHeightmapButton"

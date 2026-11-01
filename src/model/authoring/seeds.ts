@@ -2,7 +2,8 @@
 // pipeline steps right after the generator makes the random ones, so everything downstream builds on them
 
 import { Authoring } from "@/model/authoring/authoring";
-import type { Seeds } from "@/model/authoring/world-spec";
+import type { Seeds, SpeciesSeed } from "@/model/authoring/world-spec";
+import { SpeciesCatalogue } from "@/model/nature/species-generator";
 import { Burgs } from "@/model/political/burgs-generator";
 import { States } from "@/model/political/states-generator";
 import { Cultures } from "@/model/society/cultures-generator";
@@ -30,16 +31,35 @@ export function nearestCell({ x, y }: Spot, accept: (cell: number) => boolean): 
   return best;
 }
 
+/** A declared species joins the catalogue, or takes over the default one of the same name and kind. Returns its id */
+export function plantSpecies(seed: SpeciesSeed): number {
+  const same = pack.species.find(
+    item => item.kind === seed.kind && item.name.toLowerCase() === seed.name.toLowerCase()
+  );
+  const id = same ? same.i : SpeciesCatalogue.add(seed.kind, seed.name);
+  SpeciesCatalogue.rename(id, seed.name);
+  SpeciesCatalogue.setBiomes(
+    id,
+    seed.biomes.filter(biome => pack.biomes[biome] && !pack.biomes[biome].removed)
+  );
+  if (seed.rarity) SpeciesCatalogue.setRarity(id, seed.rarity);
+  if (seed.danger && seed.kind === "fauna") SpeciesCatalogue.setDanger(id, seed.danger);
+  if (seed.description) SpeciesCatalogue.setDescription(id, seed.description);
+  return id;
+}
+
 class WorldSeedsModule {
   private plan: Seeds | null = null;
   private seededCultures: number[] = [];
   private seededStates: number[] = [];
+  private seededSpecies: number[] = [];
 
   /** The next generated map takes these seeds; `finish` releases them */
   planNext(seeds: Seeds): void {
     this.plan = structuredClone(seeds);
     this.seededCultures = [];
     this.seededStates = [];
+    this.seededSpecies = [];
   }
 
   get planned(): Seeds | null {
@@ -75,6 +95,12 @@ class WorldSeedsModule {
       if (seed.base !== undefined && seed.base < Names.nameBases.length) Cultures.setBase(culture.i, seed.base);
       this.seededCultures[index] = culture.i;
     }
+  }
+
+  /** After `species`: a declared species joins the catalogue, or takes over the default one of the same name */
+  applySpecies(): void {
+    if (!this.plan?.species.length) return;
+    for (const seed of this.plan.species) this.seededSpecies.push(plantSpecies(seed));
   }
 
   /** After `burgs`: seed k moves capital k, so state k is founded where the author asked */
@@ -128,6 +154,7 @@ class WorldSeedsModule {
   finish(): void {
     if (!this.plan) return;
     for (const id of this.seededCultures) if (id !== undefined) Authoring.markAuthored("cultures", id);
+    for (const id of this.seededSpecies) Authoring.markAuthored("species", id);
     for (const id of this.seededStates) {
       if (id === undefined) continue;
       Authoring.markAuthored("states", id);

@@ -2,8 +2,8 @@
 // and only unlocked, generated entities make room for the newcomer
 
 import { type AuthorableCollection, Authoring } from "@/model/authoring/authoring";
-import { nearestCell } from "@/model/authoring/seeds";
-import type { CultureSeed, StateSeed } from "@/model/authoring/world-spec";
+import { nearestCell, plantSpecies } from "@/model/authoring/seeds";
+import type { CultureSeed, SpeciesSeed, StateSeed } from "@/model/authoring/world-spec";
 import { Burgs } from "@/model/political/burgs-generator";
 import { Provinces } from "@/model/political/provinces-generator";
 import { States } from "@/model/political/states-generator";
@@ -54,6 +54,13 @@ class AdditionsModule {
 
     Authoring.markAuthored("cultures", id);
     this.grow("cultures", id, () => Cultures.recalculate());
+    return id;
+  }
+
+  /** Put a declared species in the catalogue of the map on screen. Returns its id */
+  addSpecies(seed: SpeciesSeed): number {
+    const id = Authoring.untracked(() => plantSpecies(seed));
+    Authoring.markAuthored("species", id);
     return id;
   }
 

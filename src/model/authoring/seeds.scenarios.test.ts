@@ -1,6 +1,6 @@
 // Declared cultures and states on real generated maps, and additions that leave locked entities untouched
 import { beforeEach, describe, expect, it } from "vitest";
-import { generateMap, living, newViolations, violations } from "@/model/real-map.testing";
+import { circle, generateMap, living, newViolations, riskEdit, violations } from "@/model/real-map.testing";
 
 const { WorldSeeds } = await import("./seeds");
 const { Additions } = await import("./additions");
@@ -30,7 +30,8 @@ describe("world seeds", () => {
           y: 50
         },
         { name: "Brennmark", x: 75, y: 50 }
-      ]
+      ],
+      species: [{ name: "Sand drake", kind: "fauna", biomes: [1, 2, 4], rarity: "legendary", danger: "deadly" }]
     });
     await generateMap({ seed: "seeds-1" });
 
@@ -50,6 +51,15 @@ describe("world seeds", () => {
     const { width } = options.map.graph;
     expect(pack.burgs[aldoria.capital].x).toBeLessThan(width / 2);
     expect(pack.burgs[brennmark.capital].x).toBeGreaterThan(width / 2);
+    const drake = pack.species.find(species => species.name === "Sand drake");
+    expect(drake).toMatchObject({
+      kind: "fauna",
+      rarity: "legendary",
+      danger: "deadly",
+      origin: "authored",
+      lock: true
+    });
+    expect(pack.species.length).toBeGreaterThan(10); // the default catalogue around it
     expect(WorldSeeds.planned).toBeNull();
   });
 
@@ -60,7 +70,7 @@ describe("world seeds", () => {
   });
 
   it("skips a seed with no land under it instead of failing", async () => {
-    WorldSeeds.planNext({ cultures: [], states: [{ name: "Atlantis", x: 0, y: 0 }] });
+    WorldSeeds.planNext({ cultures: [], states: [{ name: "Atlantis", x: 0, y: 0 }], species: [] });
     await generateMap({ seed: "seeds-2" });
     expect(pack.states[1].name).toBe("Atlantis"); // snapped to the nearest populated land
   });
@@ -99,5 +109,15 @@ describe("additions to a generated map", () => {
     expect(pack.cultures[cultureId]).toMatchObject({ name: "Novos", origin: "authored", lock: true });
     expect(cellsOf(pack.cells.culture, cultureId).length).toBeGreaterThan(1);
     expect(newViolations(before)).toEqual([]);
+  });
+});
+
+describe("species", () => {
+  it("survive a heightmap edit that rebuilds the map", async () => {
+    await generateMap({ seed: "species-1" });
+    const before = structuredClone(pack.species);
+    expect(before.length).toBeGreaterThan(10);
+    riskEdit(circle(0.5, 0.5, 60, 60, "land"), false);
+    expect(pack.species).toEqual(before);
   });
 });

@@ -206,7 +206,8 @@ function prepareMapData(viewOnly = false): string {
     layers,
     graphOverride,
     journeys,
-    legends
+    legends,
+    JSON.stringify({ species: pack.species }) // Fantasy Cartography: the fork's own data
   ].join("\r\n");
   return mapData;
 }

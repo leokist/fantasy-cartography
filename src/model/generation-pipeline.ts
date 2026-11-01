@@ -11,6 +11,7 @@ import { Routes } from "@/model/economy/routes-generator";
 import { GraphOverride } from "@/model/graph/graph-override";
 import { Grid } from "@/model/graph/grid-generator";
 import { Pack } from "@/model/graph/pack-generator";
+import { SpeciesCatalogue } from "@/model/nature/species-generator";
 import { Biomes } from "@/model/physical/biomes-generator";
 import { Features } from "@/model/physical/features-generator";
 import { HeightmapGenerator } from "@/model/physical/heightmap-generator";
@@ -51,6 +52,8 @@ const generationPipelineSteps = [
   { id: "featureGroups", run: () => Features.defineGroups() },
   { id: "ice", run: () => Ice.generate() },
   { id: "goods", run: () => Goods.generate() },
+  { id: "species", run: () => SpeciesCatalogue.generate() },
+  { id: "speciesSeeds", run: () => WorldSeeds.applySpecies() },
   { id: "rankCells", run: () => Population.rankCells() },
   { id: "cultures", run: () => Cultures.generate() },
   { id: "cultureSeeds", run: () => WorldSeeds.applyCultures() },

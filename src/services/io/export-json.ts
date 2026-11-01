@@ -72,7 +72,8 @@ function getMinimalDataJson(): string {
     routes: pack.routes,
     zones: pack.zones,
     measurers: pack.measurers,
-    journeys: pack.journeys
+    journeys: pack.journeys,
+    species: pack.species
   };
   return JSON.stringify({
     info,
@@ -198,7 +199,8 @@ function getPackCellsData() {
     routes: pack.routes,
     zones: pack.zones,
     measurers: pack.measurers,
-    journeys: pack.journeys
+    journeys: pack.journeys,
+    species: pack.species
   };
 }
 

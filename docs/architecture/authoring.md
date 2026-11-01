@@ -40,6 +40,12 @@ The wizard pins at least as many cultures and states as were declared. A seed wi
 
 [`Additions`](../../src/model/authoring/additions.ts) founds a declared state or culture on the map on screen. The newcomer is unlocked while the unlocked entities are recalculated around it, then locked. Locked states keep their land, provinces and data unchanged: a locked state no longer grows when states expand, like a locked culture. Rebuilding provinces keeps the locked ones and those of locked states (`Provinces.generate(true)`), which `States.recalculate()` does not.
 
+## Fauna and flora
+
+`pack.species` ([`species-generator.ts`](../../src/model/nature/species-generator.ts)) is a catalogue of species: kind (fauna or flora), the biomes each lives in, rarity, danger and domestication for fauna, uses for flora, the goods it yields, an emoji icon and a description. The `species` step, after `goods`, fills it with the default species of the biomes on the map ([`data/species.ts`](../../src/data/species.ts)), keeping locked ones; `speciesSeeds` adds the ones declared in the wizard, or takes over a default of the same name and kind. Species are authorable entities like states. The Fauna and Flora editor (Tools) edits them and downloads them as JSON with biome and good names; the full and minimal JSON exports include them too.
+
+The `.map` file keeps them in record 54, the fork's own record: `{ "species": [...] }`. Later fork data goes in the same object, so the fork takes one record slot from the upstream format.
+
 ## Migration
 
-A map without `authoring` settings was made before the fork, whatever its version. `migrateAuthoringSettings` adds the defaults before the settings are applied (and `seeds` to maps from the first fork version), and `migrateAuthoringEntities` marks the entities its author locked as `edited` ([`auto-update.ts`](../../src/services/io/auto-update.ts)).
+A map without `authoring` settings was made before the fork, whatever its version. `migrateAuthoringSettings` adds the defaults before the settings are applied (and `seeds` to maps from the first fork version), and `migrateAuthoringEntities` marks the entities its author locked as `edited`. A map without record 54 gets an empty one on load, then the default species of its biomes ([`auto-update.ts`](../../src/services/io/auto-update.ts)).

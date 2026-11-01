@@ -3,6 +3,7 @@
 import { regenerateMap } from "@/app/lifecycle";
 import { Controllers } from "@/controllers";
 import { bindSeeds, renderSeeds } from "@/controllers/world-wizard-seeds";
+import { bindSpeciesSeeds, renderSpeciesSeeds } from "@/controllers/world-wizard-species";
 import { WorldSeeds } from "@/model/authoring/seeds";
 import {
   type FieldInput,
@@ -30,7 +31,10 @@ const STEP_TEXT: Record<WizardStep, { title: string; intro: string }> = {
   world: { title: t("World"), intro: t("Name the world, set its era and decide how large and detailed the map is.") },
   terrain: { title: t("Terrain"), intro: t("Choose the shape of the land. You can draw it by hand after generating.") },
   climate: { title: t("Climate and water"), intro: t("Temperature and rain decide rivers, lakes, ice and biomes.") },
-  nature: { title: t("Nature"), intro: t("Biomes follow from the climate, so this step has nothing to set yet.") },
+  nature: {
+    title: t("Nature"),
+    intro: t("Biomes follow from the climate, and each comes with its usual fauna and flora.")
+  },
   peoples: {
     title: t("Peoples"),
     intro: t("How many cultures and religions the world holds, and the cultures you want for sure.")
@@ -43,16 +47,16 @@ const STEP_TEXT: Record<WizardStep, { title: string; intro: string }> = {
 };
 
 const AFTER: Partial<
-  Record<WizardStep, { text: string; editor: "BiomesEditor" | "HeightmapSelection" | "LoreEditor" }>
+  Record<WizardStep, { text: string; editor: "SpeciesEditor" | "HeightmapSelection" | "LoreEditor" }>
 > = {
   terrain: { text: t("Draw or import a heightmap"), editor: "HeightmapSelection" },
-  nature: { text: t("Edit biomes"), editor: "BiomesEditor" },
+  nature: { text: t("Edit fauna and flora"), editor: "SpeciesEditor" },
   economy: { text: t("Write the lore"), editor: "LoreEditor" }
 };
 
 let fields: Record<string, SpecField> = {};
 let seed: SpecField = { mode: "random", value: "" };
-let seeds: Seeds = { cultures: [], states: [] };
+let seeds: Seeds = { cultures: [], states: [], species: [] };
 let autoLock = true;
 let page = 0;
 
@@ -102,6 +106,9 @@ function render(): void {
       #${DIALOG_ID} .seedFields { display: flex; flex-wrap: wrap; gap: 0.3em; align-items: center; min-width: 0 }
       #${DIALOG_ID} .seedFields > input, #${DIALOG_ID} .seedFields > select { flex: 1 1 12em; width: 12em; min-width: 0; box-sizing: border-box }
       #${DIALOG_ID} .seedColor input.unset { opacity: 0.4 }
+      #${DIALOG_ID} .speciesSeeds, #${DIALOG_ID} .speciesSeed { width: 100%; box-sizing: border-box }
+      #${DIALOG_ID} .speciesSeed { margin: 0.6em 0; padding-top: 0.6em; border-top: 1px solid #8884 }
+      #${DIALOG_ID} .checks { display: flex; flex-wrap: wrap; gap: 0.2em 0.8em; margin-top: 0.3em; font-size: 0.9em }
       #${DIALOG_ID} .seedButtons { margin-left: auto }
       #${DIALOG_ID} .wizardNav { display: flex; gap: 0.4em; justify-content: space-between; margin-top: 0.8em; width: 100% }
     </style>
@@ -129,6 +136,7 @@ function render(): void {
     input.addEventListener("change", () => setValue(input.dataset.key ?? "", input.value));
   });
   bindSeeds(dialog, seeds, render);
+  bindSpeciesSeeds(dialog, seeds, render);
   dialog.querySelector<HTMLInputElement>("#wizardAutoLock")?.addEventListener("change", event => {
     autoLock = (event.target as HTMLInputElement).checked;
   });
@@ -147,7 +155,7 @@ function renderStep(step: WizardStep): string {
     ${rows.join("")}
     ${step === "peoples" ? renderSeeds("cultures", seeds, hasMap()) : ""}
     ${step === "politics" ? renderSeeds("states", seeds, hasMap()) : ""}
-    ${step === "nature" ? `<p class="hint">${t("Fauna and flora catalogues arrive in a later version.")}</p>` : ""}
+    ${step === "nature" ? renderSpeciesSeeds(seeds, hasMap()) : ""}
     ${afterButton}`;
 }
 
@@ -187,12 +195,13 @@ function renderReview(): string {
   const set = Object.values(fields).filter(field => field.mode === "set").length;
   const total = SPEC_FIELDS.length;
   const seedValue = escapeHtml(String(seed.value ?? ""));
-  const { cultures, states } = cleanSeeds(seeds);
+  const { cultures, states, species } = cleanSeeds(seeds);
   const declared =
-    cultures.length || states.length
-      ? t("Declared: {{cultures}} cultures and {{states}} states.", {
+    cultures.length || states.length || species.length
+      ? t("Declared: {{cultures}} cultures, {{states}} states and {{species}} species.", {
           cultures: cultures.length,
-          states: states.length
+          states: states.length,
+          species: species.length
         })
       : "";
   return /* html */ `
@@ -264,7 +273,7 @@ function act(action: string): void {
   }
 }
 
-type AfterEditor = "BiomesEditor" | "HeightmapSelection" | "LoreEditor";
+type AfterEditor = "SpeciesEditor" | "HeightmapSelection" | "LoreEditor";
 
 function confirmGenerate(editor?: AfterEditor): void {
   const current = mapHistory.at(-1);

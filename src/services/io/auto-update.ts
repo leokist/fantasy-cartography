@@ -15,6 +15,7 @@ import { Pack } from "@/model/graph/pack-generator";
 import type { Point } from "@/model/graph/voronoi";
 import { CustomIcons, IMAGE_FRAME } from "@/model/icons";
 import { type EntityRef, MapEntities } from "@/model/map-entities";
+import { SpeciesCatalogue } from "@/model/nature/species-generator";
 import { normalizeLegacyBurgGroupFilters } from "@/model/options/options-legacy";
 import type { MapData } from "@/model/options/options-schema";
 import { Biomes } from "@/model/physical/biomes-generator";
@@ -2356,21 +2357,29 @@ export function migrateLegacySettings(mapVersion: string, data: string[]): void 
 
 // Fantasy Cartography: maps made before world authoring have no `authoring` settings, whatever their version
 let preAuthoringMap = false;
+let preSpeciesMap = false;
 
 export function migrateAuthoringSettings(data: string[]): void {
+  preSpeciesMap = !data[54]; // the fork's record, added with fauna and flora
+  if (preSpeciesMap) data[54] = JSON.stringify({ species: [] });
   const settings = data[1] ? safeParseJSON(data[1]) : null;
   preAuthoringMap = false;
   if (!settings || typeof settings !== "object") return;
   preAuthoringMap = !Object.hasOwn(settings, "authoring");
   if (preAuthoringMap) settings.authoring = getDefaultAuthoring();
-  else if (settings.authoring && typeof settings.authoring === "object" && !settings.authoring.seeds)
-    settings.authoring.seeds = getDefaultSeeds(); // the first authoring maps had no declared entities
-  else return;
+  else if (settings.authoring && typeof settings.authoring === "object") {
+    // earlier fork versions declared fewer kinds of entities: fill the lists they lack
+    const seeds = { ...getDefaultSeeds(), ...settings.authoring.seeds };
+    if (JSON.stringify(seeds) === JSON.stringify(settings.authoring.seeds)) return;
+    settings.authoring.seeds = seeds;
+  } else return;
   data[1] = JSON.stringify(settings);
 }
 
 /** The entities such a map's author locked count as theirs */
 export function migrateAuthoringEntities(): void {
+  if (preSpeciesMap) SpeciesCatalogue.generate(); // the default fauna and flora of the map's biomes
+  preSpeciesMap = false;
   if (!preAuthoringMap) return;
   preAuthoringMap = false;
   for (const collection of AUTHORABLE) {

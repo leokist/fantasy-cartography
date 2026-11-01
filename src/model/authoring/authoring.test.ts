@@ -17,6 +17,12 @@ interface Row {
 }
 
 const states = (): Row[] => pack.states as unknown as Row[];
+// a loaded file's records: settings in 1, the fork's own data in 54
+const mapData = (settings: object): string[] => {
+  const data = ["", JSON.stringify(settings)];
+  data[54] = JSON.stringify({ species: [] });
+  return data;
+};
 
 beforeAll(() => {
   // a stand-in for the real add, which needs a whole map
@@ -93,7 +99,7 @@ describe("Authoring", () => {
 
 describe("migration of maps made before authoring", () => {
   it("adds the settings and counts locked entities as edited", () => {
-    const data = ["", JSON.stringify({ seed: "1" })];
+    const data = mapData({ seed: "1" });
     migrateAuthoringSettings(data);
     expect(JSON.parse(data[1]).authoring).toEqual(getDefaultAuthoring());
 
@@ -104,8 +110,8 @@ describe("migration of maps made before authoring", () => {
   });
 
   it("leaves a map that has authoring settings alone", () => {
-    const settings = JSON.stringify({ seed: "1", authoring: { ...getDefaultAuthoring(), autoLock: false } });
-    const data = ["", settings];
+    const data = mapData({ seed: "1", authoring: { ...getDefaultAuthoring(), autoLock: false } });
+    const settings = data[1];
     migrateAuthoringSettings(data);
     expect(data[1]).toBe(settings);
 
@@ -126,6 +132,10 @@ describe("seeds in the world spec", () => {
         { name: "Aldoria", culture: 1, x: 3, y: 3 },
         { name: "Brennmark", culture: 0, x: 4, y: 4 },
         { name: "", x: 5, y: 5 }
+      ],
+      species: [
+        { name: "Dragon", kind: "fauna", biomes: [9] },
+        { name: "", kind: "flora", biomes: [] }
       ]
     });
     expect(planted.cultures.map(culture => culture.name)).toEqual(["Aldorians"]);
@@ -133,11 +143,35 @@ describe("seeds in the world spec", () => {
       { name: "Aldoria", culture: 0, x: 3, y: 3 },
       { name: "Brennmark", x: 4, y: 4 }
     ]);
+    expect(planted.species).toEqual([{ name: "Dragon", kind: "fauna", biomes: [9] }]);
   });
 
   it("are added to a map saved before seeds existed", () => {
-    const data = ["", JSON.stringify({ seed: "1", authoring: { autoLock: false, fields: {} } })];
+    const data = mapData({ seed: "1", authoring: { autoLock: false, fields: {} } });
     migrateAuthoringSettings(data);
-    expect(JSON.parse(data[1]).authoring).toEqual({ autoLock: false, fields: {}, seeds: { cultures: [], states: [] } });
+    expect(JSON.parse(data[1]).authoring).toEqual({
+      autoLock: false,
+      fields: {},
+      seeds: { cultures: [], states: [], species: [] }
+    });
+  });
+});
+
+describe("migration of maps made before fauna and flora", () => {
+  it("adds the fork's record and gives the map the default species of its biomes", () => {
+    vi.stubGlobal("pack", {
+      states: [],
+      cells: { biome: Uint8Array.from([0, 1]) },
+      biomes: [
+        { i: 0, name: "Marine" },
+        { i: 1, name: "Hot desert" }
+      ],
+      goods: []
+    });
+    const data = ["", JSON.stringify({ seed: "1", authoring: getDefaultAuthoring() })];
+    migrateAuthoringSettings(data);
+    expect(JSON.parse(data[54])).toEqual({ species: [] });
+    migrateAuthoringEntities();
+    expect(pack.species.map(species => species.name)).toContain("Camel");
   });
 });

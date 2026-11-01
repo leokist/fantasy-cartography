@@ -374,6 +374,7 @@ async function parseLoadedData(data: string[], mapVersion: string | null): Promi
     pack.relief = data[49] ? JSON.parse(data[49]) : [];
     pack.journeys = data[52] ? JSON.parse(data[52]) : [];
     pack.legends = data[53] ? JSON.parse(data[53]) : [];
+    pack.species = JSON.parse(data[54]).species; // filled for older maps by migrateAuthoringSettings
 
     // save omits names that equal the default base at the same index
     const defaultNameBases = Names.getNameBases();

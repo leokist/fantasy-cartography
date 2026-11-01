@@ -2,6 +2,7 @@
 
 import { Routes } from "@/model/economy/routes-generator";
 import { MapRestoration } from "@/model/map-restoration";
+import { SpeciesCatalogue } from "@/model/nature/species-generator";
 import { Rivers } from "@/model/physical/river-generator";
 import { Pipeline } from "@/model/pipeline";
 import { Burgs } from "@/model/political/burgs-generator";
@@ -32,7 +33,8 @@ export const AUTHORABLE = [
   "routes",
   "rivers",
   "markers",
-  "journeys"
+  "journeys",
+  "species"
 ] as const;
 export type AuthorableCollection = (typeof AUTHORABLE)[number];
 
@@ -51,7 +53,8 @@ const MODELS: Record<AuthorableCollection, object> = {
   routes: Routes,
   rivers: Rivers,
   markers: Markers,
-  journeys: Journeys
+  journeys: Journeys,
+  species: SpeciesCatalogue
 };
 
 class AuthoringModule {

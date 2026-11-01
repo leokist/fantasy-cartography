@@ -3,6 +3,7 @@ import type { Measurer } from "@/model/annotations/measurers-generator";
 import type { Good } from "@/model/economy/goods-generator";
 import type { Deal, Market } from "@/model/economy/markets-generator";
 import type { Route } from "@/model/economy/routes-generator";
+import type { Species } from "@/model/nature/species-generator";
 import type { Biome } from "@/model/physical/biomes-generator";
 import type { Feature } from "@/model/physical/features-generator";
 import type { Ice } from "@/model/physical/ice-generator";
@@ -76,5 +77,6 @@ export interface PackedGraph {
   measurers: Measurer[];
   addedLabels: AddedLabel[];
   journeys: Journey[];
+  species: Species[];
   legends: Legend[];
 }

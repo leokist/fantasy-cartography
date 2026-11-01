@@ -173,6 +173,13 @@ export const MAP_COMMANDS: MapCommand[] = [
     run: () => Controllers.HeightmapEditor.open()
   },
   {
+    id: "editSpeciesButton",
+    name: t("Fauna and Flora"),
+    link: true,
+    aliases: "species animals plants nature wildlife",
+    run: () => Controllers.SpeciesEditor.open()
+  },
+  {
     id: "editBiomesButton",
     name: t("Biomes Editor"),
     link: true,
