@@ -36,6 +36,7 @@ import "@/services/url-params";
 import "@/services/versioning";
 import "@/services/io/styles-legacy";
 import "./fmg";
+import { Authoring } from "@/model/authoring/authoring";
 
 bindApp({
   generate,
@@ -51,5 +52,7 @@ bindApp({
   mapCommands: MAP_COMMANDS,
   isLinkable
 });
+
+Authoring.install();
 
 export { boot } from "./lifecycle";

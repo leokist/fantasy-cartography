@@ -4,6 +4,7 @@ import { z } from "zod";
 import { CULTURE_SETS } from "@/data/culture-sets";
 import { MAX_DENSITY, MIN_DENSITY } from "@/data/graph-density";
 import { LANGUAGE_CODES } from "@/data/languages";
+import { authoringSchema } from "@/model/authoring/world-spec";
 import { MAX_JITTER, SAMPLINGS } from "@/model/graph/lattice";
 import { Icons } from "@/model/icons";
 import type { LayerId } from "@/renderers/layers";
@@ -190,6 +191,7 @@ export const mapSchema = z.strictObject({
   customIcons,
   coastline: coastlineSettings,
   relief: z.strictObject({ rules: z.array(reliefRule) }),
+  authoring: authoringSchema,
   viewOnly: z.boolean().optional()
 });
 

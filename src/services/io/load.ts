@@ -272,11 +272,13 @@ async function parseLoadedData(data: string[], mapVersion: string | null): Promi
   let isLogGroupOpen = false;
 
   try {
-    const { migrateLegacySettings, resolveVersionConflicts } = await import("./auto-update"); // TODO: don't load if not required
+    const { migrateAuthoringEntities, migrateAuthoringSettings, migrateLegacySettings, resolveVersionConflicts } =
+      await import("./auto-update"); // TODO: don't load if not required
 
     Dialog.closeAll();
 
     migrateLegacySettings(mapVersion!, data);
+    migrateAuthoringSettings(data);
     const settings = data[1] ? safeParseJSON(data[1]) : null;
     if (!settings) throw new Error("Map settings are missing or malformed");
     Options.applyLoaded(settings);
@@ -385,6 +387,7 @@ async function parseLoadedData(data: string[], mapVersion: string | null): Promi
     Names.clearChains();
 
     await resolveVersionConflicts(mapVersion!, data);
+    migrateAuthoringEntities();
 
     // hidden layers save no paths, so colored hatchings are restored from data
     const { biomes, cultures, states, religions, provinces, zones, markets } = pack;

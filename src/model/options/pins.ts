@@ -7,13 +7,32 @@ const STORAGE_KEY = "fmg-locks";
 
 class PinStore {
   private readonly listeners = new Set<() => void>();
+  private next: Record<string, unknown> | null = null;
+
   /** `?options=default` asks for the map a fresh browser would make, so every pin is ignored */
   get ignored(): boolean {
-    return new URL(window.location.href).searchParams.get("options") === "default";
+    return !this.next && new URL(window.location.href).searchParams.get("options") === "default";
+  }
+
+  /** The next map uses exactly these pins, the stored ones aside, until `Options.randomize` releases them */
+  overrideNext(pins: Record<string, unknown>): void {
+    this.next = {};
+    for (const [key, value] of Object.entries(pins)) {
+      const result = pinSchemas[key]?.safeParse(value);
+      if (result?.success) this.next[key] = result.data;
+    }
+  }
+
+  release(): void {
+    this.next = null;
   }
 
   /** Every pin, straight from `localStorage`, which is untrusted like any other stored object */
   all(): Record<string, unknown> {
+    return this.next ? { ...this.next } : this.stored();
+  }
+
+  private stored(): Record<string, unknown> {
     const parsed = safeParseJSON(localStorage.getItem(STORAGE_KEY) ?? "");
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
     const pins: Record<string, unknown> = {};
@@ -47,7 +66,7 @@ class PinStore {
     if (!Object.hasOwn(pinSchemas, key)) return;
     const parsed = pinSchemas[key].safeParse(value);
     if (!parsed.success) return;
-    const pins = this.all();
+    const pins = this.stored();
     pins[key] = parsed.data;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(pins));
     this.changed();
@@ -55,7 +74,7 @@ class PinStore {
 
   /** Let a new map roll the value again */
   clear(key: string): void {
-    const pins = this.all();
+    const pins = this.stored();
     delete pins[key];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(pins));
     this.changed();

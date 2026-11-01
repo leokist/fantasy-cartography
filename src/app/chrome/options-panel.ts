@@ -111,6 +111,7 @@ function initialize(): void {
   ensureEl("sticked").addEventListener("click", event => {
     const id = (event.target as HTMLElement).id;
     if (id === "newMapButton") regeneratePrompt();
+    else if (id === "wizardButton") Controllers.WorldWizard.open();
     else if (id === "saveButton") showSavePane();
     else if (id === "exportButton") showExportPane();
     else if (id === "loadButton") void showLoadPane();

@@ -75,6 +75,13 @@ export const MAP_COMMANDS: MapCommand[] = [
   },
   { id: "newMap", name: t("Generate New Map"), aliases: "regenerate random create", run: () => regeneratePrompt() },
   {
+    id: "worldWizard",
+    name: t("World Wizard"),
+    aliases: "create world step by step spec manual setup",
+    run: () => Controllers.WorldWizard.open(),
+    link: true
+  },
+  {
     id: "saveToMachine",
     name: t("Save Map File"),
     aliases: "save .map disk",

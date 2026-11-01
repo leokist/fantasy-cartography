@@ -12,6 +12,7 @@ import { AddedLabels } from "@/model/annotations/added-labels";
 import { Labels } from "@/model/annotations/labels-generator";
 import { Legends } from "@/model/annotations/legends";
 import { Measurers } from "@/model/annotations/measurers-generator";
+import { Authoring } from "@/model/authoring/authoring";
 import { Goods } from "@/model/economy/goods-generator";
 import { Markets } from "@/model/economy/markets-generator";
 import { Production } from "@/model/economy/production-generator";
@@ -129,6 +130,7 @@ const FMG = {
   precreatedHeightmaps,
 
   AddedLabels,
+  Authoring,
   Biomes,
   Burgs,
   Coastline,

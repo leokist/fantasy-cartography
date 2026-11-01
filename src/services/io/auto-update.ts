@@ -5,6 +5,8 @@ import { IconPictures } from "@/controllers/icon-picker/pictures";
 import { AddedLabels } from "@/model/annotations/added-labels";
 import { type Label, type LabelNameMode, Labels } from "@/model/annotations/labels-generator";
 import { type Measurer, Measurers, type MeasurerType } from "@/model/annotations/measurers-generator";
+import { AUTHORABLE, type EntityOrigin } from "@/model/authoring/authoring";
+import { getDefaultAuthoring } from "@/model/authoring/world-spec";
 import { Goods } from "@/model/economy/goods-generator";
 import { Markets } from "@/model/economy/markets-generator";
 import { Production } from "@/model/economy/production-generator";
@@ -2349,5 +2351,28 @@ export function migrateLegacySettings(mapVersion: string, data: string[]): void 
     const counts = [1000, 2000, 5000, 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000];
     const count = counts.find(count => rn(Math.sqrt((width * height) / count), 2) === graph?.spacing);
     return count ?? (Array.isArray(graph?.points) && graph.points.length ? graph.points.length : 10000);
+  }
+}
+
+// Fantasy Cartography: maps made before world authoring have no `authoring` settings, whatever their version
+let preAuthoringMap = false;
+
+export function migrateAuthoringSettings(data: string[]): void {
+  const settings = data[1] ? safeParseJSON(data[1]) : null;
+  preAuthoringMap = !!settings && typeof settings === "object" && !Object.hasOwn(settings, "authoring");
+  if (!preAuthoringMap) return;
+  settings.authoring = getDefaultAuthoring();
+  data[1] = JSON.stringify(settings);
+}
+
+/** The entities such a map's author locked count as theirs */
+export function migrateAuthoringEntities(): void {
+  if (!preAuthoringMap) return;
+  preAuthoringMap = false;
+  for (const collection of AUTHORABLE) {
+    const list = (pack[collection] ?? []) as unknown[];
+    for (const entity of list as { lock?: boolean; origin?: EntityOrigin }[]) {
+      if (entity && typeof entity === "object" && entity.lock && !entity.origin) entity.origin = "edited";
+    }
   }
 }

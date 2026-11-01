@@ -6,6 +6,7 @@ import { heightmapTemplates } from "@/data/heightmap-templates";
 import { DEFAULT_TRADE_ANIMATION } from "@/data/trade-animation-options";
 import { DEFAULT_THREE_D } from "@/data/view-3d-options";
 import { Labels } from "@/model/annotations/labels-generator";
+import { getDefaultAuthoring } from "@/model/authoring/world-spec";
 import { Transports } from "@/model/economy/transports-generator";
 import { DEFAULT_JITTER } from "@/model/graph/lattice";
 import { adoptLegacyOptions } from "@/model/options/options-legacy";
@@ -87,7 +88,8 @@ class OptionsModel {
         transports: Transports.getDefaults(),
         customIcons: [],
         coastline: Coastline.getDefaultSettings(),
-        relief: { rules: Relief.getDefaultRules() }
+        relief: { rules: Relief.getDefaultRules() },
+        authoring: getDefaultAuthoring()
       },
       generation: {
         graph: { width: 1280, height: 800, density: DEFAULT_DENSITY, sampling: "square", jitter: DEFAULT_JITTER },
@@ -315,6 +317,7 @@ class OptionsModel {
     units.population.scale = Pins.valueOr("populationRate", units.population.scale);
     units.population.urbanization.rate = Pins.valueOr("urbanization", units.population.urbanization.rate);
     units.population.urbanization.density = Pins.valueOr("urbanDensity", units.population.urbanization.density);
+    Pins.release();
   }
 
   /** A culture set holds a fixed number of cultures: the map cannot ask for more than it has */

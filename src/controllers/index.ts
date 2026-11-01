@@ -92,6 +92,7 @@ export const Controllers = createRegistry(
     UnitsEditor: () => import("@/controllers/units-editor").then(m => m.UnitsEditor),
     View3d: () => import("@/controllers/view-3d").then(m => m.View3d),
     WorldConfigurator: () => import("@/controllers/world-configurator").then(m => m.WorldConfigurator),
+    WorldWizard: () => import("@/controllers/world-wizard").then(m => m.WorldWizard),
     ZonesEditor: () => import("@/controllers/political/zones-editor").then(m => m.ZonesEditor)
   },
   loadingTip
