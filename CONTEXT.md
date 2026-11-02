@@ -65,14 +65,14 @@
 
 # Browser Console
 
-`window.FMG` ([src/app/fmg.ts](src/app/fmg.ts)) is the app's console surface, also used by the Assistant's `read_map` scripts. App code never reads it; only the `read_map` runtime spreads it into a script's scope. Use it to check a change in the running app (`npm run dev`, then `http://localhost:5173/Fantasy-Map-Generator/`), for example through the browser pane's JavaScript tool:
+`window.FMG` ([src/app/fmg.ts](src/app/fmg.ts)) is the app's console surface, also used by the Assistant's `read_map` scripts. App code never reads it; only the `read_map` runtime spreads it into a script's scope. Use it to check a change in the running app (`npm run dev`, then `http://localhost:5173/fantasy-cartography/`), for example through the browser pane's JavaScript tool:
 
 - **State**: `FMG.pack`, `FMG.grid`, `FMG.options`, `FMG.styles` are live getters; `FMG.mapHistory` lists the maps of this session.
 - **Model and helpers**: every model singleton (`FMG.Burgs`, `FMG.States`, `FMG.Rivers`…), `FMG.Layers`, `FMG.Controllers`, `FMG.Services` and the `utils/` helpers (`FMG.rn`, `FMG.P`…).
 - **Wait for a map**: the boot generates one; `FMG.mapHistory.length > 0` means it is on screen. A new one with a fixed seed: `await new Promise(done => { addEventListener("map:generated", done, { once: true }); FMG.regenerateMap({ seed: "42" }); })`.
 - **Drive the UI**: `await FMG.Controllers.BurgsOverview.open()`, `FMG.Layers.show("relief")`, `FMG.Layers.drawAll()`, `FMG.zoomTo(x, y, scale, 0)`, `FMG.Dialog.closeAll()`.
 - **Debug drawing**: `FMG.drawCellsValue(FMG.pack.cells.h)`, `FMG.drawPolygons(values)`, `FMG.drawPoint([x, y], {})` draw into the `#debug` layer.
-- **Anything not on FMG**: in dev, import the module by its served path, `await import("/Fantasy-Map-Generator/model/physical/coastline-generator.ts")` (the path under `src/`, without `src/`); it is the same instance the app uses.
+- **Anything not on FMG**: in dev, import the module by its served path, `await import("/fantasy-cartography/model/physical/coastline-generator.ts")` (the path under `src/`, without `src/`); it is the same instance the app uses.
 - **Logging**: `FMG.log.enabled.time = false` silences a level (`time`, `info`, `warn`, `error`); `localStorage.debug = '{"production":true}'` turns on a feature's diagnostics after a reload.
 - **Viewport**: a browser pane can open at zero width, and then the map fails to generate. Resize the window and reload before trusting a result.
 
