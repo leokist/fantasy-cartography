@@ -32,6 +32,7 @@ export function initShell(): void {
 const SHELL_TEXT: [string, string | null, string | null][] = [
   ["#optionsTrigger", null, t("Click to show the Menu")],
   ["#regenerate", t("New Map!"), t("Click to generate a new map")],
+  ["#loading-credit", t("Built on Azgaar's Fantasy Map Generator"), null],
   ["#options .drag-trigger", null, t("Drag to move the Menu")],
   ["#optionsHide", null, t("Click to hide the Menu")],
   ["#layersTab", t("Layers"), t("Click to change map layers")],
