@@ -241,7 +241,7 @@ function renderProvince(province: ProvinceSeed, index: number, biomes: [string, 
       ${placeButton(`province:${index}`, true)}
       <button data-remove="province:${index}">${t("Remove")}</button>
     </div>
-    <div class="placeRow">
+    <div class="attrs">
       <label>${t("Relief")} <select data-prop="relief">${options(RELIEFS, RELIEF_LABELS, province.relief, t("Automatic"))}</select></label>
       <label>${t("Climate")} <select data-prop="climate">${options(CLIMATES, CLIMATE_LABELS, province.climate, t("Automatic"))}</select></label>
       <label>${t("Water")} <select data-prop="water">${options(WATERS, WATER_LABELS, province.water, t("Automatic"))}</select></label>

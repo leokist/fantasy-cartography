@@ -31,7 +31,7 @@ export function joinBorders(a: number | undefined, b: number | undefined): void 
   const { cells, states } = pack;
   if (!a || !b || a === b) return;
   const touches = (cell: number) => cells.c[cell].some(next => cells.state[next] === b);
-  const owned = cells.i.filter(cell => cells.state[cell] === a);
+  const owned = Array.from(cells.i).filter(cell => cells.state[cell] === a); // cells.i can be a typed array
   if (owned.some(touches)) return;
 
   const canCross = (cell: number) =>
