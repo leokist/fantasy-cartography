@@ -3811,5 +3811,7 @@
   "Visible area": "Área visível",
   "Writing the maps...": "Gravando os mapas...",
   "the project's godot folder": "pasta godot do projeto",
-  "{{columns}} × {{rows}} px, a world of {{width}} × {{height}} km.": "{{columns}} × {{rows}} px, um mundo de {{width}} × {{height}} km."
+  "{{columns}} × {{rows}} px, a world of {{width}} × {{height}} km.": "{{columns}} × {{rows}} px, um mundo de {{width}} × {{height}} km.",
+  "Built on Azgaar's Fantasy Map Generator": "Baseado no Fantasy Map Generator, de Azgaar",
+  "{{count}} biomes_many": "{{count}} biomas"
 }
