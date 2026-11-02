@@ -407,15 +407,11 @@
           >
             ◄
           </button>
-          <button id="layersTab" data-tip="Click to change map layers" class="options active">Layers</button>
-          <button id="styleTab" data-tip="Click to open style editor" class="options">Style</button>
-          <button id="optionsTab" data-tip="Click to change generation and UI options" class="options">Options</button>
+          <button id="optionsTab" data-tip="Click to change generation options" class="options active">Options</button>
           <button id="toolsTab" data-tip="Click to open tools menu" class="options">Tools</button>
           <button id="aboutTab" data-tip="Click to see Generator info" class="options">About</button>
         </div>
-        <div id="layersContent" class="tabcontent" style="display: block"></div>
-        <div id="styleContent" class="tabcontent"></div>
-        <div id="optionsContent" class="tabcontent"></div>
+        <div id="optionsContent" class="tabcontent" style="display: block"></div>
         <div id="toolsContent" class="tabcontent"></div>
         <div id="heightmapMenu" class="tabcontent"></div>
         <div id="aboutContent" class="tabcontent"></div>
@@ -430,6 +426,24 @@
         </div>
       </div>
     </div>
+    <div id="bottomPanel" style="display: none">
+      <div class="bottomPanelHead">
+        <b id="bottomPanelTitle"></b>
+        <button id="bottomPanelClose" type="button" data-tip="Close">×</button>
+      </div>
+      <div id="layersContent" class="panelcontent"></div>
+      <div id="viewContent" class="panelcontent"></div>
+      <div id="styleContent" class="panelcontent"></div>
+      <div id="interfaceContent" class="panelcontent"></div>
+    </div>
+    <nav id="bottomBar">
+      <button id="layersTab" type="button" data-panel="layers" data-tip="Map layers"><i class="icon-layer-group"></i></button>
+      <button id="viewModeButton" type="button" data-panel="view" data-tip="View mode"><i class="icon-eye"></i></button>
+      <button id="styleTab" type="button" data-panel="style" data-tip="Style"><i class="icon-brush"></i></button>
+      <button id="settingsButton" type="button" data-panel="settings" data-tip="Interface settings"><i class="icon-cog"></i></button>
+      <button id="assistantBubble" type="button" data-tip="Open Fantasy Cartography Assistant"
+        aria-label="Open Fantasy Cartography Assistant" aria-expanded="false" style="display: none"><i class="icon-help"></i></button>
+    </nav>
     <div id="heightmapFinalize">
       <div data-tip="Drag to move the pane">
         <button data-tip="Finalize the heightmap and exit the edit mode" id="finalizeHeightmap">
@@ -437,13 +451,6 @@
         </button>
       </div>
     </div>
-    <button id="assistantBubble" type="button" data-tip="Open Fantasy Cartography Assistant"
-      aria-label="Open Fantasy Cartography Assistant" aria-expanded="false" style="display: none">
-      <span class="assistantBubbleBadge">
-        <span class="icon-help"></span>
-        <span class="assistantBubbleMinimize"></span>
-      </span>
-    </button>
     <div id="dialogs"></div>
     <div id="notes">
       <div id="notesHeader"></div>

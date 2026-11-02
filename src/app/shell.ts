@@ -1,5 +1,6 @@
 // The app window itself: the SVG layer scaffold, browser-level behaviours
 
+import { closePanel } from "@/app/chrome/options-panel";
 import { Controllers } from "@/controllers";
 import { Options } from "@/model/options/options-model";
 import { Pins } from "@/model/options/pins";
@@ -35,9 +36,12 @@ const SHELL_TEXT: [string, string | null, string | null][] = [
   ["#loading-credit", t("Built on Azgaar's Fantasy Map Generator"), null],
   ["#options .drag-trigger", null, t("Drag to move the Menu")],
   ["#optionsHide", null, t("Click to hide the Menu")],
-  ["#layersTab", t("Layers"), t("Click to change map layers")],
-  ["#styleTab", t("Style"), t("Click to open style editor")],
-  ["#optionsTab", t("Options"), t("Click to change generation and UI options")],
+  ["#layersTab", null, t("Layers")],
+  ["#viewModeButton", null, t("View mode")],
+  ["#styleTab", null, t("Style")],
+  ["#settingsButton", null, t("Interface settings")],
+  ["#bottomPanelClose", null, t("Close")],
+  ["#optionsTab", t("Options"), t("Click to change generation options")],
   ["#toolsTab", t("Tools"), t("Click to open tools menu")],
   ["#aboutTab", t("About"), t("Click to see Generator info")],
   ["#newMapButton", t("New Map"), t("Generate a new map based on options")],
@@ -78,12 +82,15 @@ function onResize(): void {
   fitMapToScreen();
 }
 
-/** The assistant's call button: always in the markup, shown only when the preference says so */
+/** The assistant's call button, in the bottom bar: always in the markup, shown only when the preference says so */
 function initAssistantBubble(): void {
   const bubble = findEl("assistantBubble");
   if (!bubble) return;
 
-  bubble.addEventListener("click", () => Controllers.Assistant.toggle());
+  bubble.addEventListener("click", () => {
+    closePanel(); // the assistant opens where the panels do
+    void Controllers.Assistant.toggle();
+  });
   bubble.addEventListener("mouseover", showDataTip);
 }
 

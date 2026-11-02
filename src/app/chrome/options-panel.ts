@@ -1,4 +1,5 @@
-// The collapsible panel on the right and the sticked menu below it
+// The collapsible panel on the right and the sticked menu below it, and the bottom bar: its icons open the layers,
+// the view mode, the style editor and the interface settings in a panel above it
 import { showExportPane, showLoadPane, showSavePane } from "@/app/chrome/io-panes";
 import { regeneratePrompt } from "@/app/lifecycle";
 import { Controllers } from "@/controllers";
@@ -7,11 +8,10 @@ import { makeDraggable } from "@/ui/draggable";
 import { resetZoom } from "@/ui/map/zoom";
 import { clearMainTip } from "@/ui/tooltips";
 import { changeViewMode } from "@/ui/view-mode-switch";
+import { t } from "@/utils/i18n";
 import { ensureEl, findEl } from "@/utils/node-utils";
 
 const TAB_CONTENT: Record<string, string> = {
-  layersTab: "layersContent",
-  styleTab: "styleContent",
   optionsTab: "optionsContent",
   toolsTab: "toolsContent",
   aboutTab: "aboutContent"
@@ -41,8 +41,51 @@ export function toggleOptions(event?: Event): void {
   else hideOptions(event);
 }
 
+const PANELS: Record<string, { content: string; title: () => string }> = {
+  layers: { content: "layersContent", title: () => t("Layers") },
+  view: { content: "viewContent", title: () => t("View mode") },
+  style: { content: "styleContent", title: () => t("Style") },
+  settings: { content: "interfaceContent", title: () => t("Interface settings") }
+};
+// the bottom bar took over these tabs; commands and the style editor still open them by their old ids
+const PANEL_OF_TAB: Record<string, string> = { layersTab: "layers", styleTab: "style" };
+
+let openPanelName: string | null = null;
+
+/** Show a bottom panel, or close it when it is already open */
+export function togglePanel(name: string): void {
+  if (openPanelName === name) closePanel();
+  else openPanel(name);
+}
+
+export function openPanel(name: string): void {
+  const panel = PANELS[name];
+  if (!panel || openPanelName === name) return; // the style editor reopens its panel when it opens
+  if (openPanelName === "style" && name !== "style") void Controllers.StyleEditor.close();
+  openPanelName = name;
+  for (const content of ensureEl("bottomPanel").querySelectorAll<HTMLElement>(".panelcontent"))
+    content.style.display = content.id === panel.content ? "block" : "none";
+  for (const button of ensureEl("bottomBar").querySelectorAll<HTMLElement>("[data-panel]"))
+    button.classList.toggle("active", button.dataset.panel === name);
+  ensureEl("bottomPanelTitle").textContent = panel.title();
+  ensureEl("bottomPanel").style.display = "block";
+  document.body.classList.add("panel-open");
+  if (name === "style") void Controllers.StyleEditor.open();
+}
+
+export function closePanel(): void {
+  if (openPanelName === "style") void Controllers.StyleEditor.close();
+  openPanelName = null;
+  ensureEl("bottomPanel").style.display = "none";
+  document.body.classList.remove("panel-open");
+  for (const button of ensureEl("bottomBar").querySelectorAll<HTMLElement>("[data-panel]"))
+    button.classList.remove("active");
+}
+
 /** Open the panel on the given tab */
 export function openTab(id: string): void {
+  const panel = PANEL_OF_TAB[id];
+  if (panel) return void openPanel(panel);
   showOptions();
   selectTab(id);
 }
@@ -51,7 +94,6 @@ export function openTab(id: string): void {
 function selectTab(id: string): void {
   const active = ensureEl("options").querySelector(".tab > button.active");
   if (active?.id === id) return;
-  if (active?.id === "styleTab") void Controllers.StyleEditor.close();
 
   active?.classList.remove("active");
   ensureEl(id).classList.add("active");
@@ -61,7 +103,6 @@ function selectTab(id: string): void {
 
   const shown = id === "toolsTab" && options.app.mode === "heightmap" ? "heightmapMenu" : TAB_CONTENT[id];
   if (shown) ensureEl(shown).style.display = "block";
-  if (id === "styleTab") void Controllers.StyleEditor.open();
 }
 
 /** Keep every `<x>Input` and its `<x>Output` showing the same value */
@@ -104,7 +145,7 @@ function initialize(): void {
       if (target.tagName === "BUTTON") selectTab(target.id);
     });
 
-  for (const id of ["options", "dialogs"]) {
+  for (const id of ["options", "dialogs", "bottomPanel"]) {
     ensureEl(id).addEventListener("input", onPanelInput);
   }
 
@@ -123,6 +164,11 @@ function initialize(): void {
   ensureEl("optionsTrigger").addEventListener("click", showOptions);
   ensureEl("regenerate").addEventListener("click", () => regeneratePrompt());
   ensureEl("optionsHide").addEventListener("click", hideOptions);
+  ensureEl("bottomBar").addEventListener("click", event => {
+    const name = (event.target as HTMLElement).closest<HTMLElement>("[data-panel]")?.dataset.panel;
+    if (name) togglePanel(name);
+  });
+  ensureEl("bottomPanelClose").addEventListener("click", closePanel);
 }
 
 initialize();

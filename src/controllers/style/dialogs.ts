@@ -87,7 +87,7 @@ export class ElementsDialog {
       width: "20em",
       height: "auto",
       maxHeight: Math.round(window.innerHeight * 0.7),
-      position: { my: "left top", at: "right+10 top", of: "#options" },
+      position: { my: "center bottom", at: "center top-10", of: "#bottomPanel" },
       onClose: () => this.close()
     });
     this.render();
@@ -245,7 +245,7 @@ export class PresetSelector {
       title: t("Style Presets"),
       width: 480,
       maxHeight: Math.round(window.innerHeight * 0.75),
-      position: { my: "left top", at: "right+10 top", of: "#options" }
+      position: { my: "center bottom", at: "center top-10", of: "#bottomPanel" }
     });
     this.render();
   }

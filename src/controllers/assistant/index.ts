@@ -111,7 +111,7 @@ function build(): void {
   renderDialog();
   Dialog.open(dialogId, {
     title: t("Fantasy Cartography Assistant"),
-    position: { my: "right bottom", at: "right-16 bottom-44", of: window },
+    position: { my: "center bottom", at: "center top-8", of: "#bottomBar" }, // its button is in the bar
     width: Math.min(340, window.innerWidth - 24),
     height: Math.min(580, window.innerHeight - 140),
     minWidth: 300,

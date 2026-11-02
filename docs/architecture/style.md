@@ -2,7 +2,7 @@
 
 How the map looks is map state: one typed, JSON-compatible record — `styles` — holds every value
 needed to reproduce the appearance, and the SVG is a projection of it. This page covers the record,
-the store that owns it, how presets and persistence manage it, and how the Style tab edits it. The
+the store that owns it, how presets and persistence manage it, and how the Style panel edits it. The
 architectural summary is in [architecture.md](./architecture.md#map-styling).
 
 ## The idea
@@ -239,7 +239,7 @@ fails afterwards is repaired with a warning like any other.
 
 ## Editing — the schema-driven editor
 
-The Style tab is not hand-written. `Controllers.StyleEditor` renders the selected element's subtree
+The Style panel (the brush in the bottom bar) is not hand-written. `Controllers.StyleEditor` renders the selected element's subtree
 of the schema into a form at open time; the schema says what a value is, the editor says what
 happens when it changes.
 

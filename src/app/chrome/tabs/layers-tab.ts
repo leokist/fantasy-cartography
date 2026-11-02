@@ -1,4 +1,4 @@
-// Layers tab: a projection of the Layers registry. Renders the layer buttons and wires them up.
+// Layers panel: a projection of the Layers registry. Renders the layer buttons and wires them up, and the view mode
 
 import { Controllers } from "@/controllers";
 import { LAYER_TOGGLES, underlineHotkey } from "@/data/layer-labels";
@@ -53,8 +53,11 @@ const TEMPLATE = /* html */ `
   </div>
   <div data-tip="${sentences(t("Click to toggle the layer"), t("Ctrl + click to edit layer style"))}" id="mapLayers"></div>
   <div class="tip">${t("Click to toggle the layer")}. ${t("Ctrl + click to edit layer style")}</div>
+`;
+
+// the view mode has its own icon in the bottom bar
+const VIEW_TEMPLATE = /* html */ `
   <div id="viewMode" data-tip="${t("Set view mode")}">
-    <p>${t("View mode")}:</p>
     <button data-tip="${t("Standard view mode for editing the map")}" id="viewStandard" class="pressed">
       ${t("Standard")}
     </button>
@@ -69,6 +72,7 @@ const TEMPLATE = /* html */ `
 `;
 
 ensureEl("layersContent").innerHTML = TEMPLATE;
+ensureEl("viewContent").innerHTML = VIEW_TEMPLATE;
 
 function render(): void {
   ensureEl("mapLayers").replaceChildren(

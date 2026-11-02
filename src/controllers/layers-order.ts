@@ -39,7 +39,7 @@ function open(): void {
     title: t("Layers Order"),
     width: "16em",
     maxHeight: Math.round(window.innerHeight * 0.8),
-    position: { my: "left top", at: "right+10 top", of: "#options" },
+    position: { my: "center bottom", at: "center top-10", of: "#bottomPanel" },
     buttons: [{ label: t("Restore"), tip: t("Restore the default layer order"), onClick: () => Layers.resetOrder() }],
     onClose: close
   });

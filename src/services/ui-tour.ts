@@ -1,5 +1,6 @@
 import { type DriveStep, driver } from "driver.js";
 
+import { closePanel, openPanel } from "@/app/chrome/options-panel";
 import { ensureEl } from "@/utils/node-utils";
 import "driver.js/dist/driver.css";
 import { Controllers } from "@/controllers";
@@ -112,23 +113,23 @@ function start() {
       {
         element: "#layersTab",
         onHighlightStarted: () => {
-          ensureEl("layersTab")?.click();
+          openPanel("layers");
         },
         popover: {
-          title: t("Layers Tab"),
-          description: t("The Layers tab controls which map elements are visible on the map."),
-          side: "bottom"
+          title: t("Layers"),
+          description: t("This icon in the bottom bar opens the layers: which map elements are visible on the map."),
+          side: "top"
         }
       },
       {
         element: "#layersPreset",
         onHighlightStarted: () => {
-          ensureEl("layersTab")?.click();
+          openPanel("layers");
         },
         popover: {
           title: t("Layer Presets"),
           description: t(
-            "Choose a preset to instantly show or hide common layer combinations: Political, Physical, Religions, and more."
+            "Choose a preset to instantly show or hide common layer combinations: Political, Physical, Biomes, and more."
           ),
           side: "bottom"
         }
@@ -136,14 +137,14 @@ function start() {
       {
         element: "#mapLayers",
         onHighlightStarted: () => {
-          ensureEl("layersTab")?.click();
+          openPanel("layers");
         },
         popover: {
           title: t("Toggle Individual Layers"),
           description: t(
             "Click any layer name to toggle it on or off. The button at the end of the preset row changes the layer order."
           ),
-          side: "right"
+          side: "top"
         }
       },
 
@@ -151,20 +152,20 @@ function start() {
       {
         element: "#styleTab",
         onHighlightStarted: () => {
-          ensureEl("styleTab")?.click();
+          openPanel("style");
         },
         popover: {
-          title: t("Style Tab"),
+          title: t("Style"),
           description: t(
-            "The Style tab controls the visual appearance of the map — color schemes, opacity, line weights, and other properties for each map element."
+            "This icon in the bottom bar opens the style: the visual appearance of the map — color schemes, opacity, line weights, and other properties for each map element."
           ),
-          side: "bottom"
+          side: "top"
         }
       },
       {
         element: "#stylePreset",
         onHighlightStarted: () => {
-          ensureEl("styleTab")?.click();
+          openPanel("style");
         },
         popover: {
           title: t("Style Presets"),
@@ -177,7 +178,7 @@ function start() {
       {
         element: "#styleElementSelect",
         onHighlightStarted: () => {
-          ensureEl("styleTab")?.click();
+          openPanel("style");
         },
         popover: {
           title: t("Individual Style Settings"),
@@ -192,12 +193,13 @@ function start() {
       {
         element: "#optionsTab",
         onHighlightStarted: () => {
+          closePanel();
           ensureEl("optionsTab")?.click();
         },
         popover: {
           title: t("Options Tab"),
           description: t(
-            "The Options tab lets you configure world generation parameters like the number of states, cultures, religions, and other settings that shape the generated world."
+            "The Options tab lets you configure world generation parameters like the number of states, cultures and other settings that shape the generated world."
           ),
           side: "bottom"
         }
@@ -205,12 +207,13 @@ function start() {
       {
         element: "#optionsContent",
         onHighlightStarted: () => {
+          closePanel();
           ensureEl("optionsTab")?.click();
         },
         popover: {
           title: t("Generation Options"),
           description: t(
-            "Set world parameters like the number of cultures, states, and religions before generating a new map. UI preferences like tooltips and autosave are also here."
+            "Set world parameters like the number of cultures and states before generating a new map. Interface preferences are under the gear in the bottom bar."
           ),
           side: "right"
         }
@@ -219,6 +222,7 @@ function start() {
         element: "#configureWorld",
         onHighlightStarted: () => {
           Dialog.closeAll();
+          closePanel();
           ensureEl("optionsTab")?.click();
         },
         popover: {
