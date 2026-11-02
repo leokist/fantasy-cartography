@@ -33,12 +33,11 @@ const SELECTOR_ALIASES: Record<string, string> = {
   "#terrs #oceanHeights": "#terrs > #oceanHeights"
 };
 
-const RETIRED_SELECTORS = new Set(["#relig"]); // layers this app no longer has
+const RETIRED_SELECTORS = new Set(["#relig", "#armies"]); // layers this app no longer has
 
 const PRESET_ROUTES: Record<string, PresetRoute> = {
   // legacy kept the pick in data-filter, the store in the filter attr: normalizeStyles folds the option into it
   "#map": { path: ["map"], options: { "data-filter": "dataFilter" }, drop: ["background-color"] },
-  "#armies": { path: ["military"], options: { "box-size": "boxSize" }, drop: ["font-size"] }, // sized from the box
   "#biomes": { path: ["biomes"], drop: ["mask"] },
   "#cells": { path: ["cells"], rename: { opacity: "stroke-opacity" } },
   "#gridOverlay": { path: ["grid"], options: { type: "type", scale: "scale", dx: "dx", dy: "dy" } },
@@ -334,8 +333,6 @@ export function harvestStylesFromSvg(svg: LegacySvg, { hasStyleRecord = false } 
     if (!svg.getElementById(key)?.hasAttribute("scheme"))
       harvested.heightmap.groups[key].options = structuredClone(styles.heightmap.groups[key].options);
   }
-  if (!svg.getElementById("armies")?.hasAttribute("box-size"))
-    harvested.military.options = structuredClone(styles.military.options);
   if (!svg.getElementById("gridOverlay")?.hasAttribute("type"))
     harvested.grid.options = structuredClone(styles.grid.options);
   if (!svg.getElementById("markets")?.hasAttribute("font-size"))
@@ -664,9 +661,6 @@ function upgradeShape(record: unknown): void {
     }
   }
   toAttr(asNode(asNode(root.states)?.groups)?.statesHalo, "width", "stroke-width");
-  const military = asNode(root.military);
-  if (military?.options) delete military.options.fontSize; // the renderer sizes the font from the box
-  if (military?.attrs) delete military.attrs["font-size"];
   const labels = asNode(root.labels);
   if (labels) delete labels.attrs; // the zoom sets the layer font the groups size from
   toAttr(root.coordinates, "fontSize", "font-size", px);

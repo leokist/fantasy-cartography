@@ -142,9 +142,6 @@ function getElementTip({ group, target, event, path, cellId }: TipContext): stri
   const labelElement = target.closest<SVGElement>("#labels [data-label-type]");
   if (labelElement) return withHint(escapeHtml(getLabelText(labelElement)));
 
-  if (group === "armies")
-    return withHint(escapeHtml((parent as SVGElement & { dataset: DOMStringMap }).dataset.name ?? ""));
-
   if (group === "emblems" && target.tagName === "use") return getEmblemTip(target, parent, event);
 
   if (group === "rivers") {

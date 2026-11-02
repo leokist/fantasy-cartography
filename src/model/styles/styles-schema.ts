@@ -728,21 +728,6 @@ export const stylesSchema = z.strictObject({
       icon: text({ control: "icon", label: t("Marker icon"), tip: t("Set the icon shown inside the market marker") })
     })
   }),
-  military: z.strictObject({
-    attrs: z.strictObject({ opacity, "fill-opacity": fillGroup["fill-opacity"], ...strokeGroup, filter }),
-    options: z.strictObject({
-      boxSize: number({
-        label: t("Box size"),
-        range: [0, 10],
-        step: 0.1,
-        tip: t("Set regiment box size. All regiments will be redrawn on change (position will defaulted)")
-      }),
-      showNames: flag({
-        label: t("Show names"),
-        tip: t("Display regiment names below units")
-      }).default(false)
-    })
-  }),
   ocean: z.strictObject({
     options: z.strictObject({ bands: coastlineBands }),
     groups: z.strictObject({

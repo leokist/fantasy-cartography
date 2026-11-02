@@ -1,6 +1,5 @@
 import Alea from "alea";
-import { mean, median, quadtree, sum } from "d3";
-import { getInverseRelation, RELATIONS } from "@/data/diplomacy";
+import { median, quadtree } from "d3";
 import type { Label } from "@/model/annotations/labels-generator";
 import { Markets } from "@/model/economy/markets-generator";
 import { Pack } from "@/model/graph/pack-generator";
@@ -17,12 +16,9 @@ import { getAdjective, replaceWholeWord, trimVowels } from "@/utils/language-uti
 import { log } from "@/utils/logger";
 import { minmax, rn } from "@/utils/number-utils";
 import { getPolesOfInaccessibility } from "@/utils/path-utils";
-import { each, gauss, generateSeed, P, ra, rand, rw } from "@/utils/probability-utils";
-import { escapeHtml } from "@/utils/string-utils";
+import { each, gauss, generateSeed, P, ra, rw } from "@/utils/probability-utils";
 import { requireName, requireOneOf } from "@/utils/validation-utils";
 import { Burgs } from "./burgs-generator";
-import type { Regiment } from "./military-generator";
-import { Military } from "./military-generator";
 import type { Province } from "./provinces-generator";
 import { Provinces } from "./provinces-generator";
 
@@ -52,28 +48,16 @@ export interface State {
   burgs?: number;
   rural?: number;
   urban?: number;
-  campaigns?: Campaign[];
-  diplomacy?: string[];
   formName?: string;
   fullName?: string;
   form?: string;
-  military?: Regiment[];
   provinces?: number[];
-  alert?: number;
   salesTax: number;
   pollTax: number;
   treasury: number;
   tariffs?: TariffRule[];
   label?: Label;
   note?: string;
-}
-
-interface Campaign {
-  attacker: number;
-  defender: number;
-  name: string;
-  start: number;
-  end?: number;
 }
 
 /** Form names by the form of government they belong to, as the State name editor lists them */
@@ -180,11 +164,9 @@ class StatesModule {
     this.findNeighbors();
     this.collectStatistics();
     this.assignColors();
-    this.generateCampaigns();
-    this.generateDiplomacy();
+    this.defineAllTariffs();
     this.defineStateForms();
     Provinces.regenerate(false);
-    Military.regenerate();
 
     return { warning, error };
   }
@@ -373,8 +355,7 @@ class StatesModule {
     this.getPoles();
     this.findNeighbors();
     this.assignColors();
-    this.generateCampaigns();
-    this.generateDiplomacy();
+    this.defineAllTariffs();
   }
 
   expandStates() {
@@ -550,268 +531,15 @@ class StatesModule {
     }
   }
 
-  generateCampaign(state: State): Campaign[] {
-    const wars = {
-      War: 6,
-      Conflict: 2,
-      Campaign: 4,
-      Invasion: 2,
-      Rebellion: 2,
-      Conquest: 2,
-      Intervention: 1,
-      Expedition: 1,
-      Crusade: 1
-    };
-    const neighbors = state.neighbors?.length ? state.neighbors : [0];
-    return neighbors
-      .map((i: number) => {
-        const name = i && P(0.8) ? pack.states[i].name : Names.getCultureShort(state.culture);
-        const start = gauss(options.map.lore.calendar.year - 100, 150, 1, options.map.lore.calendar.year - 6);
-        const end = start + gauss(4, 5, 1, options.map.lore.calendar.year - start - 1);
-        return { name: `${getAdjective(name)} ${rw(wars)}`, start, end, attacker: state.i!, defender: i };
-      })
-      .sort((a, b) => a.start - b.start);
-  }
-
-  generateCampaigns() {
-    pack.states.forEach(s => {
-      if (!s.i || s.removed) return;
-      s.campaigns = this.generateCampaign(s);
-    });
-  }
-
-  // generate Diplomatic Relationships
-  generateDiplomacy() {
-    log.time("generateDiplomacy");
-    const { cells, states } = pack;
-    states[0].diplomacy = [];
-    // FIRST STATE IS ALWAYS NEUTRAL and contains the history of diplomacy
-    const chronicle = this.getChronicle();
-    const valid = states.filter(s => s.i && !s.removed); // will filter out neutral as i is 0 => false
-
-    // Pre-Calculate state area since collectStatistics() hasn't run yet.
-    const stateAreas = new Float32Array(states.length);
-    for (const i of cells.i) {
-      if (cells.h[i] >= 20 && cells.state[i]) {
-        stateAreas[cells.state[i]] += cells.area[i];
-      }
-    }
-
-    const neibs = { Ally: 1, Friendly: 2, Neutral: 1, Suspicion: 10, Rival: 9 }; // relations to neighbors
-    const neibsOfNeibs = { Ally: 10, Friendly: 8, Neutral: 5, Suspicion: 1 }; // relations to neighbors of neighbors
-    const far = { Friendly: 1, Neutral: 12, Suspicion: 2, Unknown: 6 }; // relations to other
-    const navals = { Neutral: 1, Suspicion: 2, Rival: 1, Unknown: 1 }; // relations of naval powers
-
-    states[0].tariffs = [];
-    valid.forEach(s => {
-      s.diplomacy = new Array(states.length).fill("x"); // clear all relationships
-    });
-    if (valid.length < 2) {
-      valid.forEach(s => {
-        s.tariffs = this.defineTariffs(s);
-      });
-      return; // no states to generate relations with
-    }
-    const areaMean: number = mean(valid.map(s => stateAreas[s.i])) as number; // average state area
-
-    // generic relations
-    for (let f = 1; f < states.length; f++) {
-      if (states[f].removed) continue;
-      if (states[f].diplomacy!.includes("Vassal")) {
-        // Vassals copy relations from their Suzerains
-        const suzerain = states[f].diplomacy!.indexOf("Vassal");
-
-        for (let i = 1; i < states.length; i++) {
-          if (i === f || i === suzerain || states[i].removed) continue;
-          states[f].diplomacy![i] = states[suzerain].diplomacy![i];
-          if (states[suzerain].diplomacy![i] === "Suzerain") states[f].diplomacy![i] = "Ally";
-          for (let e = 1; e < states.length; e++) {
-            if (e === f || e === suzerain || states[e].removed) continue;
-            if (states[e].diplomacy![suzerain] === "Suzerain" || states[e].diplomacy![suzerain] === "Vassal") continue;
-            states[e].diplomacy![f] = states[e].diplomacy![suzerain];
-          }
-        }
-        continue;
-      }
-
-      for (let t = f + 1; t < states.length; t++) {
-        if (states[t].removed) continue;
-
-        if (states[t].diplomacy!.includes("Vassal")) {
-          const suzerain = states[t].diplomacy!.indexOf("Vassal");
-          states[f].diplomacy![t] = states[f].diplomacy![suzerain];
-          continue;
-        }
-
-        const naval =
-          states[f].type === "Naval" &&
-          states[t].type === "Naval" &&
-          cells.f[states[f].center] !== cells.f[states[t].center];
-        const neib = naval ? false : states[f].neighbors!.includes(t);
-        const neibOfNeib = naval || neib ? false : states[f].neighbors!.some(n => states[n].neighbors!.includes(t));
-
-        let status = naval ? rw(navals) : neib ? rw(neibs) : neibOfNeib ? rw(neibsOfNeibs) : rw(far);
-
-        // add Vassal
-        if (neib && P(0.8) && stateAreas[f] > areaMean && stateAreas[t] < areaMean && stateAreas[f] / stateAreas[t] > 2)
-          status = "Vassal";
-        states[f].diplomacy![t] = status === "Vassal" ? "Suzerain" : status;
-        states[t].diplomacy![f] = status;
-      }
-    }
-
-    // declare wars
-    for (let attacker = 1; attacker < states.length; attacker++) {
-      const ad = states[attacker].diplomacy as string[]; // attacker relations;
-      if (states[attacker].removed) continue;
-      if (!ad.includes("Rival")) continue; // no rivals to attack
-      if (ad.includes("Vassal")) continue; // not independent
-      if (ad.includes("Enemy")) continue; // already at war
-
-      // random independent rival
-      const defender = ra(
-        ad.map((r, d) => (r === "Rival" && !states[d].diplomacy!.includes("Vassal") ? d : 0)).filter(d => d)
-      );
-      let ap = stateAreas[attacker] * states[attacker].expansionism;
-      let dp = stateAreas[defender] * states[defender].expansionism;
-      if (ap < dp * gauss(1.6, 0.8, 0, 10, 2)) continue; // defender is too strong
-
-      const an = states[attacker].name;
-      const dn = states[defender].name; // names
-      const attackers = [attacker];
-      const defenders = [defender]; // attackers and defenders array
-      const dd = states[defender].diplomacy as string[]; // defender relations;
-
-      // start an ongoing war
-      const name = `${an}-${trimVowels(dn)}ian War`;
-      const start = options.map.lore.calendar.year - gauss(2, 3, 0, 10);
-      const war = [name, `${an} declared a war on its rival ${dn}`];
-      const campaign: Campaign = { name, start, attacker, defender };
-      states[attacker].campaigns!.push(campaign);
-      states[defender].campaigns!.push(campaign);
-
-      // attacker vassals join the war
-      ad.forEach((r, d) => {
-        if (r === "Suzerain") {
-          attackers.push(d);
-          war.push(`${an}'s vassal ${states[d].name} joined the war on attackers side`);
-        }
-      });
-
-      // defender vassals join the war
-      dd.forEach((r, d) => {
-        if (r === "Suzerain") {
-          defenders.push(d);
-          war.push(`${dn}'s vassal ${states[d].name} joined the war on defenders side`);
-        }
-      });
-
-      ap = sum(attackers.map(a => stateAreas[a] * states[a].expansionism)); // attackers joined power
-      dp = sum(defenders.map(d => stateAreas[d] * states[d].expansionism)); // defender joined power
-
-      // defender allies join
-      dd.forEach((r, d) => {
-        if (r !== "Ally" || states[d].diplomacy!.includes("Vassal")) return;
-        if (states[d].diplomacy![attacker] !== "Rival" && ap / dp > 2 * gauss(1.6, 0.8, 0, 10, 2)) {
-          const reason = states[d].diplomacy!.includes("Enemy") ? "Being already at war," : `Frightened by ${an},`;
-          war.push(`${reason} ${states[d].name} severed the defense pact with ${dn}`);
-          dd[d] = states[d].diplomacy![defender] = "Suspicion";
-          return;
-        }
-        defenders.push(d);
-        dp += stateAreas[d] * states[d].expansionism;
-        war.push(`${dn}'s ally ${states[d].name} joined the war on defenders side`);
-
-        // ally vassals join
-        states[d]
-          .diplomacy!.map((r, d) => (r === "Suzerain" ? d : 0))
-          .filter(d => d)
-          .forEach(v => {
-            defenders.push(v);
-            dp += stateAreas[v] * states[v].expansionism;
-            war.push(`${states[d].name}'s vassal ${states[v].name} joined the war on defenders side`);
-          });
-      });
-
-      // attacker allies join if the defender is their rival or joined power > defenders power and defender is not an ally
-      ad.forEach((r, d) => {
-        if (r !== "Ally" || states[d].diplomacy!.includes("Vassal") || defenders.includes(d)) return;
-        const name = states[d].name;
-        if (states[d].diplomacy![defender] !== "Rival" && (P(0.2) || ap <= dp * 1.2)) {
-          war.push(`${an}'s ally ${name} avoided entering the war`);
-          return;
-        }
-        const allies = states[d].diplomacy!.map((r, d) => (r === "Ally" ? d : 0)).filter(d => d);
-        if (allies.some(ally => defenders.includes(ally))) {
-          war.push(`${an}'s ally ${name} did not join the war as its allies are in war on both sides`);
-          return;
-        }
-
-        attackers.push(d);
-        ap += stateAreas[d] * states[d].expansionism;
-        war.push(`${an}'s ally ${name} joined the war on attackers side`);
-
-        // ally vassals join
-        states[d]
-          .diplomacy!.map((r, d) => (r === "Suzerain" ? d : 0))
-          .filter(d => d)
-          .forEach(v => {
-            attackers.push(v);
-            ap += stateAreas[v] * states[v].expansionism;
-            war.push(`${states[d].name}'s vassal ${states[v].name} joined the war on attackers side`);
-          });
-      });
-
-      // change relations to Enemy for all participants
-      attackers.forEach(a => {
-        defenders.forEach((d: number) => {
-          states[a].diplomacy![d] = states[d].diplomacy![a] = "Enemy";
-        });
-      });
-      chronicle.push(war); // add a record to diplomatical history
-    }
-    valid.forEach(s => {
-      s.tariffs = this.defineTariffs(s);
-    });
-    log.timeEnd("generateDiplomacy");
-  }
-
+  /** The default tariffs: free trade with everyone */
   defineTariffs(state: State): TariffRule[] {
     if (!state.i || state.removed) return [];
-    const rules: TariffRule[] = [{ states: "all", goods: "all", rate: 0 }];
-    const diplomacy = state.diplomacy;
-    if (!Array.isArray(diplomacy)) return rules;
-
-    const freeTrade: number[] = [];
-    const suspicion: number[] = [];
-    const rival: number[] = [];
-    const enemy: number[] = [];
-
-    for (let otherId = 1; otherId < diplomacy.length; otherId++) {
-      if (otherId === state.i || !pack.states?.[otherId] || pack.states[otherId].removed) continue;
-      const relation = diplomacy[otherId];
-      if (relation === "Ally" || relation === "Friendly" || relation === "Vassal" || relation === "Suzerain") {
-        freeTrade.push(otherId);
-      } else if (relation === "Suspicion") {
-        suspicion.push(otherId);
-      } else if (relation === "Rival") {
-        rival.push(otherId);
-      } else if (relation === "Enemy") {
-        enemy.push(otherId);
-      }
-    }
-
-    if (freeTrade.length) rules.push({ states: freeTrade, goods: "all", rate: 0 });
-    if (suspicion.length) rules.push({ states: suspicion, goods: "all", rate: 0.2 });
-    if (rival.length) rules.push({ states: rival, goods: "all", rate: 0.3 });
-    if (enemy.length) rules.push({ states: enemy, goods: "all", rate: "embargo" });
-    return rules;
+    return [{ states: "all", goods: "all", rate: 0 }];
   }
 
-  // state 0 stores the diplomacy chronicle (array of [title, ...messages])
-  // TODO: move to a better place
-  getChronicle(): string[][] {
-    return pack.states[0].diplomacy as unknown as string[][];
+  private defineAllTariffs(): void {
+    pack.states[0].tariffs = [];
+    for (const state of pack.states) if (state.i && !state.removed) state.tariffs = this.defineTariffs(state);
   }
 
   // select a forms for listed or all valid states
@@ -883,18 +611,6 @@ class StatesModule {
         if (s.form === "Monarchy") {
           const form = monarchy[tier];
           // Default name depends on exponent tier, some culture bases have special names for tiers
-          if (s.diplomacy) {
-            if (
-              form === "Duchy" &&
-              s.neighbors!.length > 1 &&
-              rand(6) < s.neighbors!.length &&
-              s.diplomacy.includes("Vassal")
-            )
-              return "Marches"; // some vassal duchies on borderland
-            if (base === 1 && P(0.3) && s.diplomacy.includes("Vassal")) return "Dominion"; // English vassals
-            if (P(0.3) && s.diplomacy.includes("Vassal")) return "Protectorate"; // some vassals
-          }
-
           if (base === 31 && (form === "Empire" || form === "Kingdom")) return "Khanate"; // Mongolian
           if (base === 16 && form === "Principality") return "Beylik"; // Turkic
           if (base === 5 && (form === "Empire" || form === "Kingdom")) return "Tsardom"; // Ruthenian
@@ -1038,36 +754,6 @@ class StatesModule {
     this.living(stateId).expansionism = expansionism;
   }
 
-  /** Set a state's relation towards another; the other takes the inverse and the chronicle records the change */
-  setRelation(stateId: number, otherId: number, relation: string): void {
-    const [subject, object] = [this.living(stateId), this.living(otherId)];
-    if (!subject.i || !object.i || subject === object) throw new Error("Relations are between two different states");
-    requireOneOf(relation, Object.keys(RELATIONS), "The relation");
-    const old = subject.diplomacy?.[otherId];
-    subject.diplomacy ??= [];
-    object.diplomacy ??= [];
-    subject.diplomacy[otherId] = relation;
-    object.diplomacy[stateId] = getInverseRelation(relation); // an unchanged relation still repairs its inverse
-    if (old === relation) return;
-    this.getChronicle().push(this.getRelationRecord(stateId, otherId, old, relation));
-  }
-
-  /** The chronicle record of a state taking up a relation towards another */
-  getRelationRecord(subjectId: number, objectId: number, oldRelation: string | undefined, newRelation: string) {
-    const subject = pack.states[subjectId].name;
-    const object = pack.states[objectId].name;
-    const { title, text } = RELATIONS[newRelation].event ?? {
-      title: "Relations change",
-      text: () => `${subject}-${getAdjective(object)} relations changed to ${newRelation.toLowerCase()}`
-    };
-    if (oldRelation !== "Enemy") return [title, text(subject, object)];
-    return [
-      "War termination",
-      `${subject} and ${object} agreed to cease fire and signed a peace treaty`,
-      text(subject, object)
-    ];
-  }
-
   /** Redraw state borders from their capitals, types and expansionism; provinces are regenerated */
   recalculate(): void {
     this.expandStates();
@@ -1098,31 +784,6 @@ class StatesModule {
     const { cells, states, burgs } = pack;
     const i = states.length;
     const capital = burgs[capitalId];
-    const overlord = cells.state[capital.cell];
-    const inverse: Record<string, string> = {
-      Ally: "Suspicion",
-      Friendly: "Suspicion",
-      Suspicion: "Neutral",
-      Enemy: "Friendly",
-      Rival: "Friendly",
-      Vassal: "Suspicion",
-      Suzerain: "Enemy"
-    };
-    const diplomacy = states.map(state => {
-      if (!state.i || state.removed) return "x";
-      const old = states[overlord].diplomacy?.[state.i] ?? "Neutral";
-      const relation = !overlord ? "Neutral" : state.i === overlord ? "Enemy" : (inverse[old] ?? old);
-      state.diplomacy ??= [];
-      state.diplomacy[i] = relation;
-      return relation;
-    });
-    diplomacy.push("x");
-    if (overlord)
-      this.getChronicle().push([
-        "Independence declaration",
-        `${name} declared its independence from ${states[overlord].name}`
-      ]);
-
     const owned = new Set(stateCells);
     for (const cell of owned) {
       cells.state[cell] = i;
@@ -1135,7 +796,6 @@ class StatesModule {
     states.push({
       i,
       name,
-      diplomacy,
       provinces: [],
       color: getRandomColor(),
       expansionism: 0.5,
@@ -1143,8 +803,6 @@ class StatesModule {
       type: "Generic",
       center: capital.cell,
       culture: capital.culture ?? cells.culture[capital.cell],
-      military: [],
-      alert: 1,
       coa,
       salesTax: 0,
       pollTax: 0,
@@ -1187,7 +845,7 @@ class StatesModule {
     this.collectStatistics();
   }
 
-  /** Merge states into a ruling one, which takes their lands, burgs, provinces and regiments. With `asProvinces`, each merged state becomes one province of the ruling state instead of keeping its own provinces */
+  /** Merge states into a ruling one, which takes their lands, burgs and provinces. With `asProvinces`, each merged state becomes one province of the ruling state instead of keeping its own provinces */
   merge(rulingStateId: number, stateIds: number[], asProvinces = false): void {
     const ruling = this.living(rulingStateId);
     if (!rulingStateId) throw new Error("Neutral lands cannot rule");
@@ -1197,7 +855,6 @@ class StatesModule {
     const ids = new Set(merged.map(state => state.i));
     if (asProvinces) for (const state of merged) this.demoteToProvince(state, ruling);
 
-    ruling.military ??= [];
     ruling.provinces ??= [];
     for (const state of merged) {
       state.removed = true;
@@ -1205,15 +862,7 @@ class StatesModule {
       if (state.tags?.length) {
         Tags.add(ruling, state.tags);
       }
-      for (const regiment of state.military ?? [])
-        ruling.military.push({
-          ...regiment,
-          i: Math.max(-1, ...ruling.military.map(({ i }) => i)) + 1,
-          state: rulingStateId,
-          tags: [...(regiment.tags ?? [])]
-        });
       ruling.provinces.push(...(state.provinces ?? []).filter(province => !pack.provinces[province]?.removed));
-      state.military = [];
       state.provinces = [];
     }
     for (const burg of pack.burgs) {
@@ -1382,25 +1031,6 @@ class StatesModule {
     state.tags = Tags.set(state, tags);
   }
 
-  /** Replace a chronicle entry with text lines, the first being its title. Index -1 adds an entry after any the batch records before it (setRelation does); no lines removes it */
-  setChronicleEntry(index: number, lines: string[]): void {
-    pack.states[0].diplomacy ??= [];
-    const chronicle = this.getChronicle();
-    if (index === -1) index = chronicle.length;
-    if (!Number.isInteger(index) || index < 0 || index > chronicle.length)
-      throw new Error(
-        `Chronicle entry ${index} does not exist: there are ${chronicle.length}, counted from 0. Index -1 adds one`
-      );
-    if (!Array.isArray(lines) || lines.some(line => typeof line !== "string" || !line.trim()))
-      throw new Error("A chronicle entry is a list of non-empty text lines");
-    if (!lines.length) {
-      if (index < chronicle.length) chronicle.splice(index, 1);
-      return;
-    }
-    chronicle[index] = lines.map(line => escapeHtml(line.trim()));
-  }
-
-  /** Give land cells to a state, or to neutral lands with id 0, with their burgs. Provinces follow: a province wholly taken changes owner, a split one is divided */
   setCells(stateId: number, cellIds: number[]): void {
     this.living(stateId);
     const { cells, states, burgs } = pack;

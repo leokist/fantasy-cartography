@@ -3,7 +3,7 @@
 **Fantasy Cartography** é um fork do [Fantasy Map Generator](https://github.com/Azgaar/Fantasy-Map-Generator), criado por **Max Haniyeu (Azgaar)** e distribuído sob a [licença MIT](LICENSE). Todo o gerador procedural, os editores e a renderização vêm do projeto original; este fork acrescenta:
 
 - **Criação manual de mundos**: o app abre perguntando se você quer um mundo aleatório ou configurar o seu; no assistente você posiciona continentes, países, capitais, cidades e fronteiras e diz como é cada província (relevo, clima, água e natureza). Cada país é o seu próprio povo, com o idioma que você escolher. Depois dá para colocar novos países onde quiser, até no mar, sem desfazer o resto.
-- **Sem religiões**: o mapa não gera religiões; não há camada, editor nem dados de religião nas exportações.
+- **Sem religiões, diplomacia nem exército**: o mapa não gera religiões, relações diplomáticas nem forças militares; não há camadas, editores nem dados desses sistemas nas exportações.
 - **Autoria das entidades**: o que você cria ou edita fica marcado e travado, e a regeneração não apaga.
 - **Fauna e flora**: um catálogo de espécies por bioma, ligado às mercadorias, com editor próprio.
 - **Pacote Godot**: alturas em metros, mapas de biomas e máscaras, rios, lagos, estradas, lugares e fronteiras, importados no Terrain3D pelo addon da pasta [godot](godot).

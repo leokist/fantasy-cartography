@@ -544,14 +544,6 @@ async function getMapURL(type: string, config: GetMapURLOptions = {}): Promise<s
     if (!cloneEl.getElementById("regions")) cloneEl.getElementById("statePaths")?.remove(); // removed unused statePaths
     if (!cloneEl.getElementById("labels")) cloneEl.getElementById("textPaths")?.remove(); // removed unused textPaths
 
-    // add armies style
-    if (cloneEl.getElementById("armies")) {
-      cloneEl.insertAdjacentHTML(
-        "afterbegin",
-        "<style>#armies text {stroke: none; fill: #fff; text-shadow: 0 0 4px #000; dominant-baseline: central; text-anchor: middle; font-family: Helvetica; fill-opacity: 1;}#armies use.regimentIcon {fill: #fff; text-shadow: 0 0 4px #000;}</style>"
-      );
-    }
-
     if (type === "svg") flattenSymbolReferences(cloneEl);
 
     // add hatchings

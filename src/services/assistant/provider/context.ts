@@ -2,7 +2,6 @@
 // instead, and reference material stays out of it; the model fetches it with read_docs.
 
 import { METHODS } from "@/controllers/assistant/operations";
-import { RELATIONS } from "@/data/diplomacy";
 import { ENTITY_TYPES, RECORD_TYPES } from "@/model/map-entities";
 import { DATA_FIELDS, GENERATOR_NAMES } from "./context.generated";
 
@@ -61,10 +60,7 @@ const GOTCHAS = `# Gotchas
   cell id; capitals are \`state.capital\`, \`province.burg\`.
 - Cell arrays are typed: \`filter\` and \`map\` on them stay typed and wrap negatives (-1 → 4294967295). Use
   \`Array.from(cells)\` before mapping to other values.
-- \`state.diplomacy[j]\`: relation to state j (${Object.keys(RELATIONS).join(", ")}); \`Enemy\` is war,
-  \`Vassal\` of j, \`Suzerain\` over j.
-- Maps have no religions. Bordering states are \`state.neighbors\`; diplomacy says
-  nothing of borders.
+- Maps have no religions, diplomacy or armies. Bordering states are \`state.neighbors\`.
 - \`burg.type\` is the culture type (Generic, River, Naval…), never rank: capital is \`burg.capital\` (1/0),
   size class is \`burg.group\`.
 - Land is \`pack.cells.h[i] >= 20\` (heights 0–100). Water body: \`pack.features[pack.cells.f[i]]\`, type ocean/lake/island.
@@ -131,7 +127,7 @@ nodes): \`Styles.setValue("ocean.groups.base.attrs.fill", "#0d2240")\`, one op p
 A marker's story is its note: place every marker with a name, a fitting note and an emoji icon,
 \`Markers.place(x, y, type, { name, note, icon })\`; prefer a configured type, \`Markers.configuration.map(c => c.type)\`.
 Notes are HTML in an entity's \`note\` field (\`pack.burgs[12].note\`); there is no notes array. Keys are \`type:id\`
-(\`burg:12\`, \`marker:0\`, \`route:0\`; regiments \`regiment:stateId-regimentId\`) of an existing entity, whose name is
+(\`burg:12\`, \`marker:0\`, \`route:0\`) of an existing entity, whose name is
 the note's title; cells, ice, relief, measurers, deals, transports and name bases have no notes. \`Notes.write\` replaces the WHOLE note. Allowed: p, br, strong, em, u, s, a, img, ul/ol/li,
 blockquote, h1–h6, sub, sup, span, div, simple tables, inline code, hr and inline styles; no classes, handlers,
 scripts, iframes, javascript: URLs or Markdown. Keep the user's text unless asked; say in one line what changed.`;

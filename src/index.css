@@ -127,7 +127,6 @@ a {
 }
 
 #lakes,
-#armies,
 #ice,
 #emblems,
 #goodsCells,
@@ -177,24 +176,6 @@ t,
 #gridOverlay,
 #fogging {
   pointer-events: none;
-}
-
-#armies text {
-  pointer-events: none;
-  user-select: none;
-  stroke: none;
-  fill: #fff;
-  text-shadow: 0 0 4px #000;
-  dominant-baseline: central;
-  text-anchor: middle;
-  font-family: var(--sans-serif);
-  fill-opacity: 1;
-}
-
-#armies use.regimentIcon {
-  pointer-events: none;
-  fill: #fff;
-  text-shadow: 0 0 4px #000;
 }
 
 #statesHalo {
@@ -313,14 +294,6 @@ i.icon-lock {
 #provincesTree .selected {
   stroke: #c13119;
   stroke-width: 2;
-}
-
-.regimentDragLine {
-  marker-end: url(#end-arrow);
-  stroke: #333333;
-  stroke-dasharray: 5;
-  stroke-dashoffset: 1000;
-  animation: dash 80s linear backwards;
 }
 
 .arrow {
@@ -723,7 +696,7 @@ input[type="color"]::-webkit-color-swatch-wrapper {
   opacity: 0.9;
 }
 
-.tabcontent button {
+:is(.tabcontent, .panelcontent) button {
   background-color: var(--bg-lighter);
   border: none;
   padding: 0.45em 0.75em;
@@ -734,22 +707,24 @@ input[type="color"]::-webkit-color-swatch-wrapper {
   text-overflow: ellipsis;
 }
 
-.tabcontent button.pressed {
+:is(.tabcontent, .panelcontent) button.pressed {
   background-color: var(--header);
   font-style: italic;
 }
 
-.tabcontent button:hover {
+:is(.tabcontent, .panelcontent) button:hover {
   background-color: var(--header-active);
 }
 
-#toolsContent > .grid {
+#toolsContent > .grid,
+#bottomPanel .panelcontent > .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   margin: 0.2em 0;
 }
 
-#toolsContent button {
+#toolsContent button,
+#bottomPanel .panelcontent > .grid > button {
   padding: 0.35em 0;
   margin: 0.16em 0.12em;
   white-space: normal;
@@ -782,7 +757,7 @@ input[type="color"]::-webkit-color-swatch-wrapper {
   transform: translateX(-50%);
   z-index: 3;
   display: flex;
-  gap: 0.35em;
+  gap: min(0.35em, 0.8vw);
   padding: 0.3em;
   border: solid 1px #5e4fa2;
   border-radius: 1.6em;
@@ -795,8 +770,8 @@ input[type="color"]::-webkit-color-swatch-wrapper {
   align-items: center;
   justify-content: center;
   padding: 0;
-  width: 2.6em;
-  height: 2.6em;
+  width: min(2.6em, 8vw); /* ten icons fit a phone */
+  height: min(2.6em, 8vw);
   border: none;
   border-radius: 50%;
   background: var(--bg-main);
@@ -862,6 +837,10 @@ body:has(#assistantBubble.open) #tooltip {
   display: flex;
   align-items: center;
   gap: 0.3em;
+}
+
+#viewContent > .separator {
+  clear: both; /* below the floated view mode buttons */
 }
 
 #viewMode > button {
@@ -1133,72 +1112,6 @@ fieldset {
 #controlPoints > circle:hover,
 #vertices > circle:hover {
   stroke: #2c0808;
-}
-
-#battleBody > table {
-  padding: 0.2em 0.6em 0.2em 0.6em;
-  border: 1px solid #ccc;
-  margin: 0.2em 0 0.4em 0;
-  display: block;
-  overflow: auto;
-  max-height: 34vh;
-  width: 100%;
-}
-
-#battleBody > table .regiment {
-  width: 13em;
-  font-weight: bold;
-}
-
-tr.battleCasualties,
-tr.battleSurvivors {
-  font-style: italic;
-  font-size: 0.9em;
-}
-
-#battleBottom div.battleTypes {
-  position: fixed;
-  background-color: #ffffff30;
-}
-
-#battleBody div.battlePhases {
-  position: absolute;
-  background-color: #ffffff30;
-}
-
-#battleBody div.battlePhases > button,
-#battleBottom div.battleTypes > button {
-  width: 3.2em;
-  display: block;
-  margin: 0.2em 0;
-}
-
-div#regimentSelectorBody {
-  max-height: 50vh;
-  font-size: 0.9em;
-}
-
-div#regimentSelectorBody > div {
-  padding: 0.1em;
-  border: 1px solid #fff;
-}
-
-div#regimentSelectorBody > div:hover {
-  border: 1px solid #ccc;
-}
-
-div#regimentSelectorBody > div.selected {
-  border: 1px solid #b28585;
-}
-
-div#regimentSelectorBody > div.inactive {
-  background-color: #eee;
-  color: #aaa;
-}
-
-div#regimentSelectorBody > div > div {
-  display: inline-block;
-  pointer-events: none;
 }
 
 .drag-trigger {
@@ -1588,10 +1501,6 @@ div.states span.inactive:hover {
   pointer-events: none;
 }
 
-#diplomacyBodySection > div {
-  cursor: pointer;
-}
-
 #burgsFooterPopulation {
   border: 0;
   width: 50px;
@@ -1634,7 +1543,6 @@ div.states span.inactive:hover {
 
 #stateNameEditor div.label,
 #provinceNameEditor div.label,
-#regimentBody div.label,
 #markerEditor div.label {
   display: inline-block;
   width: 5.5em;
@@ -1643,10 +1551,6 @@ div.states span.inactive:hover {
 
 #exportToPngTilesScreen div.label {
   display: inline-block;
-  width: 5em;
-}
-
-#regimentBody input[type="number"] {
   width: 5em;
 }
 
@@ -1691,16 +1595,6 @@ div.states > input.biomeName {
 }
 
 div.states > div.biomeArea {
-  width: 5em;
-}
-
-#militaryBody div.states > input {
-  -moz-appearance: textfield;
-}
-
-#militaryBody div.states > input,
-#militaryBody div.states > div,
-#regimentsBody div.states > div {
   width: 5em;
 }
 
@@ -1796,20 +1690,6 @@ div.editorLine {
   stroke: #737373;
 }
 
-#militaryOptionsTable select {
-  border: 1px solid #d4d4d4;
-}
-
-#militaryOptionsTable input {
-  width: 9em;
-  border: 1px solid #d4d4d4;
-}
-
-#militaryOptionsTable input[type="number"] {
-  width: 5em;
-}
-
-#militaryOptionsTable button,
 #burgGroupsBody button {
   width: 100%;
 }

@@ -627,7 +627,7 @@ describe("v1.152.0 notes moved onto entities", () => {
       burgs: [0, { i: 1, name: "Vaeltown" }],
       states: [
         { i: 0, name: "Neutrals" },
-        { i: 1, name: "Ardenia", fullName: "Duchy of Ardenia", military: [{ i: 0, name: "1st Cavalry" }] }
+        { i: 1, name: "Ardenia", fullName: "Duchy of Ardenia" }
       ],
       markers: [
         { i: 4, type: "hot-springs" },
@@ -795,24 +795,13 @@ describe("v1.152.0 notes moved onto entities", () => {
     expect(pack.markers[0]).toMatchObject({ name: "Hot springs", note: "Warm all year" });
   });
 
-  it("attaches a regiment note through its state", async () => {
-    await migrate([{ id: "regiment1-0", name: "1st Cavalry", legend: "Formed in 900 AD" }]);
+  it.each(["regiment1-0", "regiment1-99"])("silently drops a regiment note (%s): armies are gone", async id => {
+    const data = await migrate([{ id, name: "Old Regiment", legend: "Formed in 900 AD" }]);
 
-    expect(pack.states[1].military![0].note).toBe("Formed in 900 AD");
+    expect(data[4]).toBe("");
+    expect(Dialog.confirm).not.toHaveBeenCalled();
+    expect(Csv.download).not.toHaveBeenCalled();
   });
-
-  it.each(["regiment1-99", "regiment99-0", "regiment0-0", "regiment2-0"])(
-    "silently drops an unmatched regiment note (%s)",
-    async id => {
-      pack.states.push({ i: 2, name: "Unarmed State" } as (typeof pack.states)[number]);
-      const data = await migrate([{ id, name: "Old Regiment", legend: "Formed in 900 AD" }]);
-
-      expect(data[4]).toBe("");
-      expect(Dialog.confirm).not.toHaveBeenCalled();
-      expect(Csv.download).not.toHaveBeenCalled();
-      expect(pack.states[1].military![0].note).toBeUndefined();
-    }
-  );
 
   it("offers notes whose element is gone as a csv, and keeps the rest", async () => {
     await migrate([
@@ -824,7 +813,6 @@ describe("v1.152.0 notes moved onto entities", () => {
     ]);
 
     expect(pack.burgs[1].note).toBe("kept");
-    expect(pack.states[1].military![0].note).toBe("Formed in 900 AD");
     expect(Dialog.confirm).toHaveBeenCalledOnce();
 
     const [dialog] = vi.mocked(Dialog.confirm).mock.calls[0];
@@ -915,12 +903,11 @@ describe("v1.154 relief descriptors", () => {
       '<svg id="good-custom-ab12" viewBox="0 0 20 20" fill="navy"><script>x()</script><path id="leaf" d="M0 0"/></svg>' +
       '<svg id="custom-goods-img" viewBox="0 0 200 200"><image width="200" height="200" href="data:image/png;base64,AA"/></svg>';
     options.map.customIcons = [];
-    options.map.military.units = [{ ...options.map.military.units[0], icon: "⚔️" }];
     globalThis.pack = {
       relief: [],
       goods: [{ icon: "good-custom-ab12" }, { icon: "custom-goods-img" }],
       markers: [{ icon: "https://a.b/c.png" }, { icon: "https://a.b/c.png" }, { icon: "🌋" }, { icon: "hq-2" }],
-      states: [{ i: 0 }, { i: 1, military: [{ icon: "XIV" }] }]
+      states: [{ i: 0 }, { i: 1 }]
     } as unknown as typeof pack;
     await runMigration("1.153.1", data, ["1.154.0"]);
 
@@ -939,8 +926,6 @@ describe("v1.154 relief descriptors", () => {
     expect(pack.markers[1].icon).toBe(pack.markers[0].icon);
     expect(pack.markers[2].icon).toBe("glyph-1f30b");
     expect(pack.markers[3].icon).toBe("glyph-68-71-2d-32"); // looks like an id, but no icon set owns it
-    expect(pack.states[1].military![0].icon).toBe("glyph-58-49-56");
-    expect(options.map.military.units[0].icon).toBe("glyph-2694-fe0f");
     const styles = JSON.parse(data[48]);
     expect(styles.markets.options.icon).toBe("glyph-2696-fe0f");
     expect(styles.burgIcons.groups.city.groups.icons.options.icon).toBe("burgs-atlas-circle");

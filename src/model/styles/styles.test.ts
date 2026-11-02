@@ -149,7 +149,6 @@ describe("normalizeStyles", () => {
     doc.ocean.options = { pattern: "./images/waves.png", patternOpacity: 0.4, bands: doc.ocean.options.bands };
     delete doc.ocean.groups.pattern;
     doc.states.groups.statesHalo = { attrs: { opacity: 0.4, filter: null }, options: { width: 12 } };
-    doc.military.options = { fontSize: 8, boxSize: 4 };
     doc.labels.attrs = { "font-size": "100px" };
     doc.coordinates.options = { fontSize: 14 };
     doc.rulers.options = { fontSize: 24 };
@@ -165,8 +164,6 @@ describe("normalizeStyles", () => {
     expect(doc.ocean.groups.pattern).toEqual({ attrs: { href: "./images/waves.png", opacity: 0.4 } });
     expect(doc.ocean.options).toEqual({ bands: Styles.defaults.ocean.options.bands });
     expect(doc.states.groups.statesHalo).toEqual({ attrs: { opacity: 0.4, filter: null, "stroke-width": 12 } });
-    expect(doc.military.attrs["font-size"]).toBeUndefined();
-    expect(doc.military.options).toEqual({ boxSize: 4 });
     expect(doc.labels.attrs).toBeUndefined();
     expect(doc.coordinates.attrs["font-size"]).toBe("14px");
     expect(doc.coordinates.options).toBeUndefined();

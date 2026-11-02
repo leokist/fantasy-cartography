@@ -3,7 +3,7 @@ import type { LayerId } from "@/renderers/layers";
 import { t } from "@/utils/i18n";
 
 // The layers a territory's edits redraw, shared by its entity and its cells
-export const TERRITORY: LayerId[] = ["states", "borders", "provinces", "burgIcons", "labels", "military", "emblems"];
+export const TERRITORY: LayerId[] = ["states", "borders", "provinces", "burgIcons", "labels", "emblems"];
 export const PROVINCES: LayerId[] = ["provinces", "borders", "labels", "emblems"];
 
 interface CellField {

@@ -59,18 +59,8 @@ async function context(chat: Chat): Promise<string> {
     `provinces: ${live(pack.provinces)}`,
     `cultures: ${live(pack.cultures)}`,
     `rivers: ${pack.rivers?.length ?? 0}`,
-    `markers: ${pack.markers?.length ?? 0}`,
-    `chronicle entries: ${pack.states[0]?.diplomacy?.length ?? 0} (\`States.getChronicle()\`: entries as text lines, the first the title; HTML-escaped)`
+    `markers: ${pack.markers?.length ?? 0}`
   ];
-  // The only one-sided relation; models read a bare "Vassal" the wrong way round
-  const vassals = pack.states.flatMap(state =>
-    state.i && !state.removed
-      ? (state.diplomacy ?? []).flatMap((relation, j) =>
-          relation === "Vassal" ? [`${state.name} (state:${state.i}) of ${pack.states[j]?.name} (state:${j})`] : []
-        )
-      : []
-  );
-  if (vassals.length) facts.push(`vassals: ${vassals.join("; ")}`);
   const sections = [
     `# Current map\n\n${facts.map(fact => `- ${fact}`).join("\n")}`,
     await noteContext(),

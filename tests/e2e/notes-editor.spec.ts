@@ -4,7 +4,7 @@ import { waitForMap } from "./wait-for-map";
 // Notes live on the entity they describe, so a note is read back off pack rather than off a side table
 const noteOf = (page: Page, path: string) => page.evaluate(`(window.pack.${path} || {}).note`);
 
-/** Put a note on the first burg and on the first regiment, and return the burg the editor should show */
+/** Put a note on two burgs, and return the burg the editor should show */
 async function seedNotes(page: Page) {
   return page.evaluate(() => {
     const { pack } = window as any;
@@ -14,10 +14,7 @@ async function seedNotes(page: Page) {
     const embedBurg = pack.burgs.find((b: any) => b?.i && !b.removed && b.i !== burg.i);
     embedBurg.note = '<div>Dungeon</div><iframe src="about:blank"></iframe>';
 
-    const state = pack.states.find((s: any) => s?.i && !s.removed && s.military?.length);
-    state.military[0].note = "<p>Formed in living memory</p>";
-
-    return { burgId: burg.i, burgName: burg.name, embedId: embedBurg.i, stateId: state.i };
+    return { burgId: burg.i, burgName: burg.name, embedId: embedBurg.i };
   });
 }
 
@@ -44,7 +41,7 @@ test.describe("Notes Editor", () => {
     await expect(page.locator("#notesSelect")).toHaveValue(`burg:${burgId}`);
     await expect(page.locator("#notesName")).toHaveText(burgName);
     const groups = await page.locator("#notesSelect optgroup").evaluateAll(els => els.map(el => el.label));
-    expect(groups).toEqual(expect.arrayContaining(["Burgs", "Regiments"]));
+    expect(groups).toEqual(expect.arrayContaining(["Burgs"]));
     await expect(page.locator("#notesEditor .ql-editor")).toContainText("Hello world");
   });
 
@@ -64,15 +61,12 @@ test.describe("Notes Editor", () => {
   });
 
   test("switching the selected element loads that entity's note", async ({ page }) => {
-    const { burgId, stateId } = await seedNotes(page);
+    const { burgId, embedId } = await seedNotes(page);
     await page.evaluate(id => (window as any).FMG.Controllers.BurgEditor.open(id), burgId);
     await page.click("#burglLegend");
 
-    await page.selectOption("#notesSelect", `regiment:${stateId}-0`);
-    await expect(page.locator("#notesEditor .ql-editor")).toContainText("Formed in living memory");
-    await expect(page.locator("#notesName")).toHaveText(
-      await page.evaluate(id => (window as any).pack.states[id].military[0].name, stateId)
-    );
+    await page.selectOption("#notesSelect", `burg:${embedId}`);
+    await expect(page.locator("#notesEditor .ql-editor")).toContainText("Dungeon");
   });
 
   test("inserts a table from the table menu", async ({ page }) => {
@@ -137,7 +131,6 @@ test.describe("Notes Editor", () => {
       for (const collection of ["burgs", "markers", "states"]) {
         for (const entity of pack[collection] || []) {
           if (entity?.note) delete entity.note;
-          for (const regiment of entity?.military || []) delete regiment.note;
         }
       }
       return pack.burgs.find((b: any) => b?.i && !b.removed).i;

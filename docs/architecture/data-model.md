@@ -198,35 +198,15 @@ States (countries) data is stored as an array of objects with strict element ord
 - `urban`: `number` - urban (burg) population of state cells. In population points
 - `neighbors`: `number[]` - ids of neighboring (bordering by land) states
 - `provinces`: `number[]` - ids of state provinces
-- `diplomacy`: `string[]` - relation to each state by its id: `Ally`, `Friendly`, `Neutral`, `Suspicion`, `Enemy` (at war), `Unknown`, `Rival`, `Vassal` (of that state) or `Suzerain` (to that state); both sides hold the same relation except a vassal pair. 'x' for self and neutrals. Element 0 (neutrals) `diplomacy` is used differently and contains wars story as `string[][]`
-- `campaigns`: `object[]` - wars the state participated in. The was is defined as `start`: `number` (year), `end`: `number` (year), `name`: `string`
-- `alert`: `number` - state war alert, see [military forces page](https://github.com/Azgaar/fantasy-cartography/wiki/Military-Forces)
-- `military`: `Regiment[]` - list of state regiments, see [military forces page](https://github.com/Azgaar/fantasy-cartography/wiki/Military-Forces)
 - `label`: `Label` - optional state-label data. If absent, the renderer derives the text, path, and relative size from the State data and label mode
 - `coa`: `object` - heraldic emblem in [Armoria's COA format](https://github.com/Azgaar/armoria-api#readme), or picture emblem `{ icon: string, shield?: string }` referring to an icon in the library. Both forms may have optional `size`, `x` and `y` fields for map placement. A picture emblem can be clipped to a shield, but cannot be edited as heraldry in Armoria
 - `salesTax`: `number` - sales tax rate `0..1` charged on deals where this state is the seller. Generated from `form` (Monarchy 0.15, Theocracy 0.25, Union 0.07, Republic 0.05, Anarchy 0), jittered per state. Always `0` for neutrals
 - `pollTax`: `number` - flat poll tax per population point (rural + urban), credited to the treasury once per cycle. Generated from `form` (Monarchy 0.20, Theocracy 0.10, Union 0.13, Republic 0.15, Anarchy 0), jittered per state. Always `0` for neutrals
 - `treasury`: `number` - accumulated state currency balance. Reset and refilled by `States.collectTaxes()` from `deal.tax` (sales tax) plus `deal.tariff` (import tariffs) plus `pollTax × (rural + urban)`. Always `0` for neutrals
-- `tariffs`: `TariffRule[]` - list of import tariff and embargo rules `{ states: number[] | "all", goods: number[] | "all", rate: number | "embargo" }`. Procedurally seeded from diplomacy relations with a `0` baseline for all foreign states and goods. Empty array `[]` for neutrals
+- `tariffs`: `TariffRule[]` - list of import tariff and embargo rules `{ states: number[] | "all", goods: number[] | "all", rate: number | "embargo" }`. Generated as a single `0` baseline rule for all foreign states and goods. Empty array `[]` for neutrals
 - `lock`: `boolean` - `true` if state is locked (not affected by regeneration)
 - `removed`: `boolean` - `true` if state is removed
 - `note`: `string` - optional. The user's note (legend) about the state, as html. Removed with it
-
-### Regiment
-
-- `i`: `number` - regiment id, equals to the array index of regiment in the `state[x].military` array. Not unique, as unique string `regimentStateId-regimentId` is used
-- `x`: `number` - regiment x coordinate
-- `y`: `number` - regiment y coordinate
-- `bx`: `number` - regiment base x coordinate
-- `by`: `number` - regiment base y coordinate
-- `angle`: `number` - regiment rotation angle degree
-- `icon`: `string` - icon reference: a bare symbol id such as `glyph-2694-fe0f` or `custom-1a2b3c4d` (see [Icons](icons.md)); empty for none
-- `cell`: `number` - original regiment cell id
-- `state`: `number` - regiment state id
-- `name`: `string` - regiment name
-- `n`: `number` - `1` if regiment is a separate unit (like naval units), `0` is not
-- `u`: `Record<unitName, number>` - regiment content object
-- `note`: `string` - optional. The user's note (legend) about the regiment, as html. Removed with it
 
 ## Provinces
 

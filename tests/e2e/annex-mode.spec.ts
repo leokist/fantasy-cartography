@@ -24,7 +24,7 @@ async function isMapVisibleAt(page: Page, point: [number, number]) {
 
 async function openEditor(page: Page, buttonId: string, dialogId: string) {
   await page.click("#optionsTrigger");
-  await page.click("#toolsTab");
+  await page.click("#editButton");
   await page.click(`#${buttonId}`);
   await page.waitForSelector(`#${dialogId}`, {state: "visible", timeout: 5000});
   await page.waitForTimeout(300);

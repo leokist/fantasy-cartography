@@ -16,7 +16,7 @@ afterEach(() => {
   log.enabled.warn = false;
 });
 
-const UNIT = { icon: "u", name: "cavalry", rural: 0.2, urban: 0.1, crew: 2, power: 1, type: "melee", separate: 0 };
+const UNIT = { name: "cavalry", order: 9, isDefault: true }; // a burg group, standing for any definition set
 
 async function boot() {
   vi.resetModules();
@@ -68,7 +68,7 @@ it.each(["load", "restore"])("repairs one wind without losing other settings dur
   vi.spyOn(console, "warn").mockImplementation(() => {});
   const stored = Options.getDefaultOptions();
   stored.map.lore.name = "Kept world";
-  stored.map.military.units = [UNIT];
+  stored.map.burgs.groups = [UNIT];
   stored.map.climate.precipitation = 321;
   stored.map.climate.temperature.equator = 31;
   stored.map.climate.winds = [90, 45, 999, 315, 135, 315];
@@ -83,7 +83,7 @@ it.each(["load", "restore"])("repairs one wind without losing other settings dur
   expect(options.map.climate.precipitation).toBe(321);
   expect(options.map.climate.temperature.equator).toBe(31);
   expect(options.map.lore.name).toBe("Kept world");
-  expect(options.map.military.units).toEqual([UNIT]);
+  expect(options.map.burgs.groups).toEqual([UNIT]);
 });
 
 it("keeps reset defaults independent from edited 3D settings", () => {
@@ -100,7 +100,7 @@ describe("a file describes its map", () => {
       map.seed = "12345";
       map.graph = { width: 1600, height: 900, points: 20000, sampling: "square", jitter: 0.9 };
       map.lore.name = "Narnia";
-      map.military.units = [UNIT];
+      map.burgs.groups = [UNIT];
       map.units.distance = { unit: "leagues", scale: 5 };
     });
 
@@ -126,11 +126,11 @@ describe("a file describes its map", () => {
 
 describe("no cross-map inheritance", () => {
   it("drops the previous map's definition sets when the next one has none", () => {
-    load(savedFile(map => (map.military.units = [UNIT])));
-    expect(options.map.military.units).toHaveLength(1);
+    load(savedFile(map => (map.burgs.groups = [UNIT])));
+    expect(options.map.burgs.groups).toHaveLength(1);
 
-    load(savedFile(map => (map.lore.name = "second"))); // a map with no military of its own
-    expect(options.map.military.units).toEqual(defaults().military.units);
+    load(savedFile(map => (map.lore.name = "second"))); // a map with no burg groups of its own
+    expect(options.map.burgs.groups).toEqual(defaults().burgs.groups);
     expect(options.map.lore.name).toBe("second");
   });
 
@@ -198,19 +198,19 @@ describe("a pin outlives the map it was made on", () => {
 
 describe("the definition sets carry to the next map", () => {
   it("starts a new map from the set this browser holds", () => {
-    options.map.military.units = [UNIT];
+    options.map.burgs.groups = [UNIT];
     Options.randomize();
-    expect(options.map.military.units).toEqual([UNIT]);
+    expect(options.map.burgs.groups).toEqual([UNIT]);
   });
 
   it("starts it from the set of the map last opened, since that is the one this browser holds", () => {
-    options.map.military.units = [UNIT];
-    load(savedFile(map => (map.military.units = [{ ...UNIT, name: "theirs" }])));
+    options.map.burgs.groups = [UNIT];
+    load(savedFile(map => (map.burgs.groups = [{ ...UNIT, name: "theirs" }])));
 
-    expect(options.map.military.units[0].name).toBe("theirs");
+    expect(options.map.burgs.groups[0].name).toBe("theirs");
 
     Options.randomize();
-    expect(options.map.military.units[0].name).toBe("theirs");
+    expect(options.map.burgs.groups[0].name).toBe("theirs");
   });
 
   it("carries the custom icons to a new map, and a loaded map brings its own", () => {
@@ -288,14 +288,14 @@ describe("validation repairs rather than rejects", () => {
 
   it("drops the one unusable entry of a definition set, not the set around it", () => {
     const map = adopt(file => {
-      file.military.units = [
+      file.burgs.groups = [
         UNIT,
-        { ...UNIT, name: "broken", rural: "not a number" },
+        { ...UNIT, name: "broken", order: "not a number" },
         { ...UNIT, name: "third" }
-      ] as unknown as MapData["military"]["units"];
+      ] as unknown as MapData["burgs"]["groups"];
     });
 
-    expect(map.military.units.map(unit => unit.name)).toEqual(["cavalry", "third"]);
+    expect(map.burgs.groups.map(unit => unit.name)).toEqual(["cavalry", "third"]);
   });
 
   it("keeps repairing a leaf from the defaults where the defaults have one", () => {

@@ -187,21 +187,17 @@ test("save sync lets an old map's heightmap attrs win when scheme is present", (
   expect(styles.heightmap.groups.oceanHeights.options.render).toBe(true);
 });
 
-test("save sync keeps store armies and grid options when their marker attrs are absent", () => {
-  document.body.innerHTML = `<svg id="map"><g id="armies" font-size="8"></g><g id="gridOverlay"></g><g id="sea_island"></g></svg>`;
-  styles.military.options.boxSize = 4;
+test("save sync keeps store grid options when their marker attrs are absent", () => {
+  document.body.innerHTML = `<svg id="map"><g id="gridOverlay"></g><g id="sea_island"></g></svg>`;
   styles.grid.options.scale = 2;
   harvestStylesFromSvg(document);
-  expect(styles.military.options.boxSize).toBe(4);
   expect(styles.grid.options.scale).toBe(2);
 });
 
-test("save sync lets an old map's armies, grid and map-filter attrs win; auto-filter is dropped", () => {
-  document.body.innerHTML = `<svg id="map" filter="url(#filter-tint)" data-filter="tint"><g id="armies" box-size="5" font-size="10"></g><g id="gridOverlay" type="square" scale="3" dx="1" dy="2"></g><g id="sea_island" auto-filter="1"></g></svg>`;
-  styles.military.options.boxSize = 4;
+test("save sync lets an old map's grid and map-filter attrs win; auto-filter is dropped", () => {
+  document.body.innerHTML = `<svg id="map" filter="url(#filter-tint)" data-filter="tint"><g id="gridOverlay" type="square" scale="3" dx="1" dy="2"></g><g id="sea_island" auto-filter="1"></g></svg>`;
   styles.grid.options.scale = 2;
   harvestStylesFromSvg(document);
-  expect(styles.military.options.boxSize).toBe(5);
   expect(styles.grid.options).toEqual({ type: "square", scale: 3, dx: 1, dy: 2 });
   expect(styles.map.attrs.filter).toBe("url(#filter-tint)");
   expect(styles.coastline.groups.sea_island).toEqual({ attrs: styles.coastline.groups.sea_island.attrs });

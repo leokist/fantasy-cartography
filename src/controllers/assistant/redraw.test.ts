@@ -6,8 +6,7 @@ const layers = (...rows: [key: string, field: string][]) => layersFor(rows.map((
 it("draws the layers that show the changed field", () => {
   expect(layers(["burg:1", "name"])).toEqual(["labels"]);
   expect(layers(["burg:1", "population"])).toEqual(["population"]);
-  expect(layers(["state:1", "color"])).toEqual(["states", "military"]);
-  expect(layers(["state:2", "military.0.name"])).toEqual(["military"]);
+  expect(layers(["state:1", "color"])).toEqual(["states"]);
   expect(layers(["river:3", "widthFactor"])).toEqual(["rivers"]);
 });
 
@@ -23,7 +22,6 @@ it("draws territory from cell ownership and merges the layers of a batch", () =>
     "provinces",
     "burgIcons",
     "labels",
-    "military",
     "emblems",
     "routes"
   ]);

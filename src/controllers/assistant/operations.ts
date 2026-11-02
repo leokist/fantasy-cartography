@@ -8,7 +8,6 @@ import { Features } from "@/model/physical/features-generator";
 import { Rivers } from "@/model/physical/river-generator";
 import { Burgs } from "@/model/political/burgs-generator";
 import { Emblems } from "@/model/political/emblems-generator";
-import { Military } from "@/model/political/military-generator";
 import { Provinces } from "@/model/political/provinces-generator";
 import { States } from "@/model/political/states-generator";
 import { Zones } from "@/model/political/zones-generator";
@@ -33,7 +32,6 @@ export const MODELS = {
   Lore,
   Markers,
   Markets,
-  Military,
   Notes,
   Provinces,
   Rivers,
@@ -72,7 +70,6 @@ export const METHODS = {
     "setCulture",
     "setType",
     "setExpansionism",
-    "setRelation",
     "recalculate",
     "merge",
     "add",
@@ -80,7 +77,6 @@ export const METHODS = {
     "setTaxes",
     "setTreasury",
     "setLocked",
-    "setChronicleEntry",
     "setCells",
     "setPopulation"
   ],
@@ -135,20 +131,6 @@ export const METHODS = {
   ],
   AddedLabels: ["rename", "place", "remove"],
   Labels: ["setGroup", "setLayout", "reset"],
-  Military: [
-    "rename",
-    "remove",
-    "add",
-    "setAlert",
-    "setUnits",
-    "setNaval",
-    "setIcon",
-    "move",
-    "rotate",
-    "setBase",
-    "split",
-    "attach"
-  ],
   Emblems: ["set", "regenerateOne", "place"],
   Journeys: [
     "add",

@@ -615,7 +615,6 @@ function stateChangeFill(fillBox: FillBoxElement): void {
     fillBox.fill = newFill;
     pack.states[state].color = newFill;
     Layers.draw("states");
-    Layers.draw("military");
   };
 
   void Controllers.ColorPicker.open(currentFill, callback);
@@ -1224,7 +1223,7 @@ function stateRemove(stateId: number): void {
   States.remove(stateId);
   select("#debug").selectAll(".highlight").remove();
 
-  Layers.draw("burgIcons", "labels", "military", "borders", "provinces", "states");
+  Layers.draw("burgIcons", "labels", "borders", "provinces", "states");
   refreshStatesEditor();
 }
 
@@ -1627,7 +1626,7 @@ function confirmStatesMerge(statesToMerge: number[], rulingStateId: number, onCo
     // prettier-ignore
     message: /* html */ `
       <p>${t("The following states will be removed")}: ${statesToMerge.map(stateId => `${stateEmblem(stateId)}${(pack.states)[stateId].name}`).join(", ")}.</p>
-      <p>${t("Removed states data (burgs, provinces, regiments) will be assigned to {{- ruler}}.", { ruler })}</p>
+      <p>${t("Removed states data (burgs, provinces) will be assigned to {{- ruler}}.", { ruler })}</p>
       <label style="display: flex; align-items: center"><input id="mergeStatesAsProvinces" class="checkbox native" type="checkbox"> ${t("Keep each removed state as a province of {{- ruler}}, replacing its own provinces", { ruler })}</label>
       <p>${sentences(t("Are you sure you want to merge states?"), t("This action cannot be reverted"))}</p>`,
     confirm: t("Merge"),
@@ -1665,7 +1664,7 @@ function mergeStates(statesToMerge: number[], rulingStateId: number, asProvinces
 
   unfog();
   select("#debug").selectAll(".highlight").remove();
-  Layers.draw("states", "borders", "burgIcons", "labels", "provinces", "military", "emblems");
+  Layers.draw("states", "borders", "burgIcons", "labels", "provinces", "emblems");
   if (asProvinces) Layers.show("provinces");
   refreshStatesEditor();
 }
@@ -1751,7 +1750,7 @@ async function uploadStatesCsv(text: string): Promise<void> {
   );
   if (!updated) return;
 
-  Layers.draw("states", "borders", "burgIcons", "labels", "provinces", "military", "emblems", "population");
+  Layers.draw("states", "borders", "burgIcons", "labels", "provinces", "emblems", "population");
   refreshStatesEditor();
 }
 

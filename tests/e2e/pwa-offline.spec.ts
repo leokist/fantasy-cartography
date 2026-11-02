@@ -62,7 +62,7 @@ test.describe("PWA offline", () => {
     await waitForMap(page);
 
     await page.click("#optionsTrigger");
-    await page.click("#toolsTab");
+    await page.click("#editButton");
     await page.click("#editBiomesButton");
 
     await expect(page.locator("#biomesEditor")).toBeVisible();

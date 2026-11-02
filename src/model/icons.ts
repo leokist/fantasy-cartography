@@ -20,11 +20,6 @@ type IconOwner = { icon?: string };
 const SLOTS = {
   good: { label: t("goods"), owners: () => pack.goods ?? [] },
   marker: { label: t("markers"), owners: () => pack.markers ?? [] },
-  regiment: {
-    label: t("regiments"),
-    owners: () => (pack.states ?? []).flatMap(state => state?.military ?? [])
-  },
-  unit: { label: t("unit types"), owners: () => options.map.military.units },
   burgGroup: {
     label: t("burg group styles"),
     owners: () =>

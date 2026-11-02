@@ -3,7 +3,6 @@ import type { LabelGroup } from "@/model/annotations/labels-generator";
 import type { Transport } from "@/model/economy/transports-generator";
 import type { CoastlineSettings } from "@/model/physical/coastline-generator";
 import type { BurgGroup } from "@/types/burg-groups";
-import type { MilitaryUnit } from "@/types/military";
 import { parseSections } from "@/utils/schema-utils";
 import { Options } from "./options-model";
 import { type MapData, mapSchema, type OptionsData, optionsSchema } from "./options-schema";
@@ -49,7 +48,6 @@ describe("options schema", () => {
   // a set the model leaves empty is a map whose entities resolve none of the names they point at
   it("starts the definition sets from the modules that own them", () => {
     const map = defaults();
-    expect(map.military.units.length).toBeGreaterThan(0);
     expect(map.transports.length).toBeGreaterThan(0);
     expect(map.burgs.groups.length).toBeGreaterThan(0);
     expect(map.labels.groups.length).toBeGreaterThan(0);
@@ -133,10 +131,6 @@ describe("the schema describes the value, not merely its type", () => {
 });
 
 describe("schema types match the domain types", () => {
-  it("military units", () => {
-    expectTypeOf<MapData["military"]["units"][number]>().toEqualTypeOf<MilitaryUnit>();
-  });
-
   // these two are deliberately wider in the schema than in the domain (a label group may name a
   // layer the registry no longer has, a transport domain is validated by the enum alone), so the
   // guard runs in the direction that matters: whatever the app produces must validate

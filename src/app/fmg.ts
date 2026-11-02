@@ -45,7 +45,6 @@ import { Rivers } from "@/model/physical/river-generator";
 import { Temperature } from "@/model/physical/temperature-generator";
 import { Burgs } from "@/model/political/burgs-generator";
 import { Emblems } from "@/model/political/emblems-generator";
-import { Military } from "@/model/political/military-generator";
 import { Provinces } from "@/model/political/provinces-generator";
 import { States } from "@/model/political/states-generator";
 import { Zones } from "@/model/political/zones-generator";
@@ -159,7 +158,6 @@ const FMG = {
   Markers,
   Markets,
   Measurers,
-  Military,
   Names,
   Notes,
   Ocean,

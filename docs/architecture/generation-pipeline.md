@@ -74,7 +74,7 @@ the pipeline, since it depends only on name bases and the seeded random source.
 | Provinces                | `provinces`, `provincePoles`                    | `pack.provinces`                                                                |
 | Naming polish            | `riversSpecify`, `featureNames`                 | river and feature (island, ocean, lake) names                                   |
 | Economy                  | `markets`, `production`, `taxes`                | `pack.markets`, `cells.market`, `pack.deals`, burg/state treasuries             |
-| Overlays                 | `military`, `markers`, `zones`, `addedLabels`   | regiments, markers, zones, labels                                               |
+| Overlays                 | `markers`, `zones`, `addedLabels`               | markers, zones, labels                                                          |
 | Finalise                 | `journeys`, `legends`                           | journeys, empty legend boxes                                                    |
 
 Two constraints are easy to break when replicating a slice of this:
@@ -121,7 +121,7 @@ flowchart TD
     prov["provinces + provincePoles<br/><i>writes: pack.provinces</i>"]
     names["riversSpecify + featureNames"]
     econ["markets + production + taxes<br/><i>writes: pack.markets, deals, cells.market</i>"]
-    mil["military + markers + zones + addedLabels"]
+    mil["markers + zones + addedLabels"]
     journeys["journeys + legends"]
 
     gg --> hm --> mg --> lakes --> coord --> temp --> prec --> repack --> ruler --> rivers --> biomes --> fg --> ice --> goods --> rank --> cult --> burgs --> states --> routes --> relig --> spec --> prov --> names --> econ --> mil --> journeys
@@ -232,8 +232,7 @@ and each one is a site that can silently fall behind when a generation step is a
 - **Labels**: a custom label path and offset follow the projection; a default label stays default.
 - **Relief**: icons stay, except where land went under the sea, unless the icon is in the marine biome's
   pool; land raised from the sea gets relief placed. Resample places all relief anew for its scale.
-- **Zones** take every cell whose snapshot cell was in the zone, markers the cell under them and regiments
-  the cell under their old one.
+- **Zones** take every cell whose snapshot cell was in the zone, and markers the cell under them.
 - **Economy**: goods and markets with a living center burg are kept, everything cell-bound is rebuilt.
 
 Partial regenerations triggered from the UI (`regenerate` methods on the generator modules,

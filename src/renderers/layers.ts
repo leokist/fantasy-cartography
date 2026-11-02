@@ -18,7 +18,6 @@ import { redrawLegend } from "@/renderers/draw-legend";
 import { drawMarkers } from "@/renderers/draw-markers";
 import { drawMarkets, removeMarkets } from "@/renderers/draw-markets";
 import { drawMeasurers } from "@/renderers/draw-measurers";
-import { drawMilitary } from "@/renderers/draw-military";
 import { drawOcean, removeOcean } from "@/renderers/draw-ocean";
 import { drawPopulation } from "@/renderers/draw-population";
 import { drawPrecipitation } from "@/renderers/draw-precipitation";
@@ -417,7 +416,6 @@ const mapLayers = [
     draw: drawLabels,
     erase: removeLabels
   }),
-  new Layer({ id: "military", element: "armies", parent: "viewbox", draw: drawMilitary }),
   new Layer({ id: "fogging", parent: "viewbox", attrs: { mask: "url(#fog)" }, permanent: true, draw: drawFogging }),
   new Layer({ id: "markers", parent: "viewbox", draw: drawMarkers }),
   new Layer({ id: "journeys", parent: "viewbox", draw: drawJourneys }),
