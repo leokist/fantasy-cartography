@@ -3466,7 +3466,6 @@
   "All random": "Tudo aleatório",
   "Back": "Voltar",
   "Canvas size of the map": "Tamanho da tela do mapa",
-  "Create a world step by step: set or roll each setting, then generate": "Crie um mundo passo a passo: defina ou sorteie cada ajuste e depois gere",
   "Current year": "Ano atual",
   "Depression filling steps": "Passos de preenchimento de depressões",
   "Distance per pixel": "Distância por pixel",
@@ -3748,5 +3747,6 @@
   "Set world parameters like the number of cultures and states before generating a new map. Interface preferences are under the gear in the bottom bar.": "Defina parâmetros do mundo, como o número de culturas e países, antes de gerar um novo mapa. As preferências da interface ficam na engrenagem da barra inferior.",
   "The Options tab lets you configure world generation parameters like the number of states, cultures and other settings that shape the generated world.": "A aba Opções permite configurar parâmetros de geração, como o número de países, culturas e outros ajustes que moldam o mundo gerado.",
   "This icon in the bottom bar opens the layers: which map elements are visible on the map.": "Este ícone na barra inferior abre as camadas: quais elementos aparecem no mapa.",
-  "This icon in the bottom bar opens the style: the visual appearance of the map — color schemes, opacity, line weights, and other properties for each map element.": "Este ícone na barra inferior abre o estilo: a aparência do mapa — esquemas de cores, opacidade, espessura das linhas e outras propriedades de cada elemento."
+  "This icon in the bottom bar opens the style: the visual appearance of the map — color schemes, opacity, line weights, and other properties for each map element.": "Este ícone na barra inferior abre o estilo: a aparência do mapa — esquemas de cores, opacidade, espessura das linhas e outras propriedades de cada elemento.",
+  "World Wizard: create a world step by step, then generate": "Assistente de mundo: crie um mundo passo a passo e depois gere"
 }

@@ -45,7 +45,7 @@ const SHELL_TEXT: [string, string | null, string | null][] = [
   ["#toolsTab", t("Tools"), t("Click to open tools menu")],
   ["#aboutTab", t("About"), t("Click to see Generator info")],
   ["#newMapButton", t("New Map"), t("Generate a new map based on options")],
-  ["#wizardButton", t("World Wizard"), t("Create a world step by step: set or roll each setting, then generate")],
+  ["#wizardButton", null, t("World Wizard: create a world step by step, then generate")],
   ["#exportButton", t("Export"), t("Select format to download image or export map data")],
   ["#saveButton", t("Save"), t("Save fully-functional map file")],
   ["#loadButton", t("Load"), t("Load fully-functional map (.map or .gz formats)")],
