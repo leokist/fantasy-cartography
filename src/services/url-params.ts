@@ -58,8 +58,18 @@ export async function checkLoadParameters(): Promise<void> {
     }
   }
 
-  log.warn("Generate random map");
-  generateMapOnLoad(size);
+  // Fantasy Cartography: nothing is generated until the author chooses how
+  const { showStartMenu } = await import("@/app/chrome/start-menu");
+  showStartMenu(startFirstMap, size);
+}
+
+/** The first map of the session, generated from the start menu or the World Wizard */
+export async function startFirstMap(config?: GenerationConfig): Promise<void> {
+  const { showLoadingLine } = await import("@/app/chrome/start-menu");
+  const { hideLoading } = await import("@/app/loading");
+  showLoadingLine(true);
+  await generateMapOnLoad(config);
+  hideLoading();
 }
 
 /** The start-up path: style, world, layers, then wherever the URL says to look */

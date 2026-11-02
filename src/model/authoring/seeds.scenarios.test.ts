@@ -1,5 +1,6 @@
 // Declared cultures and states on real generated maps, and additions that leave locked entities untouched
 import { beforeEach, describe, expect, it } from "vitest";
+import { getDefaultSeeds } from "@/model/authoring/world-spec";
 import { circle, generateMap, living, newViolations, riskEdit, violations } from "@/model/real-map.testing";
 
 const { WorldSeeds } = await import("./seeds");
@@ -17,6 +18,11 @@ beforeEach(() => {
 describe("world seeds", () => {
   it("found the declared cultures and states where the author placed them", async () => {
     WorldSeeds.planNext({
+      ...getDefaultSeeds(),
+      continents: [
+        { name: "Westland", x: 25, y: 50, size: "large" },
+        { name: "Eastland", x: 75, y: 50, size: "large" }
+      ],
       cultures: [{ name: "Aldorians", x: 25, y: 50, color: "#aa0000" }],
       states: [
         {
@@ -69,10 +75,16 @@ describe("world seeds", () => {
     expect(living(pack.states).some(state => state.name === "Aldoria" || authored(state.i))).toBe(false);
   });
 
-  it("skips a seed with no land under it instead of failing", async () => {
-    WorldSeeds.planNext({ cultures: [], states: [{ name: "Atlantis", x: 0, y: 0 }], species: [] });
+  it("raises land for a country declared off every continent", async () => {
+    WorldSeeds.planNext({
+      ...getDefaultSeeds(),
+      continents: [{ name: "Midland", x: 50, y: 50, size: "huge" }],
+      states: [{ name: "Atlantis", x: 3, y: 5 }]
+    });
     await generateMap({ seed: "seeds-2" });
-    expect(pack.states[1].name).toBe("Atlantis"); // snapped to the nearest populated land
+    const atlantis = pack.states[1];
+    expect(atlantis.name).toBe("Atlantis");
+    expect(pack.burgs[atlantis.capital].x).toBeLessThan(0.15 * options.map.graph.width); // its own island
   });
 });
 
@@ -87,6 +99,7 @@ describe("additions to a generated map", () => {
     const stateCells = cellsOf(pack.cells.state, lockedState.i);
     const cultureCells = cellsOf(pack.cells.culture, lockedCulture.i);
     const stateCopy = structuredClone(lockedState);
+    const provincesBefore = pack.provinces.map(province => province?.name);
 
     const stateId = Additions.addState({ name: "Nova Terra", capital: "Porto Novo", x: 50, y: 50 });
     const cultureId = Additions.addCulture({ name: "Novos", x: 50, y: 50 });
@@ -94,8 +107,12 @@ describe("additions to a generated map", () => {
     expect(cellsOf(pack.cells.state, lockedState.i)).toEqual(stateCells);
     expect(cellsOf(pack.cells.culture, lockedCulture.i)).toEqual(cultureCells);
     // the same state, plus its relation to the newcomer; neighbors and area are derived
-    const { diplomacy, ...rest } = pack.states[lockedState.i];
-    const { diplomacy: diplomacyBefore, ...restBefore } = stateCopy;
+    // province regeneration renumbers the provinces a locked state keeps; their names stay
+    const provinceNames = (ids?: number[]) => ids?.map(id => pack.provinces[id]?.name).sort();
+    const namesBefore = stateCopy.provinces?.map(id => provincesBefore[id]).sort();
+    const { diplomacy, provinces, ...rest } = pack.states[lockedState.i];
+    const { diplomacy: diplomacyBefore, provinces: _, ...restBefore } = stateCopy;
+    expect(provinceNames(provinces)).toEqual(namesBefore);
     expect({ ...rest, neighbors: undefined, area: undefined }).toEqual({
       ...restBefore,
       neighbors: undefined,

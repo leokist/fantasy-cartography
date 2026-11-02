@@ -485,7 +485,7 @@ const TEMPLATE = /* html */ `
     <button
       id="configureWorld"
       style="flex: 1; min-width: max-content"
-      data-tip="${t("Open the World Configurator to set the map position on the globe and the world climate")}"
+      data-tip="${t("Open the climate settings: how warm, cold and wet the map is")}"
     >
       ${t("Climate")}
     </button>

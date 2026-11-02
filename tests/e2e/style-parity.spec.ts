@@ -117,8 +117,8 @@ test("styled attributes match the pre-migration baseline", async ({page}) => {
 // preset-driven, not seed-driven, so this is stable across random maps.
 test("styled attributes on a freshly generated map match the preset-apply baseline", async ({page}) => {
   await page.goto("/");
-  await page.waitForFunction(() => Boolean((window as any).pack?.cells?.i?.length), {timeout: 120000});
   await waitForMap(page);
+  await page.waitForFunction(() => Boolean((window as any).pack?.cells?.i?.length), {timeout: 120000});
   await page.waitForSelector("#burgIcons > g", {state: "attached", timeout: 120000});
   await page.waitForSelector("#burgIcons > g [data-group=\"anchors\"]", {state: "attached", timeout: 120000});
   await page.waitForSelector("#labels > g", {state: "attached", timeout: 120000});

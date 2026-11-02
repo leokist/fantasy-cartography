@@ -140,6 +140,13 @@ export const regenerateMap = debounce(async (config?: GenerationConfig | string)
   clearMainTip();
 }, 250);
 
+/** A new world: the first one of the session takes the start-up path, a later one replaces the map on screen */
+export async function newWorld(config?: GenerationConfig): Promise<void> {
+  if (mapHistory.length) return regenerateMap(config);
+  const { startFirstMap } = await import("@/services/url-params");
+  await startFirstMap(config);
+}
+
 /** Ask before throwing away a map the user has been working on for a while */
 export function regeneratePrompt(config?: GenerationConfig): void {
   if (options.app.mode) {

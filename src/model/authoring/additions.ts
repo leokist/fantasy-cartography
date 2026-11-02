@@ -2,8 +2,11 @@
 // and only unlocked, generated entities make room for the newcomer
 
 import { type AuthorableCollection, Authoring } from "@/model/authoring/authoring";
-import { nearestCell, plantSpecies } from "@/model/authoring/seeds";
-import type { CultureSeed, SpeciesSeed, StateSeed } from "@/model/authoring/world-spec";
+import { foundCities, foundProvinces, joinBorders, nearestCell, settleLand } from "@/model/authoring/country";
+import { countryRadius, shapeBiomes, shapeLand, toPoint, worldNoise } from "@/model/authoring/land";
+import { EXPANSIONISM, plantSpecies } from "@/model/authoring/seeds";
+import type { CultureSeed, Seeds, SpeciesSeed, StateSeed } from "@/model/authoring/world-spec";
+import { MapRestoration } from "@/model/map-restoration";
 import { Burgs } from "@/model/political/burgs-generator";
 import { Provinces } from "@/model/political/provinces-generator";
 import { States } from "@/model/political/states-generator";
@@ -12,12 +15,63 @@ import { Names } from "@/model/society/names-generator";
 import type { PictureEmblem } from "@/types/emblems";
 
 class AdditionsModule {
+  /**
+   * Put the country declared as state seed `index` on the map on screen: where its spot is sea or too small,
+   * land is raised for it first; then it is founded, grows to its size, joins the countries it should border and
+   * gets its cities and provinces. Locked countries stay as they are. Returns its id
+   */
+  addCountry(seeds: Seeds, index: number): number {
+    const seed = seeds.states[index];
+    const own = { ...seeds, states: [seed], provinces: seeds.provinces.filter(p => p.state === index) };
+    const ownSeeds = { ...own, continents: [], provinces: own.provinces.map(p => ({ ...p, state: 0 })) };
+    const noise = worldNoise(String(options.map.seed));
+    this.raiseLand(ownSeeds, noise);
+
+    const id = this.addState(seed);
+    const named = (name: string) => pack.states.find(state => state.i && !state.removed && state.name === name)?.i;
+    Authoring.untracked(() => {
+      for (const other of seed.neighbors ?? []) joinBorders(id, named(seeds.states[other]?.name ?? ""));
+      for (const burg of foundCities(seed, id)) Authoring.markAuthored("burgs", burg);
+      for (const province of foundProvinces(ownSeeds, 0, id, noise)) Authoring.markAuthored("provinces", province);
+      shapeBiomes(ownSeeds, noise);
+      States.getPoles();
+      States.findNeighbors();
+      States.collectStatistics();
+    });
+    return id;
+  }
+
+  // the country's land where the map has sea, keeping all the land already there; the map is rebuilt around it
+  private raiseLand(seeds: Seeds, noise: ReturnType<typeof worldNoise>): void {
+    const [cx, cy] = toPoint(seeds.states[0]);
+    const reach = countryRadius(seeds.states[0]) * 1.5;
+    const shaped = shapeLand(seeds, grid.points, noise, Math.random);
+    const heights = grid.cells.h.slice();
+    let changed = false;
+    for (const [cell, [x, y]] of grid.points.entries()) {
+      if (Math.hypot(x - cx, y - cy) > reach || shaped[cell] <= heights[cell]) continue;
+      if (heights[cell] < 20 || seeds.provinces.some(province => province.relief)) {
+        heights[cell] = shaped[cell];
+        changed = true;
+      }
+    }
+    if (!changed) return;
+    MapRestoration.applyHeights(heights, { erosion: false });
+    settleLand();
+  }
+
   /** Found a declared state at its spot and let it take land from unlocked states. Returns its id */
   addState(seed: StateSeed): number {
     const { cells, burgs } = pack;
-    const free = (cell: number) => cells.s[cell] > 0 && cells.culture[cell] > 0 && !burgs[cells.burg[cell]]?.capital;
-    const cell = nearestCell(seed, free);
-    if (cell === undefined) throw new Error(`No populated land for ${seed.name}`);
+    const free = (cell: number) => cells.h[cell] >= 20 && !burgs[cells.burg[cell]]?.capital;
+    const locked = (cell: number) => pack.states[cells.state[cell]]?.lock;
+    // settled land near the spot first; land raised just now for the country has no people yet
+    const [px, py] = toPoint(seed);
+    const settled = nearestCell(seed, c => free(c) && !locked(c) && cells.s[c] > 0 && cells.culture[c] > 0);
+    const near = (c: number | undefined) =>
+      c !== undefined && Math.hypot(cells.p[c][0] - px, cells.p[c][1] - py) < countryRadius(seed);
+    const cell = near(settled) ? settled : (nearestCell(seed, c => free(c) && !locked(c)) ?? settled);
+    if (cell === undefined) throw new Error(`No free land for ${seed.name}`);
 
     const [x, y] = cells.p[cell];
     const id = Authoring.untracked(() => States.add(x, y));
@@ -29,6 +83,7 @@ class AdditionsModule {
       if (seed.capital) Burgs.rename(capital, seed.capital);
     });
     if (seed.emblem) pack.states[id].coa = { icon: seed.emblem } as PictureEmblem;
+    pack.states[id].expansionism = EXPANSIONISM[seed.size ?? "medium"];
 
     Authoring.markAuthored("states", id);
     Authoring.markAuthored("burgs", capital);

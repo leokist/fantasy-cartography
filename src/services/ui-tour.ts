@@ -239,9 +239,9 @@ function start() {
           void Controllers.WorldConfigurator.open();
         },
         popover: {
-          title: t("World Configurator"),
+          title: t("Climate"),
           description: t(
-            "Here you can set temperatures at the equator and poles, control wind direction and precipitation, and position the map on the globe. Changes affect biome and climate generation."
+            "Here you set how warm, cold and wet the map is. Changes affect biome and climate generation."
           ),
           side: "right",
           onNextClick: () => {

@@ -198,7 +198,7 @@ function announceVersion(): void {
 
   const storedVersion = localStorage.getItem("version");
   if (!storedVersion) {
-    setTimeout(() => showUpdateWindow(null), 6000);
+    localStorage.setItem("version", VERSION); // a first visit starts at the start menu, not with release notes
     return;
   }
 
