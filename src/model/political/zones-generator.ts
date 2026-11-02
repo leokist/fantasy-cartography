@@ -33,8 +33,6 @@ class ZonesModule {
     this.config = {
       invasion: { quantity: 2, generate: u => this.addInvasion(u) },
       rebels: { quantity: 1.5, generate: u => this.addRebels(u) },
-      proselytism: { quantity: 1.6, generate: u => this.addProselytism(u) },
-      crusade: { quantity: 1.6, generate: u => this.addCrusade(u) },
       disease: { quantity: 1.4, generate: u => this.addDisease(u) },
       disaster: { quantity: 1, generate: u => this.addDisaster(u) },
       eruption: { quantity: 1, generate: u => this.addEruption(u) },
@@ -253,75 +251,6 @@ class ZonesModule {
       type: "Rebels",
       cells: cellsArray,
       color: "url(#hatch3)"
-    });
-  }
-
-  private addProselytism(usedCells: Uint8Array) {
-    const { cells, religions } = pack;
-
-    const organizedReligions = religions.filter(r => r.i && !r.removed && r.type === "Organized");
-    const religion = ra(organizedReligions);
-    if (!religion) return;
-
-    const targetBorderCells = cells.i.filter(
-      i =>
-        cells.h[i] >= 20 &&
-        cells.pop[i] &&
-        cells.religion[i] !== religion.i &&
-        cells.c[i].some(c => cells.religion[c] === religion.i)
-    );
-    const startCell = ra(targetBorderCells);
-    if (!startCell) return;
-
-    const targetReligionId = cells.religion[startCell];
-    const proselytismCells: number[] = [];
-    const queue = [startCell];
-    const maxCells = rand(10, 30);
-
-    while (queue.length) {
-      const cellId = queue.shift()!;
-      proselytismCells.push(cellId);
-      if (proselytismCells.length >= maxCells) break;
-
-      cells.c[cellId].forEach(neibCellId => {
-        if (usedCells[neibCellId]) return;
-        if (cells.religion[neibCellId] !== targetReligionId) return;
-        if (cells.h[neibCellId] < 20 || !cells.pop[neibCellId]) return;
-        usedCells[neibCellId] = 1;
-        queue.push(neibCellId);
-      });
-    }
-
-    const name = `${getAdjective(religion.name.split(" ")[0])} Proselytism`;
-    pack.zones.push({
-      i: pack.zones.length,
-      name,
-      type: "Proselytism",
-      cells: proselytismCells,
-      color: "url(#hatch6)"
-    });
-  }
-
-  private addCrusade(usedCells: Uint8Array) {
-    const { cells, religions } = pack;
-
-    const heresies = religions.filter(r => !r.removed && r.type === "Heresy");
-    if (!heresies.length) return;
-
-    const heresy = ra(heresies);
-    const crusadeCells = cells.i.filter(i => !usedCells[i] && cells.religion[i] === heresy.i);
-    if (!crusadeCells.length) return;
-    for (const i of crusadeCells) {
-      usedCells[i] = 1;
-    }
-
-    const name = `${getAdjective(heresy.name.split(" ")[0])} Crusade`;
-    pack.zones.push({
-      i: pack.zones.length,
-      name,
-      type: "Crusade",
-      cells: Array.from(crusadeCells),
-      color: "url(#hatch6)"
     });
   }
 

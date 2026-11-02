@@ -248,11 +248,10 @@ class MilitaryModule {
       return "generic";
     };
 
-    function passUnitLimits(unit: MilitaryUnit, biome: number, state: number, culture: number, religion: number) {
+    function passUnitLimits(unit: MilitaryUnit, biome: number, state: number, culture: number) {
       if (unit.biomes && !unit.biomes.includes(biome)) return false;
       if (unit.states && !unit.states.includes(state)) return false;
       if (unit.cultures && !unit.cultures.includes(culture)) return false;
-      if (unit.religions && !unit.religions.includes(religion)) return false;
       return true;
     }
 
@@ -263,7 +262,6 @@ class MilitaryModule {
       const biome = cells.biome[i];
       const state = cells.state[i];
       const culture = cells.culture[i];
-      const religion = cells.religion[i];
 
       const stateObj = states[state];
       const draft = drafts.get(state);
@@ -271,8 +269,6 @@ class MilitaryModule {
 
       let modifier = cells.pop[i] / 100; // basic rural army in percentages
       if (culture !== stateObj.culture) modifier = stateObj.form === "Union" ? modifier / 1.2 : modifier / 2; // non-dominant culture
-      if (religion !== cells.religion[stateObj.center])
-        modifier = stateObj.form === "Theocracy" ? modifier / 2.2 : modifier / 1.4; // non-dominant religion
       if (cells.f[i] !== cells.f[stateObj.center])
         modifier = stateObj.type === "Naval" ? modifier / 1.2 : modifier / 1.8; // different landmass
       const type = getType(i);
@@ -280,7 +276,7 @@ class MilitaryModule {
       for (const unit of options.map.military.units) {
         const perc = +unit.rural;
         if (Number.isNaN(perc) || perc <= 0 || !draft.modifiers[unit.name]) continue;
-        if (!passUnitLimits(unit, biome, state, culture, religion)) continue;
+        if (!passUnitLimits(unit, biome, state, culture)) continue;
         if (unit.type === "naval" && !cells.haven[i]) continue; // only near-ocean cells create naval units
 
         const cellTypeMod =
@@ -324,7 +320,6 @@ class MilitaryModule {
       const biome = cells.biome[b.cell];
       const state = b.state;
       const culture = b.culture;
-      const religion = cells.religion[b.cell];
 
       const stateObj = states[state];
       const draft = drafts.get(state);
@@ -332,14 +327,13 @@ class MilitaryModule {
       let m = (b.population * options.map.units.population.urbanization.rate) / 100; // basic urban army in percentages
       if (b.capital) m *= 1.2; // capital has household troops
       if (culture !== stateObj.culture) m = stateObj.form === "Union" ? m / 1.2 : m / 2; // non-dominant culture
-      if (religion !== cells.religion[stateObj.center]) m = stateObj.form === "Theocracy" ? m / 2.2 : m / 1.4; // non-dominant religion
       if (cells.f[b.cell] !== cells.f[stateObj.center]) m = stateObj.type === "Naval" ? m / 1.2 : m / 1.8; // different landmass
       const type = getType(b.cell);
 
       for (const unit of options.map.military.units) {
         const perc = +unit.urban;
         if (Number.isNaN(perc) || perc <= 0 || !draft.modifiers[unit.name]) continue;
-        if (!passUnitLimits(unit, biome, state, culture!, religion)) continue;
+        if (!passUnitLimits(unit, biome, state, culture!)) continue;
         if (unit.type === "naval" && (!b.port || !cells.haven[b.cell])) continue; // only ports create naval units
 
         const mod =

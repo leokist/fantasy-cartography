@@ -815,10 +815,9 @@ function saveGeoJsonCells(): void {
     const state = cells.state[i];
     const province = cells.province[i];
     const culture = cells.culture[i];
-    const religion = cells.religion[i];
     const neighbors = cells.c[i];
 
-    const properties = { id: i, height, biome, type, population, state, province, culture, religion, neighbors };
+    const properties = { id: i, height, biome, type, population, state, province, culture, neighbors };
     const feature = { type: "Feature", geometry: { type: "Polygon", coordinates }, properties };
     json.features.push(feature);
   });

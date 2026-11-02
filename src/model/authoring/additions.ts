@@ -2,23 +2,29 @@
 // and only unlocked, generated entities make room for the newcomer
 
 import { type AuthorableCollection, Authoring } from "@/model/authoring/authoring";
-import { foundCities, foundProvinces, joinBorders, nearestCell, settleLand } from "@/model/authoring/country";
+import {
+  foundCities,
+  foundProvinces,
+  joinBorders,
+  makePeople,
+  nearestCell,
+  settleLand
+} from "@/model/authoring/country";
 import { countryRadius, shapeBiomes, shapeLand, toPoint, worldNoise } from "@/model/authoring/land";
 import { EXPANSIONISM, plantSpecies } from "@/model/authoring/seeds";
-import type { CultureSeed, Seeds, SpeciesSeed, StateSeed } from "@/model/authoring/world-spec";
+import type { Seeds, SpeciesSeed, StateSeed } from "@/model/authoring/world-spec";
 import { MapRestoration } from "@/model/map-restoration";
 import { Burgs } from "@/model/political/burgs-generator";
 import { Provinces } from "@/model/political/provinces-generator";
 import { States } from "@/model/political/states-generator";
 import { Cultures } from "@/model/society/cultures-generator";
-import { Names } from "@/model/society/names-generator";
 import type { PictureEmblem } from "@/types/emblems";
 
 class AdditionsModule {
   /**
    * Put the country declared as state seed `index` on the map on screen: where its spot is sea or too small,
    * land is raised for it first; then it is founded, grows to its size, joins the countries it should border and
-   * gets its cities and provinces. Locked countries stay as they are. Returns its id
+   * gets its people, cities and provinces. Locked countries stay as they are. Returns its id
    */
   addCountry(seeds: Seeds, index: number): number {
     const seed = seeds.states[index];
@@ -31,6 +37,7 @@ class AdditionsModule {
     const named = (name: string) => pack.states.find(state => state.i && !state.removed && state.name === name)?.i;
     Authoring.untracked(() => {
       for (const other of seed.neighbors ?? []) joinBorders(id, named(seeds.states[other]?.name ?? ""));
+      this.addPeople(id, seed);
       for (const burg of foundCities(seed, id)) Authoring.markAuthored("burgs", burg);
       for (const province of foundProvinces(ownSeeds, 0, id, noise)) Authoring.markAuthored("provinces", province);
       shapeBiomes(ownSeeds, noise);
@@ -91,25 +98,18 @@ class AdditionsModule {
     return id;
   }
 
-  /** Found a declared culture at its spot and let it spread over land of unlocked cultures. Returns its id */
-  addCulture(seed: CultureSeed): number {
-    const { cells, cultures } = pack;
-    const centers = new Set(cultures.map(culture => culture.center));
-    const cell = nearestCell(seed, cell => cells.s[cell] > 0 && !centers.has(cell));
-    if (cell === undefined) throw new Error(`No populated land for ${seed.name}`);
-
-    const [x, y] = cells.p[cell];
-    const id = Authoring.untracked(() => {
-      const added = Cultures.add(x, y);
-      Cultures.rename(added, seed.name);
-      if (seed.color) Cultures.recolor(added, seed.color);
-      if (seed.base !== undefined && seed.base < Names.nameBases.length) Cultures.setBase(added, seed.base);
-      return added;
-    });
-
+  // a new culture for the country, centered on its capital or the nearest of its cells free of a culture center
+  private addPeople(stateId: number, seed: StateSeed): void {
+    const { cells, cultures, burgs, states } = pack;
+    const centers = new Set(cultures.filter(c => c.i && !c.removed).map(culture => culture.center));
+    const capital = burgs[states[stateId].capital].cell;
+    const own = Array.from(cells.i).filter(cell => cells.state[cell] === stateId && cells.h[cell] >= 20);
+    const center = [capital, ...own].find(cell => !centers.has(cell));
+    if (center === undefined) return;
+    const [x, y] = cells.p[center];
+    const id = Cultures.add(x, y);
+    makePeople(stateId, id, seed);
     Authoring.markAuthored("cultures", id);
-    this.grow("cultures", id, () => Cultures.recalculate());
-    return id;
   }
 
   /** Put a declared species in the catalogue of the map on screen. Returns its id */

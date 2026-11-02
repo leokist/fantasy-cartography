@@ -71,7 +71,6 @@ function renderDialog(): void {
             <th data-tip="${t("Select allowed biomes")}">${t("Biomes")}</th>
             <th data-tip="${t("Select allowed states")}">${t("States")}</th>
             <th data-tip="${t("Select allowed cultures")}">${t("Cultures")}</th>
-            <th data-tip="${t("Select allowed religions")}">${t("Religions")}</th>
             <th data-tip="${t("Select allowed features")}">${t("Features", { context: "burg" })}</th>
             <th data-tip="${t("Number of burgs in group")}">${t("Count")}</th>
             <th data-tip="${t("Activate/deactivate group")}">${t("Active")}</th>
@@ -113,7 +112,6 @@ function renderDialog(): void {
     }
     if (el.getAttribute("name") === "states") return selectLimitation(el, pack.states);
     if (el.getAttribute("name") === "cultures") return selectLimitation(el, pack.cultures);
-    if (el.getAttribute("name") === "religions") return selectLimitation(el, pack.religions);
     if (el.getAttribute("name") === "features") return selectFeaturesLimitation(el);
     if (el.getAttribute("name") === "up") {
       const prev = row.previousElementSibling;
@@ -168,10 +166,6 @@ function createRow(group: BurgGroup): string {
       <td data-tip="${t("Select allowed cultures")}">
         <input type="hidden" name="cultures" value="${group.cultures || ""}">
         <button type="button" name="cultures">${group.cultures ? t("Some") : t("All")}</button>
-      </td>
-      <td data-tip="${t("Select allowed religions")}">
-        <input type="hidden" name="religions" value="${group.religions || ""}">
-        <button type="button" name="religions">${group.religions ? t("Some") : t("All")}</button>
       </td>
       <td data-tip="${t("Select allowed features")}" >
         <input type="hidden" name="features" value='${JSON.stringify(group.features || {})}'>
@@ -371,8 +365,7 @@ function rowToGroup(row: Element): BurgGroup {
     features: getFeatures(input("features").value),
     biomes: getLimitation("biomes"),
     states: getLimitation("states"),
-    cultures: getLimitation("cultures"),
-    religions: getLimitation("religions")
+    cultures: getLimitation("cultures")
   };
 }
 

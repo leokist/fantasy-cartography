@@ -76,11 +76,6 @@ beforeEach(() => {
       { i: 0, name: "Wildlands" },
       { i: 1, name: "Orwish" }
     ],
-    religions: [
-      { i: 0, name: "No religion" },
-      { i: 1, name: "Sun Cult" }
-    ],
-    cells: { religion: [0, 1] },
     goods: [{ i: 0, name: "Salt", color: "#fff", icon: "glyph-1f9c2" }]
   } as unknown as typeof pack;
   pack.burgs[1] = { ...pack.burgs[1], cell: 1 } as (typeof pack.burgs)[number];
@@ -215,8 +210,7 @@ it("profiles a state in a card with its emblem, figures and note", () => {
     Capital: "Vel",
     Population: "3K",
     Burgs: "4",
-    Culture: "Orwish",
-    Religion: "Sun Cult"
+    Culture: "Orwish"
   });
   expect(card.querySelector(".assistantCardNote")?.textContent).toBe("An old realm");
   expect(card.querySelector('[data-action="command"]')?.getAttribute("data-id")).toBe("editStatesButton");

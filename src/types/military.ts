@@ -10,5 +10,4 @@ export type MilitaryUnit = {
   biomes?: number[];
   states?: number[];
   cultures?: number[];
-  religions?: number[];
 };

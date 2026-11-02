@@ -1,4 +1,5 @@
 // Carries a map's data over to a rebuilt graph: every stored cell id is found again by its position
+
 import { quadtree } from "d3";
 import { clipPolyline } from "lineclip";
 import { Goods } from "@/model/economy/goods-generator";
@@ -17,6 +18,7 @@ import { Temperature } from "@/model/physical/temperature-generator";
 import { Burgs } from "@/model/political/burgs-generator";
 import { Provinces } from "@/model/political/provinces-generator";
 import { States } from "@/model/political/states-generator";
+import { clearReligions } from "@/model/society/no-religion";
 import { Journeys } from "@/model/story/journeys/journeys-generator";
 import type { Point } from "@/types/global";
 import type { JourneyPoint, JourneySegment } from "@/types/journey";
@@ -158,7 +160,6 @@ class MapRestorationModule {
     this.restoreProvinces(parent, projection, strayed);
     States.findNeighbors();
     States.collectStatistics();
-    this.restoreReligions(parent, projection);
     this.restoreMarkers(parent, projection);
     this.restoreZones(parent, links);
     this.restoreJourneys(parent, projection);
@@ -297,7 +298,7 @@ class MapRestorationModule {
     return cell !== -1 && owner[cell] === id ? cell : this.findPoleCell(owner, id, pole);
   }
 
-  /** a culture or religion keeps its origin while it is land on the map, else it moves to the pole */
+  /** a culture keeps its origin while it is land on the map, else it moves to the pole */
   private findOrigin(parent: PackedGraph, projection: Projection, center: number | undefined, pole: () => number) {
     const point = this.projectPoint(parent, center, projection);
     if (!point || !this.isInMap(...point)) return pole();
@@ -496,13 +497,13 @@ class MapRestorationModule {
     const from = parent.cells;
 
     pack.biomes = parent.biomes;
+    clearReligions();
     cells.biome = new Uint8Array(n);
     cells.s = new Int16Array(n);
     cells.pop = new Float32Array(n);
     cells.culture = new Uint16Array(n);
     cells.state = new Uint16Array(n);
     cells.burg = new Uint16Array(n);
-    cells.religion = new Uint16Array(n);
     cells.province = new Uint16Array(n);
     cells.good = new Uint16Array(n);
 
@@ -527,7 +528,6 @@ class MapRestorationModule {
       cells.pop[cell] = from.pop[source] * ratio;
       cells.culture[cell] = from.culture[source];
       cells.state[cell] = from.state[source];
-      cells.religion[cell] = from.religion[source];
       cells.province[cell] = from.province[source];
     }
     if (!unlinked.length) return;
@@ -825,21 +825,6 @@ class MapRestorationModule {
       province.center = this.keepCenter(parent, projection, province.center, cells.province, province.i, province.pole);
       province.burg = 0;
     }
-  }
-
-  private restoreReligions(parent: PackedGraph, projection: Projection) {
-    const { religion } = pack.cells;
-    const present = new Set(religion);
-    const poles = getPolesOfInaccessibility(pack, cell => religion[cell]);
-    pack.religions = parent.religions.map(item => {
-      if (!item.i || item.removed) return item;
-      if (!present.has(item.i)) return { ...item, removed: true, lock: false };
-      const center = this.findOrigin(parent, projection, item.center, () =>
-        this.findPoleCell(religion, item.i, poles[item.i])
-      );
-      return { ...item, center, culture: this.keptCulture(item.culture) };
-    });
-    forgetRemovedOrigins(pack.religions);
   }
 
   /** a point cut at the map edge takes the cell under it */

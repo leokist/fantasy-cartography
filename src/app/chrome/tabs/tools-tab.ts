@@ -70,9 +70,6 @@ const TEMPLATE = /* html */ `
     <button id="editProvincesButton" data-tip="${t("Provinces Editor")}" data-shortcut="Shift + P">
       ${t("Provinces")}
     </button>
-    <button id="editReligions" data-tip="${t("Religions Editor")}" data-shortcut="Shift + R">
-      ${t("Religions")}
-    </button>
     <button id="overviewRiversButton" data-tip="${t("Rivers Overview")}" data-shortcut="Shift + V">
       ${t("Rivers")}
     </button>
@@ -148,7 +145,6 @@ const TEMPLATE = /* html */ `
     >
       ${t("Relief")}
     </button>
-    <button id="regenerateReligions" data-tip="${t("Click to regenerate non-locked religions")}">${t("Religions")}</button>
     <button id="regenerateRivers" data-tip="${t("Click to regenerate all rivers (restore default state)")}">
       ${t("Rivers")}
     </button>

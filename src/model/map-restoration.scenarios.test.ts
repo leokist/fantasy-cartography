@@ -16,29 +16,14 @@ function fingerprint() {
   const byCell = (values: ArrayLike<number>) => Array.from(cells.i, cell => `${at(cell)}:${values[cell]}`).sort();
   return {
     cells: Object.fromEntries(
-      (
-        [
-          "h",
-          "biome",
-          "culture",
-          "state",
-          "province",
-          "religion",
-          "pop",
-          "s",
-          "good",
-          "r",
-          "fl",
-          "conf",
-          "burg"
-        ] as const
-      ).map(key => [key, byCell(cells[key])])
+      (["h", "biome", "culture", "state", "province", "pop", "s", "good", "r", "fl", "conf", "burg"] as const).map(
+        key => [key, byCell(cells[key])]
+      )
     ),
     burgs: pack.burgs.map(burg => burg.i && [at(burg.cell), burg.name, burg.state, burg.port, burg.treasury]),
     states: pack.states.map(state => [state.name, state.capital, state.i && at(state.center)]),
     provinces: pack.provinces.map(province => province.i && [province.burg, at(province.center)]),
     cultures: pack.cultures.map(culture => culture.i && at(culture.center!)),
-    religions: pack.religions.map(religion => religion.i && at(religion.center)),
     routes: pack.routes.map(route => [route.name, route.points.map(([, , cell]) => at(cell))]),
     rivers: pack.rivers.map(river => [river.i, river.name, river.cells.map(cell => (cell < 0 ? cell : at(cell)))]),
     features: pack.features.map(feature => feature && [feature.type, feature.name, feature.cells]),

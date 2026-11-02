@@ -52,7 +52,6 @@ import { Resample } from "@/model/resample";
 import { Cultures } from "@/model/society/cultures-generator";
 import { Names } from "@/model/society/names-generator";
 import { Population } from "@/model/society/population-generator";
-import { Religions } from "@/model/society/religions-generator";
 import { Journeys } from "@/model/story/journeys/journeys-generator";
 import { Lore } from "@/model/story/lore";
 import { Markers } from "@/model/story/markers-generator";
@@ -171,7 +170,6 @@ const FMG = {
   Production,
   Provinces,
   Relief,
-  Religions,
   Resample,
   Rivers,
   Routes,

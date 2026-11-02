@@ -1,4 +1,5 @@
-// How the author asked for the world: per setting, a value they set or a request to roll it, and what they declared
+// How the author asked for the world: per setting, a value they set or a request to roll it, and what they declared.
+// Each declared country is its own people: its culture takes its name, color and language
 
 import { z } from "zod";
 import { DANGERS, RARITIES, SPECIES_KINDS } from "@/data/species";
@@ -38,20 +39,13 @@ const provinceSeed = z.strictObject({
   water: z.enum(WATERS).optional()
 });
 
-const cultureSeed = z.strictObject({
-  name: z.string().trim().min(1),
-  ...spot,
-  color: color.optional(),
-  base: z.number().int().min(0).optional() // a name base id, the culture's language
-});
-
 const stateSeed = z.strictObject({
   name: z.string().trim().min(1),
   ...spot,
   capital: z.string().trim().min(1).optional(),
   form: z.string().trim().min(1).optional(), // Kingdom, Republic…; the generator picks one when absent
   color: color.optional(),
-  culture: z.number().int().min(0).optional(), // index of a culture seed
+  language: z.number().int().min(0).optional(), // a name base id: the country is its own people, named in it
   emblem: z.string().min(1).optional(), // an icon id: a picture used as the whole emblem
   size: z.enum(COUNTRY_SIZES).optional(),
   continent: z.number().int().min(0).optional(), // index of a continent seed
@@ -70,7 +64,6 @@ const speciesSeed = z.strictObject({
 
 export const seedsSchema = z.strictObject({
   continents: z.array(continentSeed),
-  cultures: z.array(cultureSeed),
   states: z.array(stateSeed),
   provinces: z.array(provinceSeed),
   species: z.array(speciesSeed)
@@ -85,14 +78,13 @@ export const authoringSchema = z.strictObject({
 export type AuthoringData = z.infer<typeof authoringSchema>;
 export type SpecField = z.infer<typeof field>;
 export type Seeds = z.infer<typeof seedsSchema>;
-export type CultureSeed = z.infer<typeof cultureSeed>;
 export type StateSeed = z.infer<typeof stateSeed>;
 export type SpeciesSeed = z.infer<typeof speciesSeed>;
 export type ContinentSeed = z.infer<typeof continentSeed>;
 export type ProvinceSeed = z.infer<typeof provinceSeed>;
 export type CitySeed = z.infer<typeof citySeed>;
 
-export const getDefaultSeeds = (): Seeds => ({ continents: [], cultures: [], states: [], provinces: [], species: [] });
+export const getDefaultSeeds = (): Seeds => ({ continents: [], states: [], provinces: [], species: [] });
 export const getDefaultAuthoring = (): AuthoringData => ({ autoLock: true, fields: {}, seeds: getDefaultSeeds() });
 
 /** The seeds worth planting: named ones only, with references between them kept pointing at the same seeds */
@@ -103,13 +95,9 @@ export function cleanSeeds(seeds: Seeds): Seeds {
     return { items: kept.map(({ item }) => structuredClone(item)), remap };
   };
   const continents = keep(seeds.continents);
-  const cultures = keep(seeds.cultures);
   const states = keep(seeds.states);
 
   for (const state of states.items) {
-    const culture = state.culture === undefined ? undefined : cultures.remap.get(state.culture);
-    if (culture === undefined) delete state.culture;
-    else state.culture = culture;
     const continent = state.continent === undefined ? undefined : continents.remap.get(state.continent);
     if (continent === undefined) delete state.continent;
     else state.continent = continent;
@@ -126,5 +114,5 @@ export function cleanSeeds(seeds: Seeds): Seeds {
     .filter(province => province.name && states.remap.has(province.state))
     .map(province => ({ ...structuredClone(province), state: states.remap.get(province.state) as number }));
   const species = seeds.species.filter(item => item.name).map(item => structuredClone(item));
-  return { continents: continents.items, cultures: cultures.items, states: states.items, provinces, species };
+  return { continents: continents.items, states: states.items, provinces, species };
 }

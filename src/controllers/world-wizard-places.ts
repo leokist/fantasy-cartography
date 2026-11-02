@@ -15,6 +15,7 @@ import {
   WATERS
 } from "@/model/authoring/world-spec";
 import { Biomes } from "@/model/physical/biomes-generator";
+import { Names } from "@/model/society/names-generator";
 import { Layers } from "@/renderers/layers";
 import { tip } from "@/ui/tooltips";
 import { t } from "@/utils/i18n";
@@ -153,11 +154,8 @@ function renderCountry(seeds: Seeds, state: StateSeed, index: number, hasMap: bo
         `<option value="${i}" ${state.continent === i ? "selected" : ""}>${value(continent.name || `${t("Continent")} ${i + 1}`)}</option>`
     )
     .join("");
-  const cultureOptions = seeds.cultures
-    .map(
-      (culture, i) =>
-        `<option value="${i}" ${state.culture === i ? "selected" : ""}>${value(culture.name || `${t("Culture")} ${i + 1}`)}</option>`
-    )
+  const languageOptions = Names.nameBases
+    .map((base, i) => `<option value="${i}" ${state.language === i ? "selected" : ""}>${value(base.name)}</option>`)
     .join("");
   const neighbors = seeds.states
     .map((other, i) =>
@@ -192,7 +190,7 @@ function renderCountry(seeds: Seeds, state: StateSeed, index: number, hasMap: bo
       <label class="seedColor">${t("Color")} <input data-prop="color" type="color" value="${countryColor(state, index)}" /></label>
     </div>
     <div class="placeRow">
-      ${seeds.cultures.length ? `<select data-prop="culture"><option value="">${t("Culture of the place")}</option>${cultureOptions}</select>` : ""}
+      <select data-prop="language" data-tip="${t("The country is its own people: names of its places are made in this language")}"><option value="">${t("Language: automatic")}</option>${languageOptions}</select>
       <span><button data-emblem="${index}">${t("Emblem…")}</button> ${state.emblem ? `✓ <button data-clear-emblem="${index}" data-tip="${t("Use a generated emblem")}">×</button>` : ""}</span>
     </div>
     ${neighbors ? `<div class="checks"><span>${t("Borders")}:</span> ${neighbors}</div>` : ""}
@@ -386,7 +384,7 @@ function setCountryProp(state: StateSeed, prop: string, raw: string, rerender: (
   } else if (prop === "size") {
     state.size = raw as StateSeed["size"];
     rerender();
-  } else if (prop === "continent" || prop === "culture") {
+  } else if (prop === "continent" || prop === "language") {
     if (text === "") delete state[prop];
     else state[prop] = Number(text);
   }
@@ -467,7 +465,6 @@ function addNow(seeds: Seeds, index: number): void {
   try {
     const planted = cleanSeeds(seeds);
     const cleanIndex = planted.states.findIndex(item => item.name === state.name && item.x === state.x);
-    for (const item of planted.states) delete item.culture; // a culture seed exists only on the next generated map
     Additions.addCountry(planted, cleanIndex);
     Layers.drawAll();
     tip(t("{{name}} was added to the map", { name: state.name }), true, "success");

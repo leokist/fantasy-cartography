@@ -29,7 +29,7 @@ var world: CartographyWorld = $Aldoria
 world.biome_at(player.position)      # { id, name, color, habitability }
 world.species_at(player.position)    # espécies do bioma, de fauna_flora.json
 world.state_at(player.position)      # o estado cujo território contém a posição
-world.area_at("religions", pos)      # idem para provinces, cultures, religions
+world.area_at("cultures", pos)       # idem para provinces e cultures
 world.place("Vesper")                # um burgo ou marcador pelo nome
 world.emblem("state", 1)             # Texture2D do brasão
 ```

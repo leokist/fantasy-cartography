@@ -456,45 +456,6 @@ class MarkersModule {
         add: this.addHillMonster.bind(this)
       },
       {
-        type: "sacred-mountains",
-        icon: "🗻",
-        dy: 48,
-        min: 1,
-        each: 5,
-        multiplier: 1,
-        list: this.listSacredMountains.bind(this),
-        add: this.addSacredMountain.bind(this)
-      },
-      {
-        type: "sacred-forests",
-        icon: "🌳",
-        min: 30,
-        each: 1000,
-        multiplier: 1,
-        list: this.listSacredForests.bind(this),
-        add: this.addSacredForest.bind(this)
-      },
-      {
-        type: "sacred-pineries",
-        icon: "🌲",
-        px: 13,
-        min: 30,
-        each: 800,
-        multiplier: 1,
-        list: this.listSacredPineries.bind(this),
-        add: this.addSacredPinery.bind(this)
-      },
-      {
-        type: "sacred-palm-groves",
-        icon: "🌴",
-        px: 13,
-        min: 1,
-        each: 100,
-        multiplier: 1,
-        list: this.listSacredPalmGroves.bind(this),
-        add: this.addSacredPalmGrove.bind(this)
-      },
-      {
         type: "brigands",
         icon: "💰",
         px: 13,
@@ -1009,88 +970,6 @@ class MarkersModule {
     const legend = `${ra(RUMOR_SOURCES)} speak of a ${ra(HILL_MONSTER_ADJECTIVES)} ${monster} who inhabits ${toponym} hills and ${ra(
       HILL_MONSTER_HABITS
     )}.`;
-    marker.name = name;
-    marker.note = legend;
-  }
-
-  // Sacred mountains spawn on lonely mountains
-  private listSacredMountains({ cells }: PackedGraph) {
-    return cells.i.filter(
-      i =>
-        !this.occupied[i] &&
-        cells.h[i] >= 70 &&
-        cells.c[i].some(c => cells.culture[c]) &&
-        cells.c[i].every(c => cells.h[c] < 60)
-    );
-  }
-
-  private addSacredMountain(marker: Marker, cell: number) {
-    const { cells, religions } = pack;
-
-    const culture = cells.c[cell].map(c => cells.culture[c]).find(c => c)!;
-    const religion = cells.religion[cell] || cells.c[cell].map(c => cells.religion[c]).find(r => r);
-    const name = `${Names.getCulture(culture)} Mountain`;
-    const height = getFriendlyHeight(cells.p[cell], pack, grid);
-    const sacredTo = religion ? ` of ${religions[religion].name}` : "";
-    const legend = `A sacred mountain${sacredTo}. Height: ${height}.`;
-    marker.name = name;
-    marker.note = legend;
-  }
-
-  // Sacred forests spawn on temperate forests
-  private listSacredForests({ cells }: PackedGraph) {
-    return cells.i.filter(
-      i => !this.occupied[i] && cells.culture[i] && cells.religion[i] && [6, 8].includes(cells.biome[i])
-    );
-  }
-
-  private addSacredForest(marker: Marker, cell: number) {
-    const { cells, religions } = pack;
-
-    const culture = cells.culture[cell];
-    const religion = cells.religion[cell];
-    const name = `${Names.getCulture(culture)} Forest`;
-    const legend = `A forest sacred to local ${religions[religion].name}.`;
-    marker.name = name;
-    marker.note = legend;
-  }
-
-  // Sacred pineries spawn on boreal forests
-  private listSacredPineries({ cells }: PackedGraph) {
-    return cells.i.filter(i => !this.occupied[i] && cells.culture[i] && cells.religion[i] && cells.biome[i] === 9);
-  }
-
-  private addSacredPinery(marker: Marker, cell: number) {
-    const { cells, religions } = pack;
-
-    const culture = cells.culture[cell];
-    const religion = cells.religion[cell];
-    const name = `${Names.getCulture(culture)} Pinery`;
-    const legend = `A pinery sacred to local ${religions[religion].name}.`;
-    marker.name = name;
-    marker.note = legend;
-  }
-
-  // Sacred palm groves spawn on oasises
-  private listSacredPalmGroves({ cells }: PackedGraph) {
-    return cells.i.filter(
-      i =>
-        !this.occupied[i] &&
-        cells.culture[i] &&
-        cells.religion[i] &&
-        cells.biome[i] === 1 &&
-        cells.pop[i] > 1 &&
-        Routes.isConnected(i)
-    );
-  }
-
-  private addSacredPalmGrove(marker: Marker, cell: number) {
-    const { cells, religions } = pack;
-
-    const culture = cells.culture[cell];
-    const religion = cells.religion[cell];
-    const name = `${Names.getCulture(culture)} Palm Grove`;
-    const legend = `A palm grove sacred to local ${religions[religion].name}.`;
     marker.name = name;
     marker.note = legend;
   }

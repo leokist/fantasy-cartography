@@ -1,10 +1,12 @@
-// A declared country on a generated map: its borders with the countries it should touch, its cities and its
-// provinces, each where the author put it
+// A declared country on a generated map: its people, its borders with the countries it should touch, its cities and
+// its provinces, each where the author put it
 
 import { type Noise, provinceWeight, toPoint } from "@/model/authoring/land";
 import type { Seeds, StateSeed } from "@/model/authoring/world-spec";
 import { Burgs } from "@/model/political/burgs-generator";
 import { Provinces } from "@/model/political/provinces-generator";
+import { Cultures } from "@/model/society/cultures-generator";
+import { Names } from "@/model/society/names-generator";
 
 interface Spot {
   x: number;
@@ -142,4 +144,20 @@ export function settleLand(): void {
       queue.push(neighbor);
     }
   }
+}
+
+/** A culture becomes the country's people: its name, color and language, over the country's land and burgs */
+export function makePeople(stateId: number, cultureId: number, seed: StateSeed): void {
+  const { cells, burgs, states, cultures } = pack;
+  const state = states[stateId];
+  const culture = cultures[cultureId];
+  if (!state || state.removed || !culture || culture.removed) return;
+  Cultures.rename(cultureId, seed.name);
+  if (seed.color) Cultures.recolor(cultureId, seed.color);
+  if (seed.language !== undefined && Names.nameBases[seed.language]) Cultures.setBase(cultureId, seed.language);
+  for (const cell of cells.i) if (cells.state[cell] === stateId) cells.culture[cell] = cultureId;
+  for (const burg of burgs) if (burg?.i && !burg.removed && burg.state === stateId) burg.culture = cultureId;
+  state.culture = cultureId;
+  const capital = burgs[state.capital];
+  if (capital?.cell !== undefined) culture.center = capital.cell;
 }

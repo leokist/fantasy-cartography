@@ -22,7 +22,6 @@ export const ENTITY_TYPES = [
   "regiment",
   "addedLabel",
   "culture",
-  "religion",
   "biome",
   "good"
 ] as const;
@@ -106,7 +105,6 @@ const ELEMENT_PATTERNS: [RegExp, EntityType][] = [
   [/^journey(\d+)$/, "journey"],
   [/^market(\d+)$/, "market"],
   [/^culture(\d+)$/, "culture"],
-  [/^religion(\d+)$/, "religion"],
   [/^biome(\d+)$/, "biome"]
 ];
 /** Layers whose elements carry their entity's id in a data attribute */
@@ -417,27 +415,6 @@ class EntityLookup {
       highlight: id => `#culture${id}`,
       cells: () => pack.cells.culture,
       context: ref => this.byId(pack.cultures, ref.id)?.type || ""
-    },
-    religion: {
-      label: t("Religions"),
-      kind: t("Religion"),
-      icon: "icon-place-of-worship",
-      scale: 2,
-      layers: ["religions"],
-      collection: {
-        field: "religions",
-        indexed: true,
-        references: { culture: "culture", origins: "religion" }
-      },
-      name: id => this.byId(pack.religions, id)?.name || "",
-      refs: () => this.refsOf("religion", pack.religions, true),
-      highlight: id => `#religion${id}`,
-      cells: () => pack.cells.religion,
-      context: ref => {
-        const religion = this.byId(pack.religions, ref.id);
-        const culture = this.byId(pack.cultures, religion?.culture)?.name;
-        return [religion?.type, culture].filter(Boolean).join(" · ");
-      }
     },
     biome: {
       label: t("Biomes"),

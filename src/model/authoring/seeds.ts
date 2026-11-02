@@ -1,9 +1,16 @@
-// What the author declared before generating: continents, countries, provinces, cities, cultures and species
+// What the author declared before generating: continents, countries (each its own people), provinces, cities and species
 // placed by approximate position, applied as pipeline steps right after the generator makes its own, so everything
 // downstream builds on them
 
 import { Authoring } from "@/model/authoring/authoring";
-import { foundCities, foundProvinces, joinBorders, nearestCell, settleLand } from "@/model/authoring/country";
+import {
+  foundCities,
+  foundProvinces,
+  joinBorders,
+  makePeople,
+  nearestCell,
+  settleLand
+} from "@/model/authoring/country";
 import {
   type Noise,
   provinceWeight,
@@ -103,33 +110,29 @@ class WorldSeedsModule {
     shapeBiomes(this.plan, this.worldNoise());
   }
 
-  /** After `cultures`: seed k renames culture k and moves its center; it grows from there in `culturesExpand` */
+  /** After `cultures`: culture k starts at country k's spot and grows from there in `culturesExpand` */
   applyCultures(): void {
-    if (!this.plan?.cultures.length) return;
+    if (!this.plan?.states.length) return;
     const { cells, cultures } = pack;
 
-    for (const [index, seed] of this.plan.cultures.entries()) {
+    for (const [index, seed] of this.plan.states.entries()) {
       const culture = cultures[index + 1];
       if (!culture || culture.removed || culture.lock) {
-        log.warn(`Culture seed ${seed.name}: no culture`);
+        log.warn(`Country ${seed.name}: no culture for its people`);
         continue;
       }
       const taken = new Set(
         cultures.map(c => c.center).filter(center => center !== undefined && center !== culture.center)
       );
       const center = nearestCell(seed, cell => cells.s[cell] > 0 && !taken.has(cell));
-      if (center === undefined) {
-        log.warn(`Culture seed ${seed.name}: no populated land`);
-        continue;
-      }
+      if (center === undefined) continue;
 
       if (culture.center !== undefined && cells.culture[culture.center] === culture.i)
         cells.culture[culture.center] = 0;
       culture.center = center;
       cells.culture[center] = culture.i;
-      Cultures.rename(culture.i, seed.name);
-      if (seed.color) Cultures.recolor(culture.i, seed.color);
-      if (seed.base !== undefined && seed.base < Names.nameBases.length) Cultures.setBase(culture.i, seed.base);
+      // the language now, so burgs are named in it
+      if (seed.language !== undefined && Names.nameBases[seed.language]) Cultures.setBase(culture.i, seed.language);
       this.seededCultures[index] = culture.i;
     }
   }
@@ -164,8 +167,7 @@ class WorldSeedsModule {
       burg.cell = cell;
       [burg.x, burg.y] = cells.p[cell];
       burg.feature = cells.f[cell];
-      const culture = seed.culture === undefined ? undefined : this.seededCultures[seed.culture];
-      burg.culture = culture ?? cells.culture[cell];
+      burg.culture = this.seededCultures[index] ?? cells.culture[cell];
       if (seed.capital) burg.name = seed.capital;
       this.seededStates[index] = burg.i;
     }
@@ -200,6 +202,11 @@ class WorldSeedsModule {
     this.claimProvinces();
     for (const [index, seed] of this.plan.states.entries())
       for (const other of seed.neighbors ?? []) joinBorders(this.seededStates[index], this.seededStates[other]);
+    for (const [index, seed] of this.plan.states.entries()) {
+      const state = this.seededStates[index];
+      const culture = this.seededCultures[index];
+      if (state !== undefined && culture !== undefined) makePeople(state, culture, seed);
+    }
     States.getPoles();
     States.findNeighbors();
   }
@@ -219,7 +226,7 @@ class WorldSeedsModule {
     }
   }
 
-  /** After `religions`: the declared cities of each country, as burgs where the author put them */
+  /** After `routes`: the declared cities of each country, as burgs where the author put them */
   applyCities(): void {
     if (!this.plan?.states.length) return;
     for (const [index, seed] of this.plan.states.entries())

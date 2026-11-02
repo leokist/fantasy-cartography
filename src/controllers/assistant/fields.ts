@@ -18,7 +18,6 @@ export const CELL_FIELDS: Record<string, CellField> = {
   state: { label: t("State"), layers: TERRITORY, references: "state" },
   province: { label: t("Province"), layers: PROVINCES, references: "province" },
   culture: { label: t("Culture"), layers: ["cultures"], references: "culture" },
-  religion: { label: t("Religion"), layers: ["religions"], references: "religion" },
   biome: { label: t("Biome"), layers: ["biomes"], references: "biome" },
   pop: { label: t("Rural population"), layers: ["population"] },
   r: { label: t("River"), layers: ["rivers"], references: "river" },

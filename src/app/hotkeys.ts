@@ -68,7 +68,6 @@ function handleKeyup(event: KeyboardEvent): void {
   else if ((shift || altShift) && code === "KeyC") Controllers.CulturesEditor.open();
   else if ((shift || altShift) && code === "KeyN") Controllers.NamesbaseEditor.open();
   else if ((shift || altShift) && code === "KeyZ") Controllers.ZonesEditor.open();
-  else if ((shift || altShift) && code === "KeyR") Controllers.ReligionsEditor.open();
   else if ((shift || altShift) && code === "KeyY") Controllers.EmblemsEditor.openDefault();
   else if ((shift || altShift) && code === "KeyQ") Controllers.UnitsEditor.open();
   else if ((shift || altShift) && code === "KeyO") Controllers.NotesEditor.open();

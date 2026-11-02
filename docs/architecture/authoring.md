@@ -34,9 +34,11 @@ Every map sits on the same latitude band (`GAME_GEOGRAPHY` in [`coordinates.ts`]
 `authoring.seeds` holds what the author declared, each at a spot given in percent of the map ([`world-spec.ts`](../../src/model/authoring/world-spec.ts)):
 
 - **continents**: a name and a size;
-- **countries** (`states`): capital spot and name, size, form, color, picture emblem, culture, continent, the countries it borders and its cities;
+- **countries** (`states`): capital spot and name, size, form, color, picture emblem, language (a name base), continent, the countries it borders and its cities;
 - **provinces**: the country they belong to, with relief, climate, water and nature (a biome), each optional;
-- **cultures** and **species**.
+- **species**.
+
+Each declared country is its own people: culture k takes country k's name, color and language and covers exactly its land and burgs. The generator still makes cultures for land outside the countries.
 
 When continents or countries are declared, the land is theirs ([`land.ts`](../../src/model/authoring/land.ts)): continents are ragged ellipses and countries circles of their size, with bridges between neighbours; elsewhere is sea. A province's weight is 1 over the part of the map nearer its spot than any other province's, blending across a ragged border and fading beyond its country's reach. The same weights shape the land, the climate and the provinces themselves. The generated map has exactly the declared countries.
 
@@ -46,20 +48,20 @@ When continents or countries are declared, the land is theirs ([`land.ts`](../..
 | `climateSeeds` | `temperatures` | temperatures pulled toward each province's climate, cooler with altitude |
 | `waterSeeds` | `precipitation` | precipitation scaled by each province's water |
 | `biomeSeeds` | `biomes` | the biome a province asks for, over its land |
-| `cultureSeeds` | `cultures` | seed k renames culture k and moves its center; it spreads in `culturesExpand` |
+| `cultureSeeds` | `cultures` | culture k starts at country k's spot, in its language; it spreads in `culturesExpand` |
 | `settleSeeds` | `culturesExpand` | land no culture reached, such as a lone island, takes the nearest culture |
 | `capitalSeeds` | `burgs` | seed k moves capital k, so country k is founded there |
-| `stateSizes` | `states` | growth by size, the land of declared provinces claimed, declared borders joined |
-| `citySeeds` | `religions` | the declared cities as burgs |
+| `stateSizes` | `states` | growth by size, the land of declared provinces claimed, declared borders joined, each country's land given to its people |
+| `citySeeds` | `noReligion` | the declared cities as burgs |
 | `stateSeeds` | `stateForms` | names, form, color and a picture emblem (`{ icon }`) |
 | `provinceSeeds` | `provinces` | a country with declared provinces is divided into them |
 | `seedsFinish` | `legends` | marks what was seeded `authored` and releases the plan |
 
-The helpers for one country (borders, cities, provinces, settling) are in [`country.ts`](../../src/model/authoring/country.ts).
+The helpers for one country (people, borders, cities, provinces, settling) are in [`country.ts`](../../src/model/authoring/country.ts).
 
 ## Adding to a generated map
 
-[`Additions`](../../src/model/authoring/additions.ts) puts a declared country, culture or species on the map on screen. `addCountry` raises land first where the country's spot is sea, through the Risk heightmap edit, which rebuilds the map and carries every entity over; then it founds the country, grows it to its size, joins its borders and adds its cities and provinces. The newcomer is unlocked while the unlocked entities are recalculated around it, then locked. Locked states keep their land and data: a locked state no longer grows when states expand, like a locked culture. Rebuilding provinces keeps the locked ones and those of locked states (`Provinces.generate(true)`), renumbering them.
+[`Additions`](../../src/model/authoring/additions.ts) puts a declared country or species on the map on screen. `addCountry` raises land first where the country's spot is sea, through the Risk heightmap edit, which rebuilds the map and carries every entity over; then it founds the country, grows it to its size, joins its borders and adds its people, cities and provinces. The newcomer is unlocked while the unlocked entities are recalculated around it, then locked. Locked states keep their land and data: a locked state no longer grows when states expand, like a locked culture. Rebuilding provinces keeps the locked ones and those of locked states (`Provinces.generate(true)`), renumbering them.
 
 ## Fauna and flora
 

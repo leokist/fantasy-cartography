@@ -123,6 +123,16 @@ describe("a world configured by hand", () => {
     }
   });
 
+  it("makes each country its own people", () => {
+    for (const name of ["Aldoria", "Brennmark", "Ostara"]) {
+      const country = state(name);
+      expect(pack.cultures[country.culture]?.name).toBe(name);
+      expect(cellsOf(pack.cells.state, country.i).every(cell => pack.cells.culture[cell] === country.culture)).toBe(
+        true
+      );
+    }
+  });
+
   it("marks everything declared as the author's", () => {
     expect(state("Aldoria")).toMatchObject({ origin: "authored", lock: true });
     expect(province("Highmoor")).toMatchObject({ origin: "authored", lock: true });
@@ -153,6 +163,8 @@ describe("adding a country to the generated world", () => {
     expect(cellsOf(pack.cells.state, id).length).toBeGreaterThan(10);
     expect(living(pack.burgs).find(burg => burg.name === "Cala")?.state).toBe(id);
     expect(province("Sierra").state).toBe(id);
+    expect(pack.cultures[added.culture]).toMatchObject({ name: "Isla Verde", origin: "authored" });
+    expect(cellsOf(pack.cells.state, id).every(cell => pack.cells.culture[cell] === added.culture)).toBe(true);
 
     for (const [name, count] of Object.entries(before)) {
       const now = cellsOf(pack.cells.state, state(name).i).length;

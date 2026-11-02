@@ -10,7 +10,6 @@ import type {
 } from "d3";
 import { drag, mean, select, stratify, tree, zoom } from "d3";
 import { Cultures } from "@/model/society/cultures-generator";
-import { Religions } from "@/model/society/religions-generator";
 import { Dialog } from "@/ui/dialog/dialog";
 
 import { tip } from "@/ui/tooltips";
@@ -80,8 +79,8 @@ function build(): void {
 }
 
 // properties
-let dataElements: HierarchyElement[]; // {i, name, type, origins}[], e.g. path.religions
-let model: typeof Cultures | typeof Religions; // owns the origin and code edits
+let dataElements: HierarchyElement[]; // {i, name, type, origins}[], e.g. pack.cultures
+let model: typeof Cultures; // owns the origin and code edits
 let validElements: TreeElement[]; // not-removed dataElements
 let onNodeEnter: (d: TreeNode) => void;
 let onNodeLeave: (d: TreeNode) => void;
@@ -92,16 +91,10 @@ function open(props: OpenProps): void {
   Dialog.closeAll("#hierarchyTree, .stable");
 
   dataElements = props.data;
-  model = props.type === "cultures" ? Cultures : Religions;
+  model = Cultures;
   validElements = cleanupOrigins(dataElements);
   if (validElements.filter(d => !d.shadow).length < 3) {
-    tip(
-      props.type === "cultures"
-        ? t("Not enough cultures to show hierarchy")
-        : t("Not enough religions to show hierarchy"),
-      false,
-      "error"
-    );
+    tip(t("Not enough cultures to show hierarchy"), false, "error");
     clearTreeState();
     return;
   }
@@ -136,7 +129,7 @@ function open(props: OpenProps): void {
 
   Dialog.open("hierarchyTree", {
     resizable: true,
-    title: props.type === "cultures" ? t("Cultures tree") : t("Religions tree"),
+    title: t("Cultures tree"),
     position: { my: "left center", at: "left+10 center", of: "svg" },
     width,
     onClose: closeTree

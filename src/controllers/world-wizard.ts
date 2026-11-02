@@ -1,10 +1,9 @@
-// The world wizard: the map, its continents and countries, the provinces of each country and its peoples, set by
-// hand or rolled, then generated once
+// The world wizard: the map, its continents and countries (each its own people), the provinces of each country and
+// its nature, set by hand or rolled, then generated once
 
 import { newWorld } from "@/app/lifecycle";
 import { Controllers } from "@/controllers";
 import { bindPlaces, renderCountriesStep, renderRegionsStep, resetPlaces } from "@/controllers/world-wizard-places";
-import { bindSeeds, renderSeeds } from "@/controllers/world-wizard-seeds";
 import { bindSpeciesSeeds, renderSpeciesSeeds } from "@/controllers/world-wizard-species";
 import { buildsLand, WorldSeeds } from "@/model/authoring/seeds";
 import {
@@ -33,15 +32,15 @@ const STEP_TEXT: Record<WizardStep, { title: string; intro: string }> = {
   map: { title: t("Map"), intro: t("Name the map, set its era and decide how large and detailed it is.") },
   countries: {
     title: t("Continents and countries"),
-    intro: t("Place the continents and the countries on them, with capitals, cities, emblems and borders.")
+    intro: t(
+      "Place the continents and the countries on them, with capitals, cities, emblems and borders. Each country is its own people, with its own language."
+    )
   },
   regions: {
     title: t("Regions"),
-    intro: t("Divide each country into provinces and say what each is like: relief, climate, water and nature.")
-  },
-  peoples: {
-    title: t("Peoples and nature"),
-    intro: t("Cultures, religions and population, the cultures you want for sure, and your own fauna and flora.")
+    intro: t(
+      "Divide each country into provinces and say what each is like: relief, climate, water and nature. Add your own fauna and flora."
+    )
   }
 };
 
@@ -49,7 +48,7 @@ const AFTER: Partial<
   Record<WizardStep, { text: string; editor: "SpeciesEditor" | "HeightmapSelection" | "LoreEditor" }>
 > = {
   map: { text: t("Write the lore"), editor: "LoreEditor" },
-  peoples: { text: t("Edit fauna and flora"), editor: "SpeciesEditor" }
+  regions: { text: t("Edit fauna and flora"), editor: "SpeciesEditor" }
 };
 
 let fields: Record<string, SpecField> = {};
@@ -170,7 +169,6 @@ function render(): void {
     input.addEventListener("input", () => showMode(input.dataset.key ?? "", "set"));
     input.addEventListener("change", () => setValue(input.dataset.key ?? "", input.value));
   });
-  bindSeeds(dialog, seeds, render);
   bindSpeciesSeeds(dialog, seeds, render);
   bindPlaces(dialog, seeds, render);
   dialog.querySelector<HTMLInputElement>("#wizardAutoLock")?.addEventListener("change", event => {
@@ -196,8 +194,7 @@ function renderStep(step: WizardStep): string {
     <p style="margin-top: 0">${intro} ${roll}</p>
     ${rows(false)}
     ${step === "countries" ? renderCountriesStep(seeds, hasMap()) : ""}
-    ${step === "regions" ? renderRegionsStep(seeds, hasMap()) : ""}
-    ${step === "peoples" ? renderSeeds("cultures", seeds, hasMap()) + renderSpeciesSeeds(seeds, hasMap()) : ""}
+    ${step === "regions" ? renderRegionsStep(seeds, hasMap()) + renderSpeciesSeeds(seeds, hasMap()) : ""}
     ${more ? `<details><summary>${t("More settings")}</summary>${more}</details>` : ""}
     ${afterButton}`;
 }
@@ -238,16 +235,15 @@ function renderReview(): string {
   const set = Object.values(fields).filter(field => field.mode === "set").length;
   const total = SPEC_FIELDS.length;
   const seedValue = escapeHtml(String(seed.value ?? ""));
-  const { continents, cultures, states, provinces, species } = cleanSeeds(seeds);
+  const { continents, states, provinces, species } = cleanSeeds(seeds);
   const declared =
-    continents.length || cultures.length || states.length || provinces.length || species.length
+    continents.length || states.length || provinces.length || species.length
       ? t(
-          "Declared: {{continents}} continents, {{states}} countries, {{provinces}} provinces, {{cultures}} cultures and {{species}} species.",
+          "Declared: {{continents}} continents, {{states}} countries, {{provinces}} provinces and {{species}} species.",
           {
             continents: continents.length,
             states: states.length,
             provinces: provinces.length,
-            cultures: cultures.length,
             species: species.length
           }
         )
@@ -353,10 +349,9 @@ function generate(editor?: AfterEditor): void {
     { once: true }
   );
 
-  // every declared culture needs a slot to fill; declared countries are all the countries there are
+  // declared countries are all the countries there are, and each is a people of its own
   const pins = pinsOf(fields);
-  if (planted.cultures.length) pins.cultures = Math.max(Number(fields.cultures?.value ?? 0), planted.cultures.length);
-  if (planted.states.length) pins.statesNumber = planted.states.length;
+  if (planted.states.length) pins.statesNumber = pins.cultures = planted.states.length;
   if (buildsLand(planted)) pins.template = "continents"; // only the first strokes; the land is the author's
 
   generating = true;

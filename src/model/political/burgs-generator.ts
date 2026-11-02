@@ -422,11 +422,8 @@ class BurgModule {
     burg.citadel = Number(burg.capital || (pop > 50 && P(0.75)) || (pop > 15 && P(0.5)) || P(0.1));
     burg.walls = Number(burg.capital || pop > 30 || (pop > 20 && P(0.75)) || (pop > 10 && P(0.5)) || P(0.1));
     burg.shanty = Number(pop > 60 || (pop > 40 && P(0.75)) || (pop > 20 && burg.walls && P(0.4)));
-    const religion = pack.cells.religion[burg.cell] as number;
     const theocracy = pack.states[burg.state as number].form === "Theocracy";
-    burg.temple = Number(
-      (religion && theocracy && P(0.5)) || pop > 50 || (pop > 35 && P(0.75)) || (pop > 20 && P(0.5))
-    );
+    burg.temple = Number((theocracy && P(0.5)) || pop > 50 || (pop > 35 && P(0.75)) || (pop > 20 && P(0.5)));
   }
 
   /** burg assignment needs a named, ordered group and a default to fall back on: a value persisted
@@ -581,11 +578,6 @@ class BurgModule {
 
       if (group.cultures) {
         const isFit = group.cultures.includes(burg.culture ?? 0);
-        if (!isFit) continue;
-      }
-
-      if (group.religions) {
-        const isFit = group.religions.includes(pack.cells.religion[burg.cell]);
         if (!isFit) continue;
       }
 

@@ -9,7 +9,6 @@ import { Burgs } from "@/model/political/burgs-generator";
 import { Provinces } from "@/model/political/provinces-generator";
 import { States } from "@/model/political/states-generator";
 import { Cultures } from "@/model/society/cultures-generator";
-import { Religions } from "@/model/society/religions-generator";
 import { Journeys } from "@/model/story/journeys/journeys-generator";
 import { Markers } from "@/model/story/markers-generator";
 
@@ -28,7 +27,6 @@ export const AUTHORABLE = [
   "states",
   "provinces",
   "cultures",
-  "religions",
   "burgs",
   "routes",
   "rivers",
@@ -38,8 +36,8 @@ export const AUTHORABLE = [
 ] as const;
 export type AuthorableCollection = (typeof AUTHORABLE)[number];
 
-// the first four and burgs keep id 0 for "none"
-const ZERO_IS_NONE = new Set<AuthorableCollection>(["states", "provinces", "cultures", "religions", "burgs"]);
+// the first three and burgs keep id 0 for "none"
+const ZERO_IS_NONE = new Set<AuthorableCollection>(["states", "provinces", "cultures", "burgs"]);
 const EDITS = /^(rename|recolor|set[A-Z]\w*|move\w*|declareIndependence|addSegment|removeSegment|resetSegment)$/;
 const NOT_EDITS = new Set(["setLocked", "setHidden", "setPinned"]);
 const ADDS = new Set(["add", "create"]);
@@ -48,7 +46,6 @@ const MODELS: Record<AuthorableCollection, object> = {
   states: States,
   provinces: Provinces,
   cultures: Cultures,
-  religions: Religions,
   burgs: Burgs,
   routes: Routes,
   rivers: Rivers,

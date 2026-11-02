@@ -33,7 +33,7 @@ func species_at(position: Vector3) -> Array:
 	)
 
 
-## The state, province, culture or religion (kind: "states", "provinces"...) covering a position
+## The state, province or culture (kind: "states", "provinces"...) covering a position
 func area_at(kind: String, position: Vector3) -> Dictionary:
 	var point := Vector2(position.x, position.z)
 	for area: Dictionary in data.political.get(kind, []):

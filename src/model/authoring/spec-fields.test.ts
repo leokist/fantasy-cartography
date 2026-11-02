@@ -55,7 +55,7 @@ describe("wizard fields", () => {
 
 describe("Pins.overrideNext", () => {
   it("replaces the stored pins for one randomize, and never writes to storage", () => {
-    Pins.set("religionsNumber", 2);
+    Pins.set("provincesRatio", 30);
     Pins.overrideNext({ statesNumber: 5, cultures: "not a number", seed: "123" });
     expect(Pins.all()).toEqual({ statesNumber: 5 });
 
@@ -64,6 +64,6 @@ describe("Pins.overrideNext", () => {
 
     Options.randomize();
     expect(options.generation.states.limit).toBe(5);
-    expect(Pins.all()).toEqual({ religionsNumber: 2, manors: 10 });
+    expect(Pins.all()).toEqual({ provincesRatio: 30, manors: 10 });
   });
 });

@@ -305,15 +305,6 @@ function showLayerTip(point: Point, cellId: number, gridCellId: number, isLand: 
     const biomeId = cells.biome[cellId];
     return void tip(`${t("Biome")}: ${escapeHtml(pack.biomes[biomeId].name)}`);
   }
-  if (Layers.isOn("religions") && cells.religion[cellId]) {
-    const religionId = cells.religion[cellId];
-    const religion = pack.religions[religionId];
-    const name = religion.name;
-    if (religion.type === "Cult") return void tip(`${t("Cult")}: ${escapeHtml(name)}`);
-    if (religion.type === "Heresy") return void tip(`${t("Heresy")}: ${escapeHtml(name)}`);
-    if (religion.type === "Folk") return void tip(`${t("Folk religion")}: ${escapeHtml(name)}`);
-    return void tip(`${t("Organized religion")}: ${escapeHtml(name)}`);
-  }
   if (cells.state[cellId] && (Layers.isOn("provinces") || Layers.isOn("states"))) {
     const stateId = cells.state[cellId];
     const provinceId = cells.province[cellId];

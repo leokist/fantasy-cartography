@@ -843,7 +843,6 @@ export const stylesSchema = z.strictObject({
       })
     })
   }),
-  religions: z.strictObject({ attrs: z.strictObject({ opacity, ...strokeGroup, filter }) }),
   rivers: z.strictObject({ attrs: z.strictObject({ opacity, fill, filter }) }),
   routes: z.strictObject({
     groups: z.record(

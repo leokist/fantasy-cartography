@@ -11,6 +11,5 @@ export type BurgGroup = {
   biomes?: number[];
   states?: number[];
   cultures?: number[];
-  religions?: number[];
   preview?: string;
 };

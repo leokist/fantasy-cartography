@@ -17,7 +17,6 @@ const TABLES: [dialogId: string, controller: string][] = [
   ["markersOverview", "MarkersOverview"],
   ["militaryOverview", "MilitaryOverview"],
   ["provincesEditor", "ProvincesEditor"],
-  ["religionsEditor", "ReligionsEditor"],
   ["riversOverview", "RiversOverview"],
   ["routesOverview", "RoutesOverview"],
   ["statesEditor", "StatesEditor"],
@@ -35,7 +34,6 @@ const ACTION_COLUMNS: Record<string, string[]> = {
   markersOverview: ["edit", "locate", "remove"],
   militaryOverview: ["regiments"],
   provincesEditor: ["note", "independence", "locate", "focus", "lock", "remove"],
-  religionsEditor: ["note", "locate", "lock", "remove"],
   riversOverview: ["edit", "lock", "remove"],
   routesOverview: ["edit", "lock", "remove"],
   statesEditor: ["note", "locate", "focus", "lock", "remove"],
@@ -139,7 +137,6 @@ const NOTE_TABLES: [dialogId: string, controller: string, noteType: string][] = 
   ["goodsEditor", "GoodsEditor", "good"],
   ["marketsOverview", "MarketsOverview", "market"],
   ["provincesEditor", "ProvincesEditor", "province"],
-  ["religionsEditor", "ReligionsEditor", "religion"],
   ["statesEditor", "StatesEditor", "state"],
   ["zonesEditor", "ZonesEditor", "zone"]
 ];
@@ -160,7 +157,7 @@ test("the note icon opens the Notes Editor on the row's entity", async ({ page }
       await controllers[name].open();
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // a table may lead with a pseudo-row (No religion, Wildlands) whose action cells are empty
+      // a table may lead with a pseudo-row (Wildlands) whose action cells are empty
       const icon = document.querySelector<HTMLElement>(`#${id} .states [data-col="note"].icon-book`);
       if (!icon) return { error: "no note icon in any row" };
 

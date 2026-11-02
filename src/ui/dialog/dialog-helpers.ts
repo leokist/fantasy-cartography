@@ -19,7 +19,6 @@ const REFRESHABLE_EDITORS = [
   "biomesEditorRefresh",
   "diplomacyOverviewRefresh",
   "provincesEditorRefresh",
-  "religionsEditorRefresh",
   "statesEditorRefresh",
   "zonesEditorRefresh",
   "goodsEditorRefresh",

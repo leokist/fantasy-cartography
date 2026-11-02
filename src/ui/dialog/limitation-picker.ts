@@ -1,4 +1,4 @@
-// Pick which entities (biomes, states, cultures, religions) something is limited to; an empty list allows all
+// Pick which entities (biomes, states, cultures) something is limited to; an empty list allows all
 
 import { Dialog } from "@/ui/dialog/dialog";
 
@@ -17,7 +17,7 @@ export interface LimitationItem {
 
 const DIALOG_ID = "limitationPicker";
 
-/** the entities a limitation can name: id 0 (marine, neutrals, no religion) and removed ones never */
+/** the entities a limitation can name: id 0 (marine, neutrals, wildlands) and removed ones never */
 const choices = (items: readonly LimitationItem[]) => items.filter(item => item.i && !item.removed);
 
 /** "all" for no limitation, else the allowed names */

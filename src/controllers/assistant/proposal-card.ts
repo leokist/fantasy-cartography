@@ -29,7 +29,6 @@ const ADDED_FIELDS: Record<string, string[]> = {
   state: ["form", "culture"],
   province: ["state", "burg"],
   culture: ["type"],
-  religion: ["type", "culture"],
   marker: ["type"]
 };
 const STYLE_BAGS = new Set(["groups", "attrs", "options"]);
