@@ -9,7 +9,6 @@ declare const FMG: any;
 const TABLES: [dialogId: string, controller: string][] = [
   ["biomesEditor", "BiomesEditor"],
   ["burgsOverview", "BurgsOverview"],
-  ["culturesEditor", "CulturesEditor"],
   ["diplomacyOverview", "DiplomacyOverview"],
   ["goodsEditor", "GoodsEditor"],
   ["labelsOverview", "LabelsOverview"],
@@ -27,7 +26,6 @@ const TABLES: [dialogId: string, controller: string][] = [
 const ACTION_COLUMNS: Record<string, string[]> = {
   biomesEditor: ["note", "wiki", "remove"],
   burgsOverview: ["edit", "lock", "remove"],
-  culturesEditor: ["note", "locate", "lock", "remove"],
   goodsEditor: ["note", "edit", "remove"],
   labelsOverview: ["visibility", "reset", "locate"],
   marketsOverview: ["note", "remove"],
@@ -133,7 +131,6 @@ test("each action sits in its own column", async ({ page }) => {
 // button silently unless the listener is renamed with it
 const NOTE_TABLES: [dialogId: string, controller: string, noteType: string][] = [
   ["biomesEditor", "BiomesEditor", "biome"],
-  ["culturesEditor", "CulturesEditor", "culture"],
   ["goodsEditor", "GoodsEditor", "good"],
   ["marketsOverview", "MarketsOverview", "market"],
   ["provincesEditor", "ProvincesEditor", "province"],

@@ -121,6 +121,8 @@ Secondary data available as a part of the `pack` object.
 
 ## Cultures
 
+Cultures are not shown anywhere: each state is its own people. Cultures are generated as in the original to place burgs and states, then `Cultures.followStates()` rebuilds the list so culture i is state i, with the state's name, color, center and type and the name base (language) of the culture it was founded in; neutral land and its burgs get culture 0. State edits (add, remove, merge, cells, regenerate, recalculate) and loading a map call it again. A state's language is `pack.cultures[state.culture].base`, set by `States.setLanguage`.
+
 Cultures (races, language zones) data is stored as an array of objects with strict element order. Element 0 is reserved by the _wildlands_ culture. If culture is removed, the element is not getting removed, but instead a `removed` attribute is added. Object structure:
 
 - `i`: `number` - culture id, always equal to the array index
@@ -188,7 +190,7 @@ States (countries) data is stored as an array of objects with strict element ord
 - `color`: `string` - state color in hex (e.g. `#45ff12`) or link to hatching pattern (e.g. `url(#hatch7)`, or `url(#hatch7-c0392b)` for one drawn in a color)
 - `center`: `number` - cell id of state center (initial cell)
 - `pole`: `number[]` - state pole of inaccessibility (visual center) coordinates, see [the concept description](https://blog.mapbox.com/a-new-algorithm-for-finding-a-visual-center-of-a-polygon-7c77e6492fbc?gi=6bd4fcb9ecc1)
-- `culture`: `number` - state culture id (equals to initial cell culture)
+- `culture`: `number` - state culture id, equal to the state id: the state's own people
 - `type`: `string` - state type, see [culture types](https://github.com/Azgaar/fantasy-cartography/wiki/Culture types)
 - `expansionism`: `number` - state growth multiplier. Used mainly during state generation to spread states not uniformly
 - `area`: `number` - state area in pixels
@@ -433,7 +435,7 @@ Goods (tradable resources and products) are stored in `pack.goods: Good[]`. Good
 - `distribution`: `string` - JS expression evaluated per cell to decide where the raw good is placed (uses the distribution method table; see [goods_schema.md](../domain/goods_schema.md)). Optional
 - `biomeOutput`: `Record<biomeId, number>` - units produced per rural population point per production cycle, per biome. Optional
 - `recipes`: `Record<goodId, number>[]` - array of alternative recipes; each maps input good id → units consumed per 1 unit of output. Optional
-- `multipliers`: `object` - per-dimension production scalars, each an optional `Record<id, number>`: `cultureType`, `culture`, `state`, `biome`, `zone`. Absent or `1` = no effect, `0` = fully suppressed; active factors combine multiplicatively. Only the map-independent `cultureType` is present in `GOODS_DATA`; the rest are set per map via the editor. Optional
+- `multipliers`: `object` - per-dimension production scalars, each an optional `Record<id, number>`: `cultureType` (the burg's type, or the country's for rural cells), `culture` (no longer offered by the editor), `state`, `biome`, `zone`. Absent or `1` = no effect, `0` = fully suppressed; active factors combine multiplicatively. Only the map-independent `cultureType` is present in `GOODS_DATA`; the rest are set per map via the editor. Optional
 - `demandCoverage`: `Record<category, number>` - how much one unit of the good covers each demand category (`food`, `utilities`, `construction`, `military`, `luxury`). Optional
 - `note`: `string` - optional. The user's note (legend) about the good, as html. Removed with it
 

@@ -6,7 +6,6 @@ import { drawBurgIcons } from "@/renderers/draw-burg-icons";
 import { drawCells } from "@/renderers/draw-cells";
 import { drawCoastline } from "@/renderers/draw-coastline";
 import { drawCoordinates } from "@/renderers/draw-coordinates";
-import { drawCultures } from "@/renderers/draw-cultures";
 import { drawEmblems, removeEmblems } from "@/renderers/draw-emblems";
 import { drawGoods, removeGoods } from "@/renderers/draw-goods";
 import { drawGrid } from "@/renderers/draw-grid";
@@ -341,7 +340,6 @@ const mapLayers = [
   }),
   new Layer({ id: "rivers", parent: "viewbox", draw: drawRivers, erase: removeRivers }),
   new Layer({ id: "relief", element: "terrain", parent: "viewbox", draw: drawRelief, erase: removeRelief }),
-  new Layer({ id: "cultures", element: "cults", parent: "viewbox", draw: drawCultures }),
   new Layer({
     id: "states",
     element: "regions",

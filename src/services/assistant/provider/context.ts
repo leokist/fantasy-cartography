@@ -48,27 +48,29 @@ Example: \`units.si(units.getArea(state.area)) + " " + units.getAreaUnit()\`.`;
 
 const GOTCHAS = `# Gotchas
 
-- Index 0 is reserved in states (neutrals), cultures (wildlands) and provinces; in burgs and
+- Index 0 is reserved in states (neutrals) and provinces; in burgs and
   features element 0 is the number \`0\`. Cell 0 is real. Deleted entities keep their slot with \`removed: true\`:
   filter with \`x => x.i && !x.removed\`.
 - Ids are not always array indices: goods and markets start at 1 (\`pack.goods[0]\` is good 1); rivers, markers,
   routes, zones, journeys and often deals are unordered. Look up with \`.find(x => x.i === id)\` or \`Goods.get(id)\`,
   \`Markets.get(id)\`; never \`pack.goods[id]\`. Burg \`production\` records hold \`good\`/\`dealId\` ids: resolve each.
-- A cell's owner is \`cells.state[i]\` (0 = neutral); \`cells.s\` is a burg-site score. \`burgs\` and \`cells\` of states,
-  provinces and cultures are counts: a state's cells are
+- A cell's owner is \`cells.state[i]\` (0 = neutral); \`cells.s\` is a burg-site score. \`burgs\` and \`cells\` of states
+  and provinces are counts: a state's cells are
   \`pack.cells.i.filter(i => pack.cells.state[i] === id)\`, its burgs those with \`burg.state === id\`. \`center\` is a
   cell id; capitals are \`state.capital\`, \`province.burg\`.
 - Cell arrays are typed: \`filter\` and \`map\` on them stay typed and wrap negatives (-1 → 4294967295). Use
   \`Array.from(cells)\` before mapping to other values.
-- Maps have no religions, diplomacy or armies. Bordering states are \`state.neighbors\`.
-- \`burg.type\` is the culture type (Generic, River, Naval…), never rank: capital is \`burg.capital\` (1/0),
+- Maps have no religions, diplomacy, armies or cultures: each state is its own people. \`pack.cultures[state.culture]\`
+  only holds the state's language, \`base\`, an index in \`Names.nameBases\`; change it with \`States.setLanguage\`.
+  Bordering states are \`state.neighbors\`.
+- \`burg.type\` is the burg type (Generic, River, Naval…), never rank: capital is \`burg.capital\` (1/0),
   size class is \`burg.group\`.
 - Land is \`pack.cells.h[i] >= 20\` (heights 0–100). Water body: \`pack.features[pack.cells.f[i]]\`, type ocean/lake/island.
   Shore: \`cells.t[i]\` is 1 on coastal land, -1 on coastal water; \`cells.haven[i]\` is a coastal cell's water neighbor.
   Climate is on the grid: \`grid.cells.temp[pack.cells.g[i]]\` (°C), \`grid.cells.prec[…]\`.
 - Population fields are points, not people: \`burg.population\`, \`cells.pop\`, \`rural\`/\`urban\`. Never show, compare or
   chart points: convert with \`units.getPeople(rural, urban)\`, e.g. \`units.getPeople(0, burg.population)\`, then \`si\`.
-  Only states keep \`rural\`/\`urban\`/\`area\` current. For provinces and cultures sum their cells'
+  Only states keep \`rural\`/\`urban\`/\`area\` current. For provinces sum their cells'
   points (\`cells.pop[i]\` rural, burg \`cells.burg[i]\` urban) and \`pack.cells.area[i]\`.
 - Areas (\`state.area\`, \`pack.cells.area[i]\`) are map units². Coordinates (\`cells.p[i]\` is [x, y]) are map units within
   \`options.map.graph.width\` × \`height\`; \`Pack.findCell(x, y)\` gives the cell. \`cells.b\` is 0/1, not boolean.`;
@@ -138,7 +140,7 @@ Before creating something or a sweeping change, know what the user wants. When a
 ambiguous (where, which entity, how much land), ask one short question and stop, offering likely answers with
 \`show_choices\` (a choice without operations becomes the reply). Never ask about what can be generated (names, colors,
 emblems, forms): propose it, then offer tweaks. Resolve places ("north of Vel", "on the coast") to points with
-\`read_map\`, e.g. a free land cell's \`pack.cells.p[i]\`. New states, provinces and cultures start small (a
+\`read_map\`, e.g. a free land cell's \`pack.cells.p[i]\`. New states and provinces start small (a
 state owns only its capital cell): to grow them, add \`Provinces.setState\` for chosen provinces, or \`recalculate()\`,
 which redraws every border of that kind; ask which when the user did not say.`;
 

@@ -5,7 +5,7 @@ import { Markets } from "@/model/economy/markets-generator";
 import { Pack } from "@/model/graph/pack-generator";
 import type { Feature } from "@/model/physical/features-generator";
 import { Emblems } from "@/model/political/emblems-generator";
-import { CULTURE_TYPES } from "@/model/society/cultures-generator";
+import { CULTURE_TYPES, Cultures } from "@/model/society/cultures-generator";
 import { Names } from "@/model/society/names-generator";
 import { Population } from "@/model/society/population-generator";
 import { Tags } from "@/model/tags";
@@ -154,6 +154,7 @@ const DEFAULT_TAX: TaxBases = DEFAULT_TAX_BY_FORM.Monarchy;
 
 class StatesModule {
   regenerate(): { warning?: string; error?: string } {
+    Cultures.regenerate(); // fresh peoples for the new countries to grow among; locked ones stay
     const { warning, error, states } = this.recreate();
     if (error || !states) return { warning, error };
 
@@ -166,6 +167,7 @@ class StatesModule {
     this.assignColors();
     this.defineAllTariffs();
     this.defineStateForms();
+    Cultures.followStates();
     Provinces.regenerate(false);
 
     return { warning, error };
@@ -358,7 +360,8 @@ class StatesModule {
     this.defineAllTariffs();
   }
 
-  expandStates() {
+  /** `byPeoples`: countries keep to the land of the people they were founded among, as when first generated */
+  expandStates(byPeoples = true) {
     log.time("expandStates");
     const { cells, states, cultures, burgs } = pack;
 
@@ -399,7 +402,7 @@ class StatesModule {
         if (state.lock) return; // do not overwrite cell of locked states
         if (cells.state[e] && e === state.center) return; // do not overwrite capital cells
 
-        const cultureCost = culture === cells.culture[e] ? -9 : 100;
+        const cultureCost = !byPeoples ? 0 : culture === cells.culture[e] ? -9 : 100;
         const populationCost = cells.h[e] < 20 ? 0 : cells.s[e] ? Math.max(20 - cells.s[e], 0) : 5000;
         const biomeCost = this.getBiomeCost(b, cells.biome[e], type);
         const heightCost = this.getHeightCost(pack.features[cells.f[e]], cells.h[e], type);
@@ -735,16 +738,17 @@ class StatesModule {
     state.fullName = this.getFullName(state);
   }
 
-  /** Set a state's dominant culture */
-  setCulture(stateId: number, cultureId: number): void {
-    const culture = pack.cultures[cultureId];
-    if (!culture || culture.removed) throw new Error(`Culture ${cultureId} does not exist`);
-    this.living(stateId).culture = cultureId;
+  /** Set the name base, by index in Names.nameBases, the country's people name new places in */
+  setLanguage(stateId: number, baseId: number): void {
+    Cultures.setBase(this.living(stateId).culture, baseId);
   }
 
   /** Set a state's type, which steers its expansion: Generic, Hunting, Highland, River, Lake, Naval or Nomadic */
   setType(stateId: number, type: string): void {
-    this.living(stateId).type = requireOneOf(type, CULTURE_TYPES, "The type");
+    const state = this.living(stateId);
+    const valid = requireOneOf(type, CULTURE_TYPES, "The type");
+    state.type = valid;
+    if (pack.cultures[state.culture]) pack.cultures[state.culture].type = valid; // its people's too
   }
 
   /** Set how strongly a state expands when states are recalculated, from 0 to 99 */
@@ -756,7 +760,8 @@ class StatesModule {
 
   /** Redraw state borders from their capitals, types and expansionism; provinces are regenerated */
   recalculate(): void {
-    this.expandStates();
+    this.expandStates(false);
+    Cultures.followStates();
     Provinces.generate();
     Provinces.getPoles();
     this.getPoles();
@@ -815,6 +820,7 @@ class StatesModule {
     this.findNeighbors();
     this.collectStatistics();
     this.defineStateForms([i]);
+    Cultures.followStates();
     return i;
   }
 
@@ -843,6 +849,7 @@ class StatesModule {
     pack.states[stateId] = { i: stateId, removed: true } as State;
     this.pruneTariffs({ states: [stateId] });
     this.collectStatistics();
+    Cultures.followStates();
   }
 
   /** Merge states into a ruling one, which takes their lands, burgs and provinces. With `asProvinces`, each merged state becomes one province of the ruling state instead of keeping its own provinces */
@@ -882,6 +889,7 @@ class StatesModule {
     this.collectStatistics();
     this.getPoles();
     if (asProvinces) Provinces.getPoles();
+    Cultures.followStates();
   }
 
   /** A state's lands become one new province of the ruling state; its own provinces are removed */
@@ -1055,6 +1063,7 @@ class StatesModule {
     this.findNeighbors();
     this.adjustProvinces([...affectedProvinces]);
     this.collectStatistics();
+    Cultures.followStates();
   }
 
   /** Provinces whose cells changed state: wholly taken ones change owner, split ones divide or join a neighbor */

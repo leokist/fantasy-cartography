@@ -163,7 +163,6 @@ a {
 
 t,
 #regions,
-#cults,
 #relig,
 #biomes,
 #provincesBody,
@@ -187,8 +186,7 @@ t,
 #statesBody,
 #provincesBody,
 #relig,
-#biomes,
-#cults {
+#biomes {
   stroke-linejoin: round;
   fill-rule: evenodd;
 }
@@ -196,8 +194,7 @@ t,
 #statesBody,
 #provincesBody,
 #relig,
-#biomes,
-#cults {
+#biomes {
   mask: url(#land);
 }
 

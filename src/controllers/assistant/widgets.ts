@@ -1,6 +1,7 @@
 import { schemeTableau10 } from "d3";
 import { ENTITY_TYPES, type EntityRef, isEntityType, MapEntities, RECORD_TYPES } from "@/model/map-entities";
 import type { State } from "@/model/political/states-generator";
+import { Names } from "@/model/society/names-generator";
 import { formatPrice, getArea, getAreaUnit, getPeople } from "@/model/units";
 import { goodBadge } from "@/renderers/draw-goods";
 import { EmblemRenderer } from "@/renderers/emblems/renderer";
@@ -184,7 +185,7 @@ function cardHtml(widget: Of<"card">, live: boolean): string {
     ["Population", si(people)],
     ["Area", `${si(getArea(state.area || 0))} ${getAreaUnit()}`],
     ["Burgs", String(state.burgs ?? 0)],
-    ["Culture", entityLink(`culture:${state.culture}`, live)]
+    ["Language", Names.nameBases[pack.cultures[state.culture]?.base]?.name ?? "none"]
   ];
   const note = state.note ? plainText(state.note) : "";
   const excerpt = note.length > NOTE_PREVIEW ? `${note.slice(0, NOTE_PREVIEW)}…` : note;

@@ -12,7 +12,6 @@ import { ensureEl, findEl } from "@/utils/node-utils";
 // built-in layer presets, in the order the select shows them; the layer sets live in layers-presets
 export const LAYER_PRESETS: Record<string, string> = {
   political: t("Political map"),
-  cultural: t("Cultural map"),
   provinces: t("Provinces map"),
   biomes: t("Biomes map"),
   heightmap: t("Heightmap"),

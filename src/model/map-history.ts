@@ -34,8 +34,7 @@ export function registerMap(created: number = Date.now()): void {
     States: ${pack.states.length - 1}
     Provinces: ${pack.provinces.length - 1}
     Burgs: ${pack.burgs.length - 1}
-    Culture set: ${options.map.cultures.set}
-    Cultures: ${pack.cultures.length - 1}`);
+    Language set: ${options.map.cultures.set}`);
 
   // the public seam test automation and external integrations wait on; the id is the creation date
   window.dispatchEvent(new CustomEvent("map:generated", { detail: { seed: options.map.seed, mapId: created } }));

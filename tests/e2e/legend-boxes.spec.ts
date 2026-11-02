@@ -42,14 +42,14 @@ test.describe("legend boxes", () => {
   test("clicking a box on the map hides that box alone", async ({ page }) => {
     await openEditor(page, "StatesEditor");
     await page.locator("#statesLegend").click();
-    await openEditor(page, "CulturesEditor");
-    await page.locator("#culturesLegend").click();
+    await openEditor(page, "ZonesEditor");
+    await page.locator("#zonesLegend").click();
     await expect(page.locator("#legend > g[data-legend]")).toHaveCount(2);
 
     await page.evaluate(() => (window as any).FMG.Dialog.closeAll());
     // the item and title texts are siblings of the background rect and paint over it, so clicking
     // the rect's centre can land on a glyph and fail the hit-target check; the group owns them all
-    await page.locator('#legend > g[data-legend="Cultures"]').click();
+    await page.locator('#legend > g[data-legend="Zones"]').click();
     await expect(page.locator("#legend > g[data-legend]")).toHaveCount(1);
     await expect(page.locator('#legend > g[data-legend="States"]')).toBeAttached();
   });

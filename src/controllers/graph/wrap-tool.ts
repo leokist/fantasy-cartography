@@ -224,7 +224,6 @@ const LAYERS_TO_REDRAW = [
   "provinces",
   "borders",
   "biomes",
-  "cultures",
   "zones",
   "markets",
   "goods",

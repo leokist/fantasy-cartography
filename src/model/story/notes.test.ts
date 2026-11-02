@@ -71,7 +71,7 @@ describe("note access", () => {
 
 describe("listNotes", () => {
   it("collects notes from every collection, grouped by entity type", () => {
-    expect(Notes.list().map(entry => entry.key)).toEqual(["burg:1", "marker:4", "feature:1", "culture:1"]);
+    expect(Notes.list().map(entry => entry.key)).toEqual(["burg:1", "marker:4", "feature:1"]);
   });
 
   it("skips entities without a note", () => {

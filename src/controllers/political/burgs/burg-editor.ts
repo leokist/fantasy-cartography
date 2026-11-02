@@ -101,12 +101,12 @@ function renderDialog(): void {
                 <option value="Highland">${t("Highland")}</option>
               </select>
             </div>
-            <div data-tip="${t("Select dominant culture")}">
-              <div class="label">${t("Culture")}:</div>
-              <select id="burgCulture" style="width: 9em"></select>
+            <div data-tip="${t("The burg's country names its places in this language")}">
+              <div class="label">${t("Language")}:</div>
+              <span id="burgLanguage" style="display: inline-block; width: 9em"></span>
               <span
                 id="burgNameReCulture"
-                data-tip="${t("Generate culture-specific name")}"
+                data-tip="${t("Generate a name in the country's language")}"
                 class="icon-book pointer"
               ></span>
             </div>
@@ -266,7 +266,6 @@ function renderDialog(): void {
   ensureEl("burgGroup").addEventListener("change", changeGroup);
   ensureEl("burgGroupConfigure").addEventListener("click", editBurgGroups);
   ensureEl("burgType").addEventListener("change", changeType);
-  ensureEl("burgCulture").addEventListener("change", changeCulture);
   ensureEl("burgNameReCulture").addEventListener("click", generateNameCulture);
   ensureEl("burgPopulation").addEventListener("change", changePopulation);
   ensureEl("burgTreasury").addEventListener("change", changeTreasury);
@@ -328,11 +327,7 @@ function updateBurgValues(): void {
   ensureEl<HTMLInputElement>("burgTreasury").value = String(rn(b.treasury || 0, 2));
   ensureEl<HTMLInputElement>("burgTags").value = Tags.format(b.tags);
 
-  // update list and select culture
-  const cultureSelect = ensureEl<HTMLSelectElement>("burgCulture");
-  cultureSelect.options.length = 0;
-  const cultures = pack.cultures.filter(c => !c.removed);
-  cultures.forEach(c => void cultureSelect.options.add(new Option(c.name, String(c.i), false, c.i === b.culture)));
+  ensureEl("burgLanguage").textContent = Names.nameBases[pack.cultures[b.culture!]?.base]?.name ?? "";
 
   const temperature = grid.cells.temp[pack.cells.g[b.cell]];
   ensureEl("burgTemperature").innerHTML = convertTemperature(temperature);
@@ -383,10 +378,6 @@ function changeGroup(this: HTMLSelectElement): void {
 function changeType(this: HTMLSelectElement): void {
   const id = getSelectedId();
   Burgs.setType(id, this.value);
-}
-
-function changeCulture(this: HTMLSelectElement): void {
-  Burgs.setCulture(getSelectedId(), +this.value);
 }
 
 function generateNameCulture(): void {

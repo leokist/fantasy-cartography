@@ -109,18 +109,11 @@ class AdditionsModule {
     return id;
   }
 
-  // a new culture for the country, centered on its capital or the nearest of its cells free of a culture center
+  // the country is its own people, named in its declared language
   private addPeople(stateId: number, seed: StateSeed): void {
-    const { cells, cultures, burgs, states } = pack;
-    const centers = new Set(cultures.filter(c => c.i && !c.removed).map(culture => culture.center));
-    const capital = burgs[states[stateId].capital].cell;
-    const own = Array.from(cells.i).filter(cell => cells.state[cell] === stateId && cells.h[cell] >= 20);
-    const center = [capital, ...own].find(cell => !centers.has(cell));
-    if (center === undefined) return;
-    const [x, y] = cells.p[center];
-    const id = Cultures.add(x, y);
-    makePeople(stateId, id, seed);
-    Authoring.markAuthored("cultures", id);
+    Cultures.followStates();
+    makePeople(stateId, stateId, seed);
+    Authoring.markAuthored("cultures", stateId);
   }
 
   /** Put a declared species in the catalogue of the map on screen. Returns its id */
@@ -132,8 +125,9 @@ class AdditionsModule {
 
   // like States.recalculate, but rebuilding provinces keeps the locked ones and those of locked states
   private recalculateStates(): void {
-    States.expandStates();
+    States.expandStates(false);
     this.refreshStates();
+    Cultures.followStates();
   }
 
   private refreshStates(): void {

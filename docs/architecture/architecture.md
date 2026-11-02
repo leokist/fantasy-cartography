@@ -276,7 +276,7 @@ schema (`model/options/`), icon references (`icons`, `icon-sets`) and the entity
 textbook MVC "controller." It holds three kinds of UI:
 
 - **Editors** — user-driven mutations of world data (`coastline-editor`,
-  `cultures-editor`, `states-editor`). These are the "C" of the conceptual model.
+  `biomes-editor`, `states-editor`). These are the "C" of the conceptual model.
 - **Tools** — interactive map tools and workflows.
 - **Overviews / visualizations** — read-only views that _present_ map state without
   mutating it (`market-overview`, `charts-overview`, `production-chains`,

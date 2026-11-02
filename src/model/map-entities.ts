@@ -18,12 +18,11 @@ export const ENTITY_TYPES = [
   "journey",
   "market",
   "addedLabel",
-  "culture",
   "biome",
   "good"
 ] as const;
 
-export const RECORD_TYPES = ["cell", "ice", "relief", "measurer", "deal", "transport", "nameBase"] as const;
+export const RECORD_TYPES = ["cell", "ice", "relief", "measurer", "deal", "transport", "nameBase", "culture"] as const;
 
 export type EntityType = (typeof ENTITY_TYPES)[number] | (typeof RECORD_TYPES)[number];
 
@@ -101,7 +100,6 @@ const ELEMENT_PATTERNS: [RegExp, EntityType][] = [
   [/^zone(\d+)$/, "zone"],
   [/^journey(\d+)$/, "journey"],
   [/^market(\d+)$/, "market"],
-  [/^culture(\d+)$/, "culture"],
   [/^biome(\d+)$/, "biome"]
 ];
 /** Layers whose elements carry their entity's id in a data attribute */
@@ -375,15 +373,15 @@ class EntityLookup {
       context: () => t("Map text")
     },
     culture: {
-      label: t("Cultures"),
-      kind: t("Culture"),
+      // each state's people, kept in step with it and shown nowhere
+      label: t("Peoples"),
+      kind: t("People"),
       icon: "icon-users",
       scale: 2,
-      layers: ["cultures"],
+      layers: [],
       collection: { field: "cultures", indexed: true, references: { origins: "culture" } },
       name: id => this.byId(pack.cultures, id)?.name || "",
       refs: () => this.refsOf("culture", pack.cultures, true),
-      highlight: id => `#culture${id}`,
       cells: () => pack.cells.culture,
       context: ref => this.byId(pack.cultures, ref.id)?.type || ""
     },

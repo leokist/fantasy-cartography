@@ -147,7 +147,7 @@ function open(): void {
   filterState = dialogState.get(dialogId, "filters", () => ({ stateId: 1, search: "" }));
   Dialog.closeAll("#provincesEditor, .stable");
   Layers.show("provinces", "borders");
-  Layers.hide("states", "cultures");
+  Layers.hide("states");
 
   renderDialog();
   refreshProvincesEditor();
@@ -659,9 +659,6 @@ function editProvinceName(province: number): void {
   applyOption(ensureEl("provinceNameEditorSelectForm"), p.formName);
   ensureEl<HTMLInputElement>("provinceNameEditorFull").value = p.fullName;
 
-  const cultureId = pack.cells.culture[p.center];
-  ensureEl("provinceCultureDisplay").textContent = pack.cultures[cultureId].name;
-
   Dialog.open("provinceNameEditor", {
     title: t("Change province name"),
     buttons: [
@@ -699,7 +696,7 @@ function renderNameEditor(): void {
         <span id="provinceNameEditorShortSpeak" data-tip="${sentences(t("Speak the name"), t("You can change voice and language in options"))}" class="speaker">🔊</span>
         <span
           id="provinceNameEditorShortCulture"
-          data-tip="${t("Generate culture-specific name")}"
+          data-tip="${t("Generate a name in the country's language")}"
           class="icon-book pointer"
         ></span>
         <span id="provinceNameEditorShortRandom" data-tip="${t("Generate random name")}" class="icon-globe pointer"></span>
@@ -772,13 +769,6 @@ function renderNameEditor(): void {
           data-tip="${t("Click to re-generate full name")}"
           class="icon-arrows-cw pointer"
         ></span>
-      </div>
-      <div
-        id="provinceCultureName"
-        data-tip="${t("Dominant culture in the province. This defines culture-based naming. Can be changed via the Cultures Editor")}"
-        style="margin-top: 0.2em"
-      >
-        ${t("Dominant culture")}:&nbsp;<span id="provinceCultureDisplay"></span>
       </div>
     </div>`;
   ensureEl("dialogs").insertAdjacentHTML("beforeend", nameEditorHtml);

@@ -255,31 +255,6 @@ it("refuses Apply after a manual edit and on another map", () => {
   expect(pack.burgs[1].name).toBe("Manual");
 });
 
-it.each(["apply", "undo", "redo"] as const)("refuses %s when its destination culture has been removed", action => {
-  pack.cultures = [{ i: 0 }, { i: 1 }, { i: 2 }, { i: 3 }] as typeof pack.cultures;
-  pack.burgs[1].culture = 1;
-  const proposal = proposeOk([{ op: "Burgs.setCulture", args: [1, 2] }]);
-  if (action !== "apply") expect(apply(proposal, MAP)).toBe(true);
-  if (action === "redo") expect(undo(proposal, MAP)).toBe(true);
-  pack.cultures[action === "undo" ? 1 : 2].removed = true;
-  const before = JSON.stringify(pack);
-
-  expect(Proposals.ready(action, proposal, MAP)).toBe(true); // the card's check leaves references to the click
-  expect(Proposals.can(action, proposal, MAP)).toBe(false);
-  expect(Proposals.run(action, proposal, MAP)).toBe(false);
-  expect(JSON.stringify(pack)).toBe(before);
-});
-
-it("keeps a proposal applicable after an unrelated culture is removed", () => {
-  pack.cultures = [{ i: 0 }, { i: 1 }, { i: 2 }, { i: 3 }] as typeof pack.cultures;
-  pack.burgs[1].culture = 1;
-  const proposal = proposeOk([{ op: "Burgs.setCulture", args: [1, 2] }]);
-  pack.cultures[3].removed = true;
-
-  expect(apply(proposal, MAP)).toBe(true);
-  expect(pack.burgs[1].culture).toBe(2);
-});
-
 it("accepts a reference to a culture added by the same batch and restores both sides", () => {
   pack.cultures = [{ i: 0 }, { i: 1 }] as typeof pack.cultures;
   pack.burgs[1].culture = 1;

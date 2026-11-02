@@ -517,7 +517,6 @@ export const stylesSchema = z.strictObject({
       mask: clip
     })
   }),
-  cultures: z.strictObject({ attrs: z.strictObject({ opacity, ...strokeGroup, filter }) }),
   emblems: z.strictObject({
     attrs: z.strictObject({ opacity, "stroke-width": variant(strokeWidth, { label: t("Stroke width") }), filter }),
     groups: z.strictObject({

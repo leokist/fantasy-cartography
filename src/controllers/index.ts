@@ -16,7 +16,6 @@ export const Controllers = createRegistry(
     ComparePrices: () => import("@/controllers/economy/trade/compare-prices").then(m => m.ComparePrices),
     ContextMenu: () => import("@/controllers/context-menu").then(m => m.ContextMenu),
     CsvUpload: () => import("@/controllers/csv-upload").then(m => m.CsvUpload),
-    CulturesEditor: () => import("@/controllers/society/cultures-editor").then(m => m.CulturesEditor),
     DistributionEditor: () =>
       import("@/controllers/economy/goods/goods-distribution-editor").then(m => m.DistributionEditor),
     ElevationProfile: () => import("@/controllers/physical/elevation-profile").then(m => m.ElevationProfile),
@@ -29,7 +28,6 @@ export const Controllers = createRegistry(
     HeightmapSelection: () => import("@/controllers/physical/heightmap-selection").then(m => m.HeightmapSelection),
     Assistant: () => import("@/controllers/assistant").then(m => m.Assistant),
     IconPicker: () => import("@/controllers/icon-picker").then(m => m.IconPicker),
-    HierarchyTree: () => import("@/controllers/hierarchy-tree").then(m => m.HierarchyTree),
     IceEditor: () => import("@/controllers/physical/ice-editor").then(m => m.IceEditor),
     JourneyEditor: () => import("@/controllers/story/journeys/journey-editor").then(m => m.JourneyEditor),
     JourneysOverview: () => import("@/controllers/story/journeys/journeys-overview").then(m => m.JourneysOverview),

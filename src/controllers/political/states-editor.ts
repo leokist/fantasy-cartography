@@ -78,11 +78,11 @@ const columns: EditorColumn<State>[] = [
     sortType: "alpha"
   },
   {
-    key: "culture",
-    label: t("Culture"),
+    key: "language",
+    label: t("Language"),
     width: "6em",
     mobileHidden: true,
-    sortBy: s => (s.i ? pack.cultures[s.culture]?.name || "" : ""),
+    sortBy: s => (s.i ? languageOf(s) : ""),
     sortType: "alpha"
   },
   {
@@ -163,7 +163,7 @@ const CSV_COLUMNS = [
   "Form",
   "Color",
   "Capital",
-  "Culture",
+  "Language",
   "Type",
   "Expansionism",
   "Cells",
@@ -184,7 +184,7 @@ const RULED_COLUMNS = [
   "Form",
   "Color",
   "Capital",
-  "Culture",
+  "Language",
   "Type",
   "Expansionism",
   "Sales Tax",
@@ -214,7 +214,7 @@ function open(): void {
 
   Dialog.closeAll(`#${dialogId}, .stable`);
   Layers.show("states", "borders");
-  Layers.hide("cultures", "biomes");
+  Layers.hide("biomes");
 
   renderDialog();
   States.collectStatistics();
@@ -335,7 +335,7 @@ function renderDialog(): void {
     const line = $element.closest(".states") as HTMLElement | null;
     if (!line) return;
     const state = +line.dataset.id!;
-    if (classList.contains("stateCulture")) stateChangeCulture(state, line, $element.value);
+    if (classList.contains("stateLanguage")) States.setLanguage(state, +$element.value);
     else if (classList.contains("cultureType")) stateChangeType(state, line, $element.value);
     else if (classList.contains("statePower")) stateChangeExpansionism(state, line, $element.value);
     else if (classList.contains("stateTags")) stateChangeTags(state, line, $element);
@@ -422,7 +422,6 @@ function renderStatesPage(view: TableView<State>): void {
         data-color=""
         data-form=""
         data-capital=""
-        data-culture=""
         data-type=""
         data-expansionism=""
         data-tags=""
@@ -437,7 +436,7 @@ function renderStatesPage(view: TableView<State>): void {
           <span class="icon-star-empty placeholder"></span>
           <div class="stateCapital placeholder"></div>
         </div>
-        <select class="stateCulture placeholder" data-col="culture">${getCultureOptions(0)}</select>
+        <select class="stateLanguage placeholder" data-col="language"></select>
         <div data-col="burgs">
           <span data-tip="${t("Click to overview neutral burgs")}" class="icon-dot-circled pointer" style="padding-right: 1px"></span>
           <div data-tip="${t("Number of burgs")}" class="stateBurgs">${s.burgs}</div>
@@ -484,7 +483,6 @@ function renderStatesPage(view: TableView<State>): void {
       data-population=${population}
       data-burgs=${s.burgs}
       data-treasury="${s.treasury}"
-      data-culture=${pack.cultures[s.culture].name}
       data-type=${s.type}
       data-expansionism=${s.expansionism}
       data-tags="${Tags.format(s.tags)}"
@@ -497,8 +495,8 @@ function renderStatesPage(view: TableView<State>): void {
         <span data-tip="${sentences(t("State capital"), t("Click to zoom"))}" class="icon-star-empty pointer"></span>
         <div data-tip="${t("Capital name")}" class="stateCapital">${capital}</div>
       </div>
-      <select data-tip="${sentences(t("Dominant culture"), t("Click to change"))}" class="stateCulture" data-col="culture">${getCultureOptions(
-        s.culture
+      <select data-tip="${sentences(t("Language the country names its places in"), t("Click to change"))}" class="stateLanguage" data-col="language">${getLanguageOptions(
+        pack.cultures[s.culture]?.base
       )}</select>
       <div data-col="burgs">
         <span data-tip="${t("Click to overview state burgs")}" style="padding-right: 1px" class="icon-dot-circled pointer"></span>
@@ -571,14 +569,14 @@ function renderStatesPage(view: TableView<State>): void {
   Dialog.update(dialogId, { width: "fit-content", position });
 }
 
-function getCultureOptions(culture: number): string {
-  let options = "";
-  pack.cultures.forEach(c => {
-    if (!c.removed) {
-      options += `<option ${c.i === culture ? "selected" : ""} value="${c.i}">${c.name}</option>`;
-    }
-  });
-  return options;
+function getLanguageOptions(base?: number): string {
+  return Names.nameBases
+    .map((b, i) => `<option ${i === base ? "selected" : ""} value="${i}">${b.name}</option>`)
+    .join("");
+}
+
+function languageOf(state: State): string {
+  return Names.nameBases[pack.cultures[state.culture]?.base]?.name || "";
 }
 
 function getTypeOptions(type: string | number): string {
@@ -737,7 +735,7 @@ function renderNameEditor(): void {
         <span id="stateNameEditorShortSpeak" data-tip="${sentences(t("Speak the name"), t("You can change voice and language in options"))}" class="speaker">🔊</span>
         <span
           id="stateNameEditorShortCulture"
-          data-tip="${t("Generate culture-specific name")}"
+          data-tip="${t("Generate a name in the country's language")}"
           class="icon-book pointer"
         ></span>
         <span id="stateNameEditorShortRandom" data-tip="${t("Generate random name")}" class="icon-globe pointer"></span>
@@ -1176,11 +1174,6 @@ function stateCapitalZoomIn(state: number): void {
   const capital = pack.states[state].capital;
   const { x, y } = pack.burgs[capital];
   zoomTo(x, y, 8, 2000);
-}
-
-function stateChangeCulture(state: number, line: HTMLElement, value: string): void {
-  States.setCulture(state, +value);
-  line.dataset.base = String(+value);
 }
 
 function stateChangeType(state: number, line: HTMLElement, value: string): void {
@@ -1683,7 +1676,7 @@ function downloadStatesCsv(): void {
       s.i ? s.formName || "" : "",
       s.i ? s.color || "" : "",
       s.i ? pack.burgs[s.capital].name || "" : "",
-      s.i ? pack.cultures[s.culture].name : "",
+      s.i ? languageOf(s) : "",
       s.i ? s.type : "",
       s.i ? s.expansionism : "",
       s.cells || 0,
@@ -1725,11 +1718,7 @@ async function uploadStatesCsv(text: string): Promise<void> {
           name => Burgs.setCapital(Csv.byName(pack.burgs, name, burg => burg.state === id).i),
           pack.burgs[state.capital]?.name
         );
-        row.apply(
-          "Culture",
-          name => States.setCulture(id, Csv.byName(pack.cultures, name).i),
-          pack.cultures[state.culture]?.name
-        );
+        row.apply("Language", name => States.setLanguage(id, Csv.byName(Names.nameBases, name).i), languageOf(state));
         row.apply("Type", type => States.setType(id, type), state.type);
         row.apply("Expansionism", value => States.setExpansionism(id, +value), state.expansionism);
         row.apply("Sales Tax", value => States.setTaxes(id, +value, state.pollTax || 0), state.salesTax || 0);

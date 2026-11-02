@@ -40,7 +40,7 @@ Every map sits on the same latitude band (`GAME_GEOGRAPHY` in [`coordinates.ts`]
 
 Countries are sized one way (`sizing`). By size (the default), small, medium or large set the land raised around the capital and how far the country spreads (`EXPANSIONISM`), so the result depends on terrain and neighbours. By area, each asks for a percent of the map: the land raised is a circle a little larger, and the country grows from its capital over the cheapest land until it holds that area (`growToArea`), or runs out of land.
 
-Each declared country is its own people: culture k takes country k's name, color and language and covers exactly its land and burgs. The generator still makes cultures for land outside the countries.
+Each declared country is its own people: culture k takes country k's name, color and language and covers exactly its land and burgs. Every country, declared or not, ends up so: see the `peoples` step in [the generation pipeline](generation-pipeline.md).
 
 When continents or countries are declared, the land is theirs ([`land.ts`](../../src/model/authoring/land.ts)): continents are ragged ellipses and countries circles of their size, with bridges between neighbours; elsewhere is sea. A province's weight is 1 over the part of the map nearer its spot than any other province's, blending across a ragged border and fading beyond its country's reach. The same weights shape the land, the climate and the provinces themselves. The generated map has exactly the declared countries.
 

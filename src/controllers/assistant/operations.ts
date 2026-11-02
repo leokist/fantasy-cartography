@@ -11,7 +11,6 @@ import { Emblems } from "@/model/political/emblems-generator";
 import { Provinces } from "@/model/political/provinces-generator";
 import { States } from "@/model/political/states-generator";
 import { Zones } from "@/model/political/zones-generator";
-import { Cultures } from "@/model/society/cultures-generator";
 import { Journeys } from "@/model/story/journeys/journeys-generator";
 import { Lore } from "@/model/story/lore";
 import { Markers } from "@/model/story/markers-generator";
@@ -23,7 +22,6 @@ export const MODELS = {
   AddedLabels,
   Biomes,
   Burgs,
-  Cultures,
   Emblems,
   Features,
   Goods,
@@ -52,7 +50,6 @@ export const METHODS = {
     "setGroup",
     "setType",
     "setBuilding",
-    "setCulture",
     "setPort",
     "setCapital",
     "move",
@@ -67,7 +64,7 @@ export const METHODS = {
     "recolor",
     "setFullName",
     "setForm",
-    "setCulture",
+    "setLanguage",
     "setType",
     "setExpansionism",
     "recalculate",
@@ -94,23 +91,6 @@ export const METHODS = {
     "setPopulation",
     "setLocked",
     "setCells"
-  ],
-  Cultures: [
-    "rename",
-    "recolor",
-    "setType",
-    "setBase",
-    "setExpansionism",
-    "recalculate",
-    "add",
-    "remove",
-    "setEmblemShape",
-    "setLocked",
-    "setOrigins",
-    "setCode",
-    "moveCenter",
-    "setCells",
-    "setPopulation"
   ],
   Biomes: ["rename", "recolor", "setHabitability", "add", "remove", "setCells", "restore"],
   Rivers: ["rename", "setType", "add", "remove", "setParent", "setWidth", "setLocked", "create"],

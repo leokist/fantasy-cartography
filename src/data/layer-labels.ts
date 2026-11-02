@@ -20,7 +20,6 @@ export const LAYER_TOGGLES = new Map<LayerId, LayerButton>([
   ["compass", { label: t("Wind Rose"), shortcut: "KeyW" }],
   ["rivers", { label: t("Rivers"), shortcut: "KeyV" }],
   ["relief", { label: t("Relief"), shortcut: "KeyF" }],
-  ["cultures", { label: t("Cultures"), shortcut: "KeyC" }],
   ["states", { label: t("States"), shortcut: "KeyS" }],
   ["provinces", { label: t("Provinces"), shortcut: "KeyP" }],
   ["zones", { label: t("Zones"), shortcut: "KeyZ" }],

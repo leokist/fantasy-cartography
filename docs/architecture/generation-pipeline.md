@@ -71,6 +71,7 @@ the pipeline, since it depends only on name bases and the seeded random source.
 | Ranking & cultures       | `rankCells`, `cultures`, `culturesExpand`       | `cells.s`, `cells.pop`, `pack.cultures`, `cells.culture`                        |
 | Settlement & politics    | `burgs`, `states`, `routes`, `noReligion`       | `pack.burgs`, `pack.states`, `pack.routes`, `pack.religions` (always empty)     |
 | Specification            | `burgsSpecify`, `stateStatistics`, `stateForms` | burg types, state stats and forms                                               |
+| Peoples                  | `peoples`                                       | `pack.cultures` and `cells.culture` rebuilt so culture i is state i             |
 | Provinces                | `provinces`, `provincePoles`                    | `pack.provinces`                                                                |
 | Naming polish            | `riversSpecify`, `featureNames`                 | river and feature (island, ocean, lake) names                                   |
 | Economy                  | `markets`, `production`, `taxes`                | `pack.markets`, `cells.market`, `pack.deals`, burg/state treasuries             |
@@ -118,13 +119,14 @@ flowchart TD
     routes["routes<br/><i>writes: pack.routes</i>"]
     relig["noReligion<br/><i>empties pack.religions</i>"]
     spec["burgsSpecify + stateStatistics + stateForms"]
+    peoples["peoples<br/><i>culture i becomes state i</i>"]
     prov["provinces + provincePoles<br/><i>writes: pack.provinces</i>"]
     names["riversSpecify + featureNames"]
     econ["markets + production + taxes<br/><i>writes: pack.markets, deals, cells.market</i>"]
     mil["markers + zones + addedLabels"]
     journeys["journeys + legends"]
 
-    gg --> hm --> mg --> lakes --> coord --> temp --> prec --> repack --> ruler --> rivers --> biomes --> fg --> ice --> goods --> rank --> cult --> burgs --> states --> routes --> relig --> spec --> prov --> names --> econ --> mil --> journeys
+    gg --> hm --> mg --> lakes --> coord --> temp --> prec --> repack --> ruler --> rivers --> biomes --> fg --> ice --> goods --> rank --> cult --> burgs --> states --> routes --> relig --> spec --> peoples --> prov --> names --> econ --> mil --> journeys
 
     %% cross-step (non-adjacent) global dependencies
     hm -. "grid.cells.h" .-> temp

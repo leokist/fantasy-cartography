@@ -22,7 +22,6 @@ const ENTITY_LAYERS: Record<string, Record<string, readonly LayerId[]>> = {
   },
   state: { "": TERRITORY, ...NAMES, color: ["states"] },
   province: { "": PROVINCES, ...NAMES, name: ["provinces", "labels"], color: ["provinces"], center: ["emblems"] },
-  culture: { "": ["cultures"], color: ["cultures"] },
   biome: { "": ["biomes"], color: ["biomes"] },
   river: {
     "": ["rivers", "labels"],

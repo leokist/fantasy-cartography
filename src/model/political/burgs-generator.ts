@@ -576,11 +576,6 @@ class BurgModule {
         if (!isFit) continue;
       }
 
-      if (group.cultures) {
-        const isFit = group.cultures.includes(burg.culture ?? 0);
-        if (!isFit) continue;
-      }
-
       if (group.percentile) {
         const index = populations.indexOf(burg.population as number);
         const isFit = index >= Math.floor((populations.length * group.percentile) / 100);

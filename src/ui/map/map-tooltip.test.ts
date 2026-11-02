@@ -6,7 +6,6 @@ vi.mock("@/renderers/layers", () => ({ Layers: { isOn: vi.fn(() => false) } }));
 vi.mock("@/ui/tooltips", () => ({ tip: vi.fn(), showMainTip: vi.fn(), loadingTip: { start: vi.fn(), end: vi.fn() } }));
 vi.mock("@/ui/map/highlight", () => ({ highlightEmblemElement: vi.fn() }));
 
-import { Layers } from "@/renderers/layers";
 import { tip } from "@/ui/tooltips";
 import { showMapTooltip, showNotes } from "./map-tooltip";
 
@@ -43,27 +42,6 @@ it("shows nested hover notes using shared references without computing geometry"
   expect(document.getElementById("notesBody")!.innerHTML).toBe("<p>A beacon</p>");
   expect(document.getElementById("notes")!.style.display).toBe("block");
   expect(points).not.toHaveBeenCalled();
-});
-
-it("shows culture tooltip with ancestry when populated", () => {
-  vi.mocked(Layers.isOn).mockImplementation(layer => layer === "cultures");
-  const cell = document.getElementById("cell1")!;
-  const event = new MouseEvent("mousemove", { bubbles: true });
-  cell.dispatchEvent(event);
-
-  showMapTooltip([0, 0], { ...event, target: cell }, 1, 1);
-  expect(tip).toHaveBeenCalledWith("Culture: Quenian (Elfish)");
-});
-
-it("shows culture tooltip without ancestry when empty", () => {
-  vi.mocked(Layers.isOn).mockImplementation(layer => layer === "cultures");
-  pack.cultures[1].ancestry = undefined;
-  const cell = document.getElementById("cell1")!;
-  const event = new MouseEvent("mousemove", { bubbles: true });
-  cell.dispatchEvent(event);
-
-  showMapTooltip([0, 0], { ...event, target: cell }, 1, 1);
-  expect(tip).toHaveBeenCalledWith("Culture: Quenian");
 });
 
 it("escapes journey and segment names", () => {

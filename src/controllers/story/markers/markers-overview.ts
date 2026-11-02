@@ -28,22 +28,9 @@ import { ensureEl, findEl } from "@/utils/node-utils";
 import { escapeHtml } from "@/utils/string-utils";
 
 const dialogId = "markersOverview" as const;
-const CSV_COLUMNS = [
-  "Id",
-  "Type",
-  "Icon",
-  "Name",
-  "Note",
-  "State",
-  "Culture",
-  "X",
-  "Y",
-  "Latitude",
-  "Longitude",
-  "Tags"
-];
+const CSV_COLUMNS = ["Id", "Type", "Icon", "Name", "Note", "State", "X", "Y", "Latitude", "Longitude", "Tags"];
 const position = { my: "right top", at: "right-10 top+10", of: "svg" };
-let filterState: { search: string; state: string; culture: string; type: string };
+let filterState: { search: string; state: string; type: string };
 
 const columns: EditorColumn<Marker>[] = [
   {
@@ -73,7 +60,7 @@ const markersTable = initEditorTable<Marker>({ getData: getFilteredMarkers, onUp
 
 function open(): void {
   if (options.app.mode) return;
-  filterState = dialogState.get(dialogId, "filters", () => ({ search: "", state: "", culture: "", type: "" }));
+  filterState = dialogState.get(dialogId, "filters", () => ({ search: "", state: "", type: "" }));
   Dialog.closeAll(`#${dialogId}, .stable`);
   Layers.show("markers");
 
@@ -96,7 +83,6 @@ function renderDialog(): void {
       <div id="markersBody" class="table"></div>
       <div id="markersFilters" style="width: 100%; display:flex; gap:.2em; padding:0.5em 0; flex-direction:column; font-size:smaller">
         <select id="markersFilterState" data-tip="${t("Show only markers located in the selected state")}"></select>
-        <select id="markersFilterCulture" data-tip="${t("Show only markers located in the selected culture")}"></select>
         <select id="markersFilterType" data-tip="${t("Show only markers of the selected type")}"></select>
         <label for="markersSearch" data-tip="${t("Filter by name, type, or tag")}">${t("Search")}: <input id="markersSearch" type="search" /></label>
       </div>
@@ -148,7 +134,6 @@ function renderDialog(): void {
   ensureEl("markersImport").addEventListener("click", () => Csv.pick(uploadMarkersCsv));
   ensureEl("markersSearch").addEventListener("input", onFilterChange);
   ensureEl("markersFilterState").addEventListener("change", onFilterChange);
-  ensureEl("markersFilterCulture").addEventListener("change", onFilterChange);
   ensureEl("markersFilterType").addEventListener("change", onFilterChange);
 
   populateMarkerTypeMenu();
@@ -170,7 +155,7 @@ function fillSelect(
   return restored;
 }
 
-// populate the state / culture / type filter dropdowns from current pack data
+// populate the state / type filter dropdowns from current pack data
 function populateFilters(): void {
   const states = pack.states
     .filter(state => !state.removed)
@@ -180,16 +165,6 @@ function populateFilters(): void {
     t("All states"),
     states,
     filterState.state
-  );
-
-  const cultures = pack.cultures
-    .filter(culture => !culture.removed)
-    .map(culture => ({ value: String(culture.i), label: culture.name }));
-  filterState.culture = fillSelect(
-    ensureEl<HTMLSelectElement>("markersFilterCulture"),
-    t("All cultures"),
-    cultures,
-    filterState.culture
   );
 
   const types = [...new Set(pack.markers.map(marker => marker.type))]
@@ -269,17 +244,11 @@ function getFilteredMarkers(): Marker[] {
     markers = markers.filter(marker => pack.cells.state[marker.cell] === stateId);
   }
 
-  if (filterState.culture !== "") {
-    const cultureId = +filterState.culture;
-    markers = markers.filter(marker => pack.cells.culture[marker.cell] === cultureId);
-  }
-
   if (filterState.type !== "") {
     markers = markers.filter(marker => marker.type === filterState.type);
   }
 
-  const anyFilterActive =
-    Boolean(searchText) || filterState.state !== "" || filterState.culture !== "" || filterState.type !== "";
+  const anyFilterActive = Boolean(searchText) || filterState.state !== "" || filterState.type !== "";
   syncMapToFilter(markers, anyFilterActive);
 
   return sortDataByColumns(dialogId, markers, columns);
@@ -288,7 +257,6 @@ function getFilteredMarkers(): Marker[] {
 function onFilterChange(): void {
   filterState.search = ensureEl<HTMLInputElement>("markersSearch").value;
   filterState.state = ensureEl<HTMLSelectElement>("markersFilterState").value;
-  filterState.culture = ensureEl<HTMLSelectElement>("markersFilterCulture").value;
   filterState.type = ensureEl<HTMLSelectElement>("markersFilterType").value;
   dialogState.set(dialogId, "filters", filterState);
   markersTable.reset();
@@ -464,7 +432,6 @@ function exportMarkers(): void {
   const rows = pack.markers.map(marker => {
     const { i, type, icon, x, y, cell } = marker;
     const state = pack.states[pack.cells.state[cell]];
-    const culture = pack.cultures[pack.cells.culture[cell]];
     return [
       i,
       type,
@@ -472,7 +439,6 @@ function exportMarkers(): void {
       marker.name,
       marker.note,
       state ? state.fullName || state.name : "",
-      culture?.name,
       x,
       y,
       getLatitude(y, coordinates, options.map.graph.height, 2),

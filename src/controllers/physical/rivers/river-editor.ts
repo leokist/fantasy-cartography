@@ -70,7 +70,7 @@ function renderDialog(): void {
     <div id="riverBody" style="padding-bottom: 0.3em">
       <div>
         <div class="label" style="width: 4.8em">${t("Name")}:</div>
-        <span id="riverNameCulture" data-tip="${t("Generate culture-specific name")}" class="icon-book pointer"></span>
+        <span id="riverNameCulture" data-tip="${t("Generate a name in the local language")}" class="icon-book pointer"></span>
         <span id="riverNameRandom" data-tip="${t("Generate random name")}" class="icon-globe pointer"></span>
         <input id="riverName" data-tip="${t("Type to rename")}" autocorrect="off" spellcheck="false" />
         <span id="riverNameSpeak" data-tip="${sentences(t("Speak the name"), t("You can change voice and language in options"))}" class="speaker">🔊</span>

@@ -452,18 +452,6 @@
       "mask": null
     }
   },
-  "cultures": {
-    "attrs": {
-      "opacity": 0.7,
-      "stroke": "#777777",
-      "stroke-opacity": null,
-      "stroke-width": 1.5,
-      "stroke-dasharray": null,
-      "stroke-linecap": null,
-      "stroke-linejoin": null,
-      "filter": null
-    }
-  },
   "emblems": {
     "attrs": {
       "opacity": 0.6,

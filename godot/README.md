@@ -1,6 +1,6 @@
 # Fantasy Cartography Importer
 
-Addon do Godot que monta um mundo do **Fantasy Cartography** no [Terrain3D](https://github.com/TokisanGames/Terrain3D): relevo em metros, uma textura por bioma, estradas e leitos de rio pintados, rios e estradas como `Path3D`, lagos e mar com água, burgos e marcadores como `Marker3D`, e os dados do mundo (estados, culturas, religiões, espécies, brasões) num recurso para o código do jogo.
+Addon do Godot que monta um mundo do **Fantasy Cartography** no [Terrain3D](https://github.com/TokisanGames/Terrain3D): relevo em metros, uma textura por bioma, estradas e leitos de rio pintados, rios e estradas como `Path3D`, lagos e mar com água, burgos e marcadores como `Marker3D`, e os dados do mundo (estados com seu idioma, espécies, brasões) num recurso para o código do jogo.
 
 Testado com Godot 4.5.1 e Terrain3D 1.1.0.
 
@@ -29,7 +29,7 @@ var world: CartographyWorld = $Aldoria
 world.biome_at(player.position)      # { id, name, color, habitability }
 world.species_at(player.position)    # espécies do bioma, de fauna_flora.json
 world.state_at(player.position)      # o estado cujo território contém a posição
-world.area_at("cultures", pos)       # idem para provinces e cultures
+world.area_at("provinces", pos)      # a província que contém a posição
 world.place("Vesper")                # um burgo ou marcador pelo nome
 world.emblem("state", 1)             # Texture2D do brasão
 ```

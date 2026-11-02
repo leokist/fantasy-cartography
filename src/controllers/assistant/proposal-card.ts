@@ -26,9 +26,8 @@ const DERIVED_FIELDS = new Set(["pole", "center", "cells", "neighbors"]);
 // what an added entity is shown with, beside its name
 const ADDED_FIELDS: Record<string, string[]> = {
   burg: ["group", "population", "port", "capital"],
-  state: ["form", "culture"],
+  state: ["form"],
   province: ["state", "burg"],
-  culture: ["type"],
   marker: ["type"]
 };
 const STYLE_BAGS = new Set(["groups", "attrs", "options"]);
@@ -117,7 +116,12 @@ class ProposalCardView {
       emblems.add(row.key);
       return [{ ...row, field: "coa", before: undefined, after: undefined }];
     });
-    const visible = shown.filter(row => !(row.key.includes(":") && DERIVED_FIELDS.has(row.field.split(".")[0])));
+    const visible = shown.filter(
+      row =>
+        !(row.key.includes(":") && DERIVED_FIELDS.has(row.field.split(".")[0])) &&
+        !row.key.startsWith("culture:") && // peoples follow their countries
+        !(row.key === "cells" && row.field === "culture")
+    );
     return visible.length ? visible : shown;
   }
 

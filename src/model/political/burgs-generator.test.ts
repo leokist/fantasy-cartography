@@ -501,11 +501,11 @@ describe("BurgsModule.parseStoredGroups", () => {
 });
 
 describe("BurgsModule.defineGroup", () => {
-  it("assigns burgs only to groups whose state and culture limits they meet", async () => {
+  it("assigns burgs only to groups whose state limits they meet", async () => {
     await import("./burgs-generator");
     globalThis.pack = { cells: { biome: [0, 0, 0] } } as any;
     options.map.burgs.groups = [
-      { name: "elven", order: 4, active: true, cultures: [1] },
+      { name: "elven", order: 4, active: true, states: [1] },
       { name: "royal", order: 3, active: true, states: [2] },
       { name: "town", order: 1, active: true, isDefault: true }
     ];
@@ -516,9 +516,9 @@ describe("BurgsModule.defineGroup", () => {
       return target.group;
     };
 
-    expect(groupOf({ cell: 1, culture: 1, state: 2 })).toBe("elven");
-    expect(groupOf({ cell: 1, culture: 2, state: 2 })).toBe("royal");
-    expect(groupOf({ cell: 1, culture: 2, state: 1 })).toBe("town");
+    expect(groupOf({ cell: 1, state: 1 })).toBe("elven");
+    expect(groupOf({ cell: 1, state: 2 })).toBe("royal");
+    expect(groupOf({ cell: 1, state: 3 })).toBe("town");
   });
 });
 

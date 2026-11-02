@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
+
 import { beforeEach, expect, it, vi } from "vitest";
+import { Names } from "@/model/society/names-generator";
 
 const mocks = vi.hoisted(() => ({
   reveal: vi.fn(() => true),
@@ -74,7 +76,7 @@ beforeEach(() => {
     ],
     cultures: [
       { i: 0, name: "Wildlands" },
-      { i: 1, name: "Orwish" }
+      { i: 1, name: "Orwin", base: 0 }
     ],
     goods: [{ i: 0, name: "Salt", color: "#fff", icon: "glyph-1f9c2" }]
   } as unknown as typeof pack;
@@ -210,7 +212,7 @@ it("profiles a state in a card with its emblem, figures and note", () => {
     Capital: "Vel",
     Population: "3K",
     Burgs: "4",
-    Culture: "Orwish"
+    Language: Names.nameBases[0]?.name ?? "none"
   });
   expect(card.querySelector(".assistantCardNote")?.textContent).toBe("An old realm");
   expect(card.querySelector('[data-action="command"]')?.getAttribute("data-id")).toBe("editStatesButton");

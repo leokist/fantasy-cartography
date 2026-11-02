@@ -16,7 +16,6 @@ const EDIT_MODES = [
   "heightmap",
   "paint",
   "addState",
-  "addCulture",
   "addProvince",
   "battle",
   "assignGoods",
@@ -60,7 +59,6 @@ const burgGroup = z.strictObject({
   features: z.record(z.string(), z.boolean()).optional(),
   biomes: ids,
   states: ids,
-  cultures: ids,
   preview: z.string().optional()
 });
 

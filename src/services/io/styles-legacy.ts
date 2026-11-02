@@ -33,7 +33,7 @@ const SELECTOR_ALIASES: Record<string, string> = {
   "#terrs #oceanHeights": "#terrs > #oceanHeights"
 };
 
-const RETIRED_SELECTORS = new Set(["#relig", "#armies"]); // layers this app no longer has
+const RETIRED_SELECTORS = new Set(["#relig", "#armies", "#cults"]); // layers this app no longer has
 
 const PRESET_ROUTES: Record<string, PresetRoute> = {
   // legacy kept the pick in data-filter, the store in the filter attr: normalizeStyles folds the option into it
@@ -79,7 +79,6 @@ const PRESET_ROUTES: Record<string, PresetRoute> = {
     bools: ["render"]
   },
   "#terrain": { path: ["relief"], options: { set: "set", size: "size", density: "density" } },
-  "#cults": { path: ["cultures"] },
   "#statesBody": { path: ["states", "groups", "statesBody"] },
   // #statesHalo's stroke-width is the zoom-derived render value; data-width is the base
   "#statesHalo": {

@@ -25,7 +25,6 @@ import { Burgs } from "@/model/political/burgs-generator";
 import { Emblems } from "@/model/political/emblems-generator";
 import { States } from "@/model/political/states-generator";
 import { Zones } from "@/model/political/zones-generator";
-import { Cultures } from "@/model/society/cultures-generator";
 import { Population } from "@/model/society/population-generator";
 import type { LayerId } from "@/renderers/layers";
 import { Layers } from "@/renderers/layers";
@@ -141,13 +140,6 @@ export const MAP_COMMANDS: MapCommand[] = [
     link: true,
     aliases: "settlements cities towns villages",
     run: () => Controllers.BurgsOverview.open()
-  },
-  {
-    id: "editCulturesButton",
-    name: t("Cultures Editor"),
-    link: true,
-    aliases: "people",
-    run: () => Controllers.CulturesEditor.open()
   },
   {
     id: "editProvincesButton",
@@ -434,13 +426,6 @@ export const MAP_COMMANDS: MapCommand[] = [
     run: () => Controllers.BurgsOverview.showChart()
   },
   {
-    id: "showCulturesHierarchy",
-    name: t("Cultures tree"),
-    link: true,
-    aliases: "people origins tree",
-    run: () => Controllers.CulturesEditor.showHierarchy()
-  },
-  {
     id: "regenerateStates",
     name: `${t("Regenerate")}: ${t("States")}`,
     aliases: "generate countries kingdoms",
@@ -458,12 +443,6 @@ export const MAP_COMMANDS: MapCommand[] = [
     name: `${t("Regenerate")}: ${t("Burgs")}`,
     aliases: "generate settlements cities towns",
     run: () => confirmRegeneration(regenerateBurgs)
-  },
-  {
-    id: "regenerateCultures",
-    name: `${t("Regenerate")}: ${t("Cultures")}`,
-    aliases: "generate people",
-    run: () => confirmRegeneration(regenerateCultures)
   },
   {
     id: "regenerateRivers",
@@ -819,11 +798,6 @@ function regenerateProduction(): void {
 function regenerateEmblems(): void {
   Emblems.regenerate();
   Layers.draw("emblems");
-}
-
-function regenerateCultures(): void {
-  Cultures.regenerate();
-  Layers.draw("cultures", "goods");
 }
 
 function regenerateIce(): void {
