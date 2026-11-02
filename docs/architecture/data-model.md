@@ -133,7 +133,7 @@ Cultures (races, language zones) data is stored as an array of objects with stri
 - `code`: `string` - culture name abbreviation. Used to render cultures tree
 - `color`: `string` - culture color in hex (e.g. `#45ff12`) or link to hatching pattern (e.g. `url(#hatch7)`, or `url(#hatch7-c0392b)` for one drawn in a color)
 - `expansionism`: `number` - culture growth multiplier. Used mainly during cultures generation to spread cultures not uniformly
-- `type`: `string` - culture type, see [culture types](https://github.com/Azgaar/Fantasy-Map-Generator/wiki/Culture-types)
+- `type`: `string` - culture type, see [culture types](https://github.com/Azgaar/fantasy-cartography/wiki/Culture-types)
 - `area`: `number` - culture area in pixels
 - `cells`: `number` - number of cells assigned to culture
 - `rural`: `number` - rural (non-burg) population of cells assigned to culture. In population points
@@ -155,7 +155,7 @@ Burgs (settlements) data is stored as an array of objects with strict element or
 - `state`: `number` - burg state id
 - `feature`: `number` - burg feature id (id of a landmass)
 - `population`: `number` - burg population in population points
-- `type`: `string` - the burg's culture type (Generic, River, Lake, Naval, Nomadic, Hunting, Highland), which is about geography, not rank. Capital status is `capital`; size class is `group`. See [culture types](https://github.com/Azgaar/Fantasy-Map-Generator/wiki/Culture-types)
+- `type`: `string` - the burg's culture type (Generic, River, Lake, Naval, Nomadic, Hunting, Highland), which is about geography, not rank. Capital status is `capital`; size class is `group`. See [culture types](https://github.com/Azgaar/fantasy-cartography/wiki/Culture-types)
 - `group`: `string` - Burg classification and rendering group. It is also the default Label Group for the Burg label
 - `label`: `Label` - optional Burg-label overrides. Burg labels use the Burg name, coordinates, and `burg.group` by default; `label.group` can override only the label group
 - `coa`: `object` - heraldic emblem in [Armoria's COA format](https://github.com/Azgaar/armoria-api#readme), or picture emblem `{ icon: string, shield?: string }` referring to an icon in the library. Both forms may have optional `size`, `x` and `y` fields for map placement. A picture emblem can be clipped to a shield, but cannot be edited as heraldry in Armoria
@@ -189,7 +189,7 @@ States (countries) data is stored as an array of objects with strict element ord
 - `center`: `number` - cell id of state center (initial cell)
 - `pole`: `number[]` - state pole of inaccessibility (visual center) coordinates, see [the concept description](https://blog.mapbox.com/a-new-algorithm-for-finding-a-visual-center-of-a-polygon-7c77e6492fbc?gi=6bd4fcb9ecc1)
 - `culture`: `number` - state culture id (equals to initial cell culture)
-- `type`: `string` - state type, see [culture types](https://github.com/Azgaar/Fantasy-Map-Generator/wiki/Culture types)
+- `type`: `string` - state type, see [culture types](https://github.com/Azgaar/fantasy-cartography/wiki/Culture types)
 - `expansionism`: `number` - state growth multiplier. Used mainly during state generation to spread states not uniformly
 - `area`: `number` - state area in pixels
 - `burgs`: `number` - number of burgs within the state
@@ -200,8 +200,8 @@ States (countries) data is stored as an array of objects with strict element ord
 - `provinces`: `number[]` - ids of state provinces
 - `diplomacy`: `string[]` - relation to each state by its id: `Ally`, `Friendly`, `Neutral`, `Suspicion`, `Enemy` (at war), `Unknown`, `Rival`, `Vassal` (of that state) or `Suzerain` (to that state); both sides hold the same relation except a vassal pair. 'x' for self and neutrals. Element 0 (neutrals) `diplomacy` is used differently and contains wars story as `string[][]`
 - `campaigns`: `object[]` - wars the state participated in. The was is defined as `start`: `number` (year), `end`: `number` (year), `name`: `string`
-- `alert`: `number` - state war alert, see [military forces page](https://github.com/Azgaar/Fantasy-Map-Generator/wiki/Military-Forces)
-- `military`: `Regiment[]` - list of state regiments, see [military forces page](https://github.com/Azgaar/Fantasy-Map-Generator/wiki/Military-Forces)
+- `alert`: `number` - state war alert, see [military forces page](https://github.com/Azgaar/fantasy-cartography/wiki/Military-Forces)
+- `military`: `Regiment[]` - list of state regiments, see [military forces page](https://github.com/Azgaar/fantasy-cartography/wiki/Military-Forces)
 - `label`: `Label` - optional state-label data. If absent, the renderer derives the text, path, and relative size from the State data and label mode
 - `coa`: `object` - heraldic emblem in [Armoria's COA format](https://github.com/Azgaar/armoria-api#readme), or picture emblem `{ icon: string, shield?: string }` referring to an icon in the library. Both forms may have optional `size`, `x` and `y` fields for map placement. A picture emblem can be clipped to a shield, but cannot be edited as heraldry in Armoria
 - `salesTax`: `number` - sales tax rate `0..1` charged on deals where this state is the seller. Generated from `form` (Monarchy 0.15, Theocracy 0.25, Union 0.07, Republic 0.05, Anarchy 0), jittered per state. Always `0` for neutrals

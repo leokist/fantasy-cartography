@@ -19,7 +19,7 @@ async function prepareOffline(page: Page) {
 // Register manually on localhost; only production builds include the asset manifest.
 test.describe("PWA offline", () => {
   test.beforeEach(async ({ page, context }) => {
-    const worker = await (await context.request.get("/Fantasy-Map-Generator/sw.js")).text();
+    const worker = await (await context.request.get("/fantasy-cartography/sw.js")).text();
     test.skip(
       worker.includes("self.__WB_MANIFEST"),
       "needs the built service worker (npm run build && npm run preview)"

@@ -5,9 +5,9 @@
   "name": "Fantasy Cartography",
   "short_name": "Fantasy Cartography",
   "description": "Web application generating interactive and highly customizable maps",
-  "scope": "/Fantasy-Map-Generator/",
-  "start_url": "/Fantasy-Map-Generator/?source=pwa",
-  "url": "https://azgaar.github.io/Fantasy-Map-Generator",
+  "scope": "/fantasy-cartography/",
+  "start_url": "/fantasy-cartography/?source=pwa",
+  "url": "https://leokist.github.io/fantasy-cartography",
   "icons": [
     {
       "src": "images/icons/icon_x512.png",

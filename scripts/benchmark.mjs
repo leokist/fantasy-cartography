@@ -56,7 +56,7 @@ async function serve(label, dir, port) {
     cwd: dir,
     stdio: "ignore"
   });
-  const url = `http://localhost:${port}/Fantasy-Map-Generator/`;
+  const url = `http://localhost:${port}/fantasy-cartography/`;
   for (let attempt = 0; !(await fetch(url).then(res => res.ok, () => false)); attempt++) {
     if (attempt > 100) throw new Error(`[${label}] preview server did not start on ${url}`);
     await new Promise(resolve => setTimeout(resolve, 200));

@@ -7,7 +7,7 @@
  * changes; the files are shipped from public/images/style-presets and cache-busted by the app version.
  *
  * Usage:
- *   node scripts/render-style-thumbnails.mjs [--url http://localhost:5173/Fantasy-Map-Generator/]
+ *   node scripts/render-style-thumbnails.mjs [--url http://localhost:5173/fantasy-cartography/]
  *     [--seed style-presets] [--out public/images/style-presets] [--presets ink,gloom]
  */
 
@@ -49,7 +49,7 @@ function arg(name, fallback) {
   return index === -1 ? fallback : process.argv[index + 1];
 }
 
-const url = arg("url", "http://localhost:5173/Fantasy-Map-Generator/");
+const url = arg("url", "http://localhost:5173/fantasy-cartography/");
 const seed = arg("seed", "style-presets");
 const out = path.resolve(repoRoot, arg("out", "public/images/style-presets"));
 const presets = arg("presets", SYSTEM_PRESETS.join(",")).split(",").filter(Boolean);

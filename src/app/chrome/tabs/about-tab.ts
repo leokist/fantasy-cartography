@@ -113,7 +113,7 @@ const TEMPLATE = /* html */ `
   <ul class="share-buttons">
     <li>
       <a
-        href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fazgaar.github.io%2FFantasy-Map-Generator%2F&quote="
+        href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fleokist.github.io%2Ffantasy-cartography%2F&quote="
         data-tip="${t("Share on Facebook")}"
         target="_blank"
         ><img alt="${t("Share on Facebook")}" src="images/Facebook.png" loading="lazy"
@@ -121,7 +121,7 @@ const TEMPLATE = /* html */ `
     </li>
     <li>
       <a
-        href="https://twitter.com/intent/tweet?source=https%3A%2F%2Fazgaar.github.io%2FFantasy-Map-Generator&text=%23FantasyMapGenerator%0A%0Ahttps%3A//azgaar.github.io/Fantasy-Map-Generator"
+        href="https://twitter.com/intent/tweet?source=https%3A%2F%2Fleokist.github.io%2Ffantasy-cartography&text=%23FantasyCartography%0A%0Ahttps%3A//leokist.github.io/fantasy-cartography"
         target="_blank"
         data-tip="${t("Tweet")}"
         ><img alt="${t("Tweet")}" src="images/Twitter.png" loading="lazy"
@@ -129,7 +129,7 @@ const TEMPLATE = /* html */ `
     </li>
     <li>
       <a
-        href="http://pinterest.com/pin/create/button/?url=https%3A%2F%2Fazgaar.github.io%2FFantasy-Map-Generator"
+        href="http://pinterest.com/pin/create/button/?url=https%3A%2F%2Fleokist.github.io%2Ffantasy-cartography"
         target="_blank"
         data-tip="${t("Pin it")}"
         ><img alt="${t("Pin it")}" src="images/Pinterest.png" loading="lazy"
@@ -137,7 +137,7 @@ const TEMPLATE = /* html */ `
     </li>
     <li>
       <a
-        href="http://www.reddit.com/submit?url=https%3A%2F%2Fazgaar.github.io%2FFantasy-Map-Generator"
+        href="http://www.reddit.com/submit?url=https%3A%2F%2Fleokist.github.io%2Ffantasy-cartography"
         target="_blank"
         data-tip="${t("Submit to Reddit")}"
         ><img alt="${t("Submit to Reddit")}" src="images/Reddit.png" loading="lazy"

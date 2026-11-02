@@ -68,7 +68,7 @@ async function save(write: Writer): Promise<void> {
 function prepareMapData(viewOnly = false): string {
   const date = new Date();
   const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-  const license = "File can be loaded in azgaar.github.io/Fantasy-Map-Generator"; // file format text: never translated
+  const license = "File can be loaded in leokist.github.io/fantasy-cartography"; // file format text: never translated
   const params = [
     VERSION,
     license,
