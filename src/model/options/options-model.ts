@@ -100,7 +100,6 @@ class OptionsModel {
         cultures: { limit: 12, set: "world", sizeVariety: 4, growthRate: 1 },
         states: { limit: 18, sizeVariety: 4, growthRate: 1 },
         provinces: { ratio: 20 },
-        religions: { limit: 6 },
         burgs: { limit: 1000 }
       },
       app: {
@@ -228,7 +227,7 @@ class OptionsModel {
   /** Establish new map settings */
   randomize(): void {
     const { generation } = options;
-    const { graph, cultures, states, provinces, religions, burgs } = generation;
+    const { graph, cultures, states, provinces, burgs } = generation;
 
     // the slider holds a density step; the cell count it stands for is derived where it is used
     graph.density = Pins.rolls("points") ? DEFAULT_DENSITY : Pins.valueOr("points", graph.density);
@@ -248,9 +247,6 @@ class OptionsModel {
       ? gauss(20, 10, 20, 100)
       : Pins.valueOr("provincesRatio", provinces.ratio);
     burgs.limit = Pins.rolls("manors") ? AUTO_BURG_LIMIT : Pins.valueOr("manors", burgs.limit);
-    religions.limit = Pins.rolls("religionsNumber")
-      ? gauss(6, 3, 2, 10)
-      : Pins.valueOr("religionsNumber", religions.limit);
 
     // one panel slider drives states and cultures alike, until the UI offers them separately
     const variety = Pins.rolls("sizeVariety") ? gauss(4, 2, 0, 10, 1) : Pins.valueOr("sizeVariety", states.sizeVariety);

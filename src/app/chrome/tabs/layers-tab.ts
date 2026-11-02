@@ -13,7 +13,6 @@ import { ensureEl, findEl } from "@/utils/node-utils";
 export const LAYER_PRESETS: Record<string, string> = {
   political: t("Political map"),
   cultural: t("Cultural map"),
-  religions: t("Religions map"),
   provinces: t("Provinces map"),
   biomes: t("Biomes map"),
   heightmap: t("Heightmap"),

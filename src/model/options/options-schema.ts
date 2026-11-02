@@ -16,7 +16,6 @@ const EDIT_MODES = [
   "heightmap",
   "paint",
   "addState",
-  "addReligion",
   "addCulture",
   "addProvince",
   "battle",
@@ -62,7 +61,6 @@ const burgGroup = z.strictObject({
   biomes: ids,
   states: ids,
   cultures: ids,
-  religions: ids,
   preview: z.string().optional()
 });
 
@@ -77,8 +75,7 @@ const militaryUnit = z.strictObject({
   separate: z.number().int(),
   biomes: ids,
   states: ids,
-  cultures: ids,
-  religions: ids
+  cultures: ids
 });
 
 const transport = z.strictObject({
@@ -225,7 +222,6 @@ export const optionsSchema = z.strictObject({
     }),
     states: z.strictObject({ limit: count, sizeVariety: nonNegative, growthRate: nonNegative }),
     provinces: z.strictObject({ ratio: percent }),
-    religions: z.strictObject({ limit: count }),
     burgs: z.strictObject({ limit: count }) // AUTO_BURG_LIMIT means "as many as the land supports"
   }),
 
@@ -315,7 +311,6 @@ export const pinSchemas: Record<string, z.ZodType> = {
   statesNumber: generation.states.shape.limit,
   provincesRatio: generation.provinces.shape.ratio,
   manors: generation.burgs.shape.limit,
-  religionsNumber: generation.religions.shape.limit,
   cultures: generation.cultures.shape.limit,
   culturesSet: generation.cultures.shape.set,
   sizeVariety: generation.states.shape.sizeVariety,

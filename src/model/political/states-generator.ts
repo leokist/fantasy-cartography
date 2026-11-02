@@ -872,14 +872,9 @@ class StatesModule {
       if (list && !list.includes(s.i)) continue;
       const tier = expTiers[s.i];
 
-      const religion = pack.cells.religion[s.center];
-      const isTheocracy =
-        (religion && pack.religions[religion].expansion === "state") ||
-        (P(0.1) && ["Organized", "Cult"].includes(pack.religions[religion].type));
       const isAnarchy = P(0.01 - tier / 500);
 
-      if (isTheocracy) s.form = "Theocracy";
-      else if (isAnarchy) s.form = "Anarchy";
+      if (isAnarchy) s.form = "Anarchy";
       else s.form = s.type === "Naval" ? rw(naval) : rw(generic);
 
       const selectForm = (s: State, tier: number) => {

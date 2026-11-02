@@ -63,7 +63,6 @@ function getMinimalDataJson(): string {
     burgs: pack.burgs,
     states: pack.states,
     provinces: pack.provinces,
-    religions: pack.religions,
     rivers: pack.rivers,
     goods: pack.goods,
     markers: pack.markers,
@@ -149,7 +148,6 @@ function getPackCellsData() {
     burg: Array.from(pack.cells.burg),
     routes: pack.cells.routes,
     state: Array.from(pack.cells.state),
-    religion: Array.from(pack.cells.religion),
     province: Array.from(pack.cells.province)
   };
 
@@ -176,7 +174,6 @@ function getPackCellsData() {
       burg: data.burg[cellId],
       routes: data.routes[cellId],
       state: data.state[cellId],
-      religion: data.religion[cellId],
       province: data.province[cellId]
     })),
     vertices: Array.from(pack.vertices.p).map((_, vertexId) => ({
@@ -191,7 +188,6 @@ function getPackCellsData() {
     burgs: pack.burgs,
     states: pack.states,
     provinces: pack.provinces,
-    religions: pack.religions,
     rivers: pack.rivers,
     goods: pack.goods,
     markers: pack.markers,

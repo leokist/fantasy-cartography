@@ -58,7 +58,6 @@ async function context(chat: Chat): Promise<string> {
     `burgs: ${live(pack.burgs)}`,
     `provinces: ${live(pack.provinces)}`,
     `cultures: ${live(pack.cultures)}`,
-    `religions: ${live(pack.religions)}`,
     `rivers: ${pack.rivers?.length ?? 0}`,
     `markers: ${pack.markers?.length ?? 0}`,
     `chronicle entries: ${pack.states[0]?.diplomacy?.length ?? 0} (\`States.getChronicle()\`: entries as text lines, the first the title; HTML-escaped)`
@@ -146,7 +145,6 @@ const NAMED_TYPES: EntityType[] = [
   "province",
   "burg",
   "culture",
-  "religion",
   "river",
   "marker",
   "feature",
@@ -304,7 +302,7 @@ const WIDGET_TOOLS: Record<Exclude<Widget["type"], "emblem">, WidgetTool> = {
   },
   card: {
     description:
-      "Show a state's profile card: emblem, full name and form, capital, population, area, burgs, culture, religion and the start of its note. Use it whenever one state is the subject (tell me about, describe, overview, who rules), then add only what the card does not say.",
+      "Show a state's profile card: emblem, full name and form, capital, population, area, burgs, culture and the start of its note. Use it whenever one state is the subject (tell me about, describe, overview, who rules), then add only what the card does not say.",
     input_schema: { type: "object", properties: { entity: { type: "string" } }, required: ["entity"] },
     parse(input) {
       const entity = text(input.entity);
@@ -314,7 +312,7 @@ const WIDGET_TOOLS: Record<Exclude<Widget["type"], "emblem">, WidgetTool> = {
   },
   chart: {
     description:
-      'Show numbers you computed with read_map as a chart. bar: one measure compared or ranked across items (largest states, burgs by population, top religions). pie: parts of one whole (population by culture, land by biome), given as amounts, not percentages: the chart computes shares. unit names the amounts (people, mi²); "money" for prices, treasuries and taxes. Prefer it to a table when each item has one number.',
+      'Show numbers you computed with read_map as a chart. bar: one measure compared or ranked across items (largest states, burgs by population, top cultures). pie: parts of one whole (population by culture, land by biome), given as amounts, not percentages: the chart computes shares. unit names the amounts (people, mi²); "money" for prices, treasuries and taxes. Prefer it to a table when each item has one number.',
     input_schema: {
       type: "object",
       properties: {

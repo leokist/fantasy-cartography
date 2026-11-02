@@ -84,7 +84,7 @@ interface ProductionContext {
 }
 
 type NamedColored = { name?: string; color?: string };
-type CollectionKey = "states" | "cultures" | "religions" | "provinces";
+type CollectionKey = "states" | "cultures" | "provinces";
 
 type RolledEntry = [string, [string, number][]];
 type BarPoint = SeriesPoint<RolledEntry> & { i: number };
@@ -106,13 +106,6 @@ const entitiesMap: Record<string, Dimension> = {
     getId: cellId => pack.cells.culture[cellId],
     getName: nameGetter("cultures"),
     getColors: colorsGetter("cultures"),
-    landOnly: true
-  },
-  religions: {
-    label: t("Religion"),
-    getId: cellId => pack.cells.religion[cellId],
-    getName: nameGetter("religions"),
-    getColors: colorsGetter("religions"),
     landOnly: true
   },
   provinces: {

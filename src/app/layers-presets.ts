@@ -10,7 +10,6 @@ import { ensureEl } from "@/utils/node-utils";
 const DEFAULT_PRESETS: Record<string, LayerId[]> = {
   political: ["borders", "burgIcons", "ice", "labels", "lakes", "rivers", "routes", "scaleBar", "states", "vignette"],
   cultural: ["borders", "burgIcons", "cultures", "labels", "lakes", "rivers", "routes", "scaleBar", "vignette"],
-  religions: ["borders", "burgIcons", "labels", "lakes", "religions", "rivers", "routes", "scaleBar", "vignette"],
   provinces: ["borders", "burgIcons", "labels", "lakes", "provinces", "rivers", "scaleBar", "vignette"],
   biomes: ["biomes", "ice", "lakes", "rivers", "scaleBar", "vignette"],
   heightmap: ["heightmap", "lakes", "rivers", "vignette"],

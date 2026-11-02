@@ -39,7 +39,6 @@ function open(editedGood?: Good, onUpdate?: () => void): void {
     cultureType: { ...(editedGood?.multipliers?.cultureType ?? {}) },
     culture: { ...(editedGood?.multipliers?.culture ?? {}) },
     state: { ...(editedGood?.multipliers?.state ?? {}) },
-    religion: { ...(editedGood?.multipliers?.religion ?? {}) },
     biome: { ...(editedGood?.multipliers?.biome ?? {}) },
     zone: { ...(editedGood?.multipliers?.zone ?? {}) }
   };
@@ -310,7 +309,6 @@ function open(editedGood?: Good, onUpdate?: () => void): void {
           ${renderMultiplierRow("cultureType", MULTIPLIER_LABELS.cultureType)}
           ${renderMultiplierRow("culture", MULTIPLIER_LABELS.culture)}
           ${renderMultiplierRow("state", MULTIPLIER_LABELS.state)}
-          ${renderMultiplierRow("religion", MULTIPLIER_LABELS.religion)}
           ${renderMultiplierRow("biome", MULTIPLIER_LABELS.biome)}
           ${renderMultiplierRow("zone", MULTIPLIER_LABELS.zone)}
         </div>
@@ -501,7 +499,7 @@ function open(editedGood?: Good, onUpdate?: () => void): void {
   }
 }
 
-type MultiplierDimKey = "cultureType" | "culture" | "state" | "religion" | "biome" | "zone";
+type MultiplierDimKey = "cultureType" | "culture" | "state" | "biome" | "zone";
 
 const MULTIPLIER_LEGEND = `1 = ${t("no effect")}, 0 = ${t("fully suppressed")}`;
 
@@ -509,7 +507,6 @@ const MULTIPLIER_LABELS: Record<MultiplierDimKey, string> = {
   cultureType: t("Culture type"),
   culture: t("Culture"),
   state: t("State"),
-  religion: t("Religion"),
   biome: t("Biome"),
   zone: t("Zone")
 };
@@ -518,7 +515,6 @@ function getMultiplierEntityName(dim: MultiplierDimKey, id: string): string {
   if (dim === "cultureType") return CULTURE_TYPE_LABELS[id] ?? id;
   if (dim === "culture") return pack.cultures[+id]?.name ?? `Culture ${id}`;
   if (dim === "state") return pack.states[+id]?.name ?? `State ${id}`;
-  if (dim === "religion") return pack.religions[+id]?.name ?? `Religion ${id}`;
   if (dim === "zone") return pack.zones.find(z => z.i === +id)?.name ?? `Zone ${id}`;
   return pack.biomes[+id]?.name ?? `Biome ${id}`;
 }
@@ -549,12 +545,6 @@ function openMultiplierPopup(
         .filter(s => s.i && !s.removed)
         .map(s => ({ id: String(s.i), name: s.fullName || s.name, color: s.color }));
       label = MULTIPLIER_LABELS.state;
-      break;
-    case "religion":
-      entities = pack.religions
-        .filter(r => r.i && !r.removed)
-        .map(r => ({ id: String(r.i), name: r.name, color: r.color }));
-      label = MULTIPLIER_LABELS.religion;
       break;
     case "biome":
       entities = pack.biomes

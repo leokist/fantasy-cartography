@@ -103,7 +103,7 @@ function open(): void {
   Dialog.closeAll(`#${dialogId}, .stable`);
   Layers.show("biomes");
   Layers.hide("states", "cultures");
-  Layers.hide("religions", "provinces");
+  Layers.hide("provinces");
 
   renderDialog();
   currentBiomeStatistics = biomesCollectStatistics();

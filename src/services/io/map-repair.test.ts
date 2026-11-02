@@ -10,7 +10,6 @@ it("unassigns each invalid cell owner from its own array only", () => {
       state: [0, 1, 9],
       province: [0, 2, 0],
       culture: [0, 5, 1],
-      religion: [0, 0, 7],
       burg: [0, 0, 0],
       r: [0, 3, 0],
       f: [1, 1, 1],
@@ -21,7 +20,6 @@ it("unassigns each invalid cell owner from its own array only", () => {
     states: [{ i: 0 }, { i: 1 }],
     provinces: [0],
     cultures: [{ i: 0 }, { i: 1 }],
-    religions: [{ i: 0 }],
     burgs: [{ i: 0 }],
     rivers: [],
     routes: [],
@@ -31,13 +29,12 @@ it("unassigns each invalid cell owner from its own array only", () => {
 
   const repairs = MapRepair.repair();
 
-  const { state, province, culture, religion, r } = pack.cells;
-  expect([state, province, culture, religion, r]).toEqual([
+  const { state, province, culture, r } = pack.cells;
+  expect([state, province, culture, r]).toEqual([
     [0, 1, 0],
     [0, 0, 0],
     [0, 0, 1],
-    [0, 0, 0],
     [0, 0, 0]
   ]);
-  expect(repairs).toHaveLength(5);
+  expect(repairs).toHaveLength(4);
 });

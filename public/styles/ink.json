@@ -1242,18 +1242,6 @@
       "density": 0.4
     }
   },
-  "religions": {
-    "attrs": {
-      "opacity": 0.2,
-      "stroke": "#000000",
-      "stroke-opacity": null,
-      "stroke-width": 0.5,
-      "stroke-dasharray": null,
-      "stroke-linecap": null,
-      "stroke-linejoin": null,
-      "filter": null
-    }
-  },
   "rivers": {
     "attrs": {
       "opacity": 1,

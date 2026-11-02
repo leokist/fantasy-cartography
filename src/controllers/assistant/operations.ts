@@ -13,7 +13,6 @@ import { Provinces } from "@/model/political/provinces-generator";
 import { States } from "@/model/political/states-generator";
 import { Zones } from "@/model/political/zones-generator";
 import { Cultures } from "@/model/society/cultures-generator";
-import { Religions } from "@/model/society/religions-generator";
 import { Journeys } from "@/model/story/journeys/journeys-generator";
 import { Lore } from "@/model/story/lore";
 import { Markers } from "@/model/story/markers-generator";
@@ -37,7 +36,6 @@ export const MODELS = {
   Military,
   Notes,
   Provinces,
-  Religions,
   Rivers,
   Routes,
   States,
@@ -111,24 +109,6 @@ export const METHODS = {
     "add",
     "remove",
     "setEmblemShape",
-    "setLocked",
-    "setOrigins",
-    "setCode",
-    "moveCenter",
-    "setCells",
-    "setPopulation"
-  ],
-  Religions: [
-    "rename",
-    "recolor",
-    "setDeity",
-    "setType",
-    "setForm",
-    "setExpansion",
-    "setExpansionism",
-    "recalculate",
-    "add",
-    "remove",
     "setLocked",
     "setOrigins",
     "setCode",

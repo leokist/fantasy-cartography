@@ -128,12 +128,6 @@ const OPTION_BINDINGS: Record<string, OptionBinding> = {
     parse: Number,
     pin: "provincesRatio"
   }),
-  religionsNumber: option({
-    read: o => o.generation.religions.limit,
-    write: (o, value) => (o.generation.religions.limit = value),
-    parse: Number,
-    pin: "religionsNumber"
-  }),
   manors: option({
     read: o => o.generation.burgs.limit,
     write: (o, value) => (o.generation.burgs.limit = value),
@@ -331,23 +325,6 @@ const TEMPLATE = /* html */ `
       </td>
       <td>
         <output id="manorsOutput" data-option-output="manors" value="auto"></output>
-      </td>
-    </tr>
-    <tr
-      data-tip="${t("Define how many organized religions and cults should be generated. Cultures will have their own folk religions in any case")}"
-    >
-      <td>
-        <i data-locked="0" id="lock_religionsNumber" class="icon-lock-open"></i>
-      </td>
-      <td>${t("Religions number")}</td>
-      <td colspan="2">
-        <slider-input
-          id="religionsNumber"
-          data-option="religionsNumber"
-          min="0"
-          max="50"
-          step="1"
-        ></slider-input>
       </td>
     </tr>
   </table>

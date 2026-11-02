@@ -26,8 +26,8 @@ import { Provinces } from "@/model/political/provinces-generator";
 import { States } from "@/model/political/states-generator";
 import { Zones } from "@/model/political/zones-generator";
 import { Cultures } from "@/model/society/cultures-generator";
+import { clearReligions } from "@/model/society/no-religion";
 import { Population } from "@/model/society/population-generator";
-import { Religions } from "@/model/society/religions-generator";
 import { Journeys } from "@/model/story/journeys/journeys-generator";
 import { Markers } from "@/model/story/markers-generator";
 import type { GridGraph } from "@/types/grid-graph";
@@ -68,7 +68,7 @@ const generationPipelineSteps = [
   { id: "states", run: () => States.generate() },
   { id: "stateSizes", run: () => WorldSeeds.applySizes() },
   { id: "routes", run: () => Routes.generate() },
-  { id: "religions", run: () => Religions.generate() },
+  { id: "noReligion", run: () => clearReligions() },
   { id: "citySeeds", run: () => WorldSeeds.applyCities() },
   { id: "burgsSpecify", run: () => Burgs.specify() },
   { id: "stateStatistics", run: () => States.collectStatistics() },
@@ -120,7 +120,7 @@ const erasePipelineSteps = [
   { id: "burgs", run: () => Burgs.generate() },
   { id: "states", run: () => States.generate() },
   { id: "routes", run: () => Routes.generate() },
-  { id: "religions", run: () => Religions.generate() },
+  { id: "noReligion", run: () => clearReligions() },
   { id: "burgsSpecify", run: () => Burgs.specify() },
   { id: "stateStatistics", run: () => States.collectStatistics() },
   { id: "stateForms", run: () => States.defineStateForms() },

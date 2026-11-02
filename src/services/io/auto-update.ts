@@ -30,7 +30,6 @@ import { Provinces } from "@/model/political/provinces-generator";
 import { States } from "@/model/political/states-generator";
 import { Zones } from "@/model/political/zones-generator";
 import { Cultures } from "@/model/society/cultures-generator";
-import { Religions } from "@/model/society/religions-generator";
 import { getDefaultMarkerName, type Marker, Markers } from "@/model/story/markers-generator";
 import { Notes } from "@/model/story/notes";
 import { Styles } from "@/model/styles/styles";
@@ -81,7 +80,6 @@ const LEGACY_LAYER_IDS: Record<string, LayerId> = {
   toggleCompass: "compass",
   toggleRivers: "rivers",
   toggleRelief: "relief",
-  toggleReligions: "religions",
   toggleCultures: "cultures",
   toggleStates: "states",
   toggleProvinces: "provinces",
@@ -161,7 +159,6 @@ async function migrateLegacyMap(mapVersion: string, data: string[], svg: LegacyS
   if (isOlderThan("1.0.0")) {
     // v1.0 added a new religions layer
     selectInSvg("#viewbox").insert("g", "#terrain").attr("id", "relig");
-    Religions.generate();
 
     // v1.0 added a legend box
     selectInSvg("#map").append("g").attr("id", "legend");
@@ -1549,7 +1546,6 @@ async function migrateLegacyMap(mapVersion: string, data: string[], svg: LegacyS
         shown("compass") && has("compass", "use") && "compass",
         filled("rivers") && "rivers",
         shown("terrain") && "relief",
-        filled("relig") && "religions",
         filled("cults") && "cultures",
         filled("statesBody") && "states",
         filled("provs") && "provinces",
@@ -2368,8 +2364,11 @@ export function migrateAuthoringSettings(data: string[]): void {
   preAuthoringMap = !Object.hasOwn(settings, "authoring");
   if (preAuthoringMap) settings.authoring = getDefaultAuthoring();
   else if (settings.authoring && typeof settings.authoring === "object") {
-    // earlier fork versions declared fewer kinds of entities: fill the lists they lack
-    const seeds = { ...getDefaultSeeds(), ...settings.authoring.seeds };
+    // earlier fork versions declared fewer kinds of entities: fill the lists they lack. They also declared
+    // cultures apart from countries; now each country is its own people
+    const { cultures: _, ...declared } = settings.authoring.seeds ?? {};
+    const seeds = { ...getDefaultSeeds(), ...declared };
+    for (const state of seeds.states ?? []) delete state.culture;
     if (JSON.stringify(seeds) === JSON.stringify(settings.authoring.seeds)) return;
     settings.authoring.seeds = seeds;
   } else return;

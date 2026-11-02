@@ -73,7 +73,7 @@ function open(): void {
 
   Dialog.closeAll(`#${dialogId}, .stable`);
   Layers.show("states", "borders");
-  Layers.hide("provinces", "cultures", "biomes", "religions");
+  Layers.hide("provinces", "cultures", "biomes");
 
   renderDialog();
   refreshDiplomacyOverview();

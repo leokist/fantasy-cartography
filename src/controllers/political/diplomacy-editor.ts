@@ -53,7 +53,7 @@ function open(state = 0, editorOptions?: EditorOptions): void {
 
   renderDialog(states);
   Layers.show("states", "borders");
-  Layers.hide("provinces", "cultures", "biomes", "religions");
+  Layers.hide("provinces", "cultures", "biomes");
   showRelations(stateId);
 
   select<SVGGElement, unknown>("#viewbox")

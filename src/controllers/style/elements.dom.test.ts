@@ -6,7 +6,6 @@ test("a legacy svg group id resolves to its layer's style element", () => {
   expect(elementFor("regions")).toBe("states");
   expect(elementFor("terrs")).toBe("heightmap");
   expect(elementFor("cults")).toBe("cultures");
-  expect(elementFor("relig")).toBe("religions");
   expect(elementFor("provs")).toBe("provinces");
   expect(elementFor("armies")).toBe("military");
   expect(elementFor("terrain")).toBe("relief");

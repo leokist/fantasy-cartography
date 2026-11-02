@@ -13,7 +13,6 @@ declare const FMG: any;
 const PRESETS = [
   "political",
   "cultural",
-  "religions",
   "provinces",
   "biomes",
   "heightmap",
@@ -285,15 +284,15 @@ test.describe("layer scenarios", () => {
 
   test("a preset URL param applies that preset on load", async ({ page }) => {
     const errors = watchErrors(page);
-    await page.goto("/?seed=url-preset&width=1280&height=720&preset=religions");
+    await page.goto("/?seed=url-preset&width=1280&height=720&preset=cultural");
     await waitForMap(page);
 
-    await expect(page.locator("#layersPreset")).toHaveValue("religions");
+    await expect(page.locator("#layersPreset")).toHaveValue("cultural");
     const active = await page.evaluate(() => FMG.Layers.state.active.slice().sort());
     expect(active).toEqual(
-      ["borders", "burgIcons", "labels", "lakes", "religions", "rivers", "routes", "scaleBar", "vignette"].sort()
+      ["borders", "burgIcons", "cultures", "labels", "lakes", "rivers", "routes", "scaleBar", "vignette"].sort()
     );
-    expect(await page.evaluate(() => localStorage.getItem("preset"))).toBe("religions");
+    expect(await page.evaluate(() => localStorage.getItem("preset"))).toBe("cultural");
     expect(await visibilityDrift(page)).toEqual([]);
     expect(errors).toEqual([]);
   });
@@ -301,7 +300,7 @@ test.describe("layer scenarios", () => {
   test("a preset URL param matches the select display name", async ({ page }) => {
     await page.goto("/?seed=url-preset-name&width=1280&height=720&preset=Religions%20map");
     await waitForMap(page);
-    await expect(page.locator("#layersPreset")).toHaveValue("religions");
+    await expect(page.locator("#layersPreset")).toHaveValue("cultural");
   });
 
   test("a layers URL param shows only the listed layers", async ({ page }) => {

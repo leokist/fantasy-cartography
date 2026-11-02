@@ -278,13 +278,11 @@ function open(cells: number[], routeLen: number, isRiver: boolean): void {
         (burgId ? ((pack.burgs[burgId] as Burg).population ?? 0) * options.map.units.population.urbanization.rate : 0);
       const provinceName = province ? (pack.provinces[province] as Province).name : null;
       const stateName = (pack.states[pack.cells.state[cell]] as State).name;
-      const religionName = (pack.religions[pack.cells.religion[cell]] as { name: string }).name;
       const cultureName = (pack.cultures[pack.cells.culture[cell]] as { name: string }).name;
       const dataTip = [
         pack.biomes[biome].name,
         provinceName,
         stateName,
-        religionName,
         cultureName,
         `height: ${chartData.height[k]} ${hu}`,
         `population ${rn(pop * options.map.units.population.scale)}`
@@ -497,8 +495,6 @@ function open(cells: number[], routeLen: number, isRiver: boolean): void {
       "Biome color",
       "Culture",
       "Culture color",
-      "Religion",
-      "Religion color",
       "Province",
       "Province color",
       "State",
@@ -515,10 +511,6 @@ function open(cells: number[], routeLen: number, isRiver: boolean): void {
         ? (burg.population ?? 0) * options.map.units.population.scale * options.map.units.population.urbanization.rate
         : 0;
       const culture = pack.cultures[pack.cells.culture[cell]] as {
-        name: string;
-        color: string;
-      };
-      const religion = pack.religions[pack.cells.religion[cell]] as {
         name: string;
         color: string;
       };
@@ -540,8 +532,6 @@ function open(cells: number[], routeLen: number, isRiver: boolean): void {
         pack.biomes[pack.cells.biome[cell]].color,
         culture.name,
         culture.color,
-        religion.name,
-        religion.color,
         province ? province.name : "",
         province ? province.color : "",
         state.name,

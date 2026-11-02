@@ -26,7 +26,6 @@ describe("options schema", () => {
     const { generation } = Options.getDefaultOptions();
     expect(generation.states.limit).toBeTypeOf("number");
     expect(generation.cultures.limit).toBeTypeOf("number");
-    expect(generation.religions.limit).toBeTypeOf("number");
     expect(generation.provinces.ratio).toBeTypeOf("number");
   });
 

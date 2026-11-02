@@ -132,32 +132,27 @@ describe("seeds in the world spec", () => {
         { name: "Highmoor", state: 0, x: 3, y: 4, relief: "mountains" },
         { name: "Lost", state: 2, x: 5, y: 5 }
       ],
-      cultures: [
-        { name: "", x: 1, y: 1 },
-        { name: "Aldorians", x: 2, y: 2 }
-      ],
       states: [
         { name: "", x: 5, y: 5 },
         {
           name: "Aldoria",
-          culture: 1,
+          language: 2,
           x: 3,
           y: 3,
           continent: 1,
           neighbors: [0, 2],
           cities: [{ name: "", x: 1, y: 1 }]
         },
-        { name: "Brennmark", culture: 0, x: 4, y: 4, continent: 0, neighbors: [1] }
+        { name: "Brennmark", x: 4, y: 4, continent: 0, neighbors: [1] }
       ],
       species: [
         { name: "Dragon", kind: "fauna", biomes: [9] },
         { name: "", kind: "flora", biomes: [] }
       ]
     });
-    expect(planted.cultures.map(culture => culture.name)).toEqual(["Aldorians"]);
     expect(planted.continents.map(continent => continent.name)).toEqual(["Westland"]);
     expect(planted.states).toEqual([
-      { name: "Aldoria", culture: 0, x: 3, y: 3, continent: 0, neighbors: [1] },
+      { name: "Aldoria", language: 2, x: 3, y: 3, continent: 0, neighbors: [1] },
       { name: "Brennmark", x: 4, y: 4, neighbors: [0] }
     ]);
     // the province of the unnamed state goes with it; the other follows its state to its new index
@@ -171,7 +166,25 @@ describe("seeds in the world spec", () => {
     expect(JSON.parse(data[1]).authoring).toEqual({
       autoLock: false,
       fields: {},
-      seeds: { continents: [], cultures: [], states: [], provinces: [], species: [] }
+      seeds: { continents: [], states: [], provinces: [], species: [] }
+    });
+  });
+
+  it("lose the cultures declared apart from countries", () => {
+    const seeds = {
+      continents: [],
+      cultures: [{ name: "Aldorians", x: 1, y: 1 }],
+      states: [{ name: "Aldoria", x: 2, y: 2, culture: 0 }],
+      provinces: [],
+      species: []
+    };
+    const data = mapData({ seed: "1", authoring: { autoLock: true, fields: {}, seeds } });
+    migrateAuthoringSettings(data);
+    expect(JSON.parse(data[1]).authoring.seeds).toEqual({
+      continents: [],
+      states: [{ name: "Aldoria", x: 2, y: 2 }],
+      provinces: [],
+      species: []
     });
   });
 });

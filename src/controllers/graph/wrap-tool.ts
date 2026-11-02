@@ -225,7 +225,6 @@ const LAYERS_TO_REDRAW = [
   "borders",
   "biomes",
   "cultures",
-  "religions",
   "zones",
   "markets",
   "goods",

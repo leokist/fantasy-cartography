@@ -52,7 +52,6 @@ class MapRepairService {
       ["state", cells.state, alive(pack.states)],
       ["province", cells.province, alive(pack.provinces)],
       ["culture", cells.culture, alive(pack.cultures)],
-      ["religion", cells.religion, alive(pack.religions)],
       ["burg", cells.burg, alive(pack.burgs)],
       ["river", cells.r, (id: number) => riverIds.has(id)]
     ] as const;

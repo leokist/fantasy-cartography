@@ -23,7 +23,6 @@ export interface Good {
     cultureType?: Partial<Record<CultureType, number>>;
     culture?: Partial<Record<number, number>>;
     state?: Partial<Record<number, number>>;
-    religion?: Partial<Record<number, number>>;
     biome?: Partial<Record<number, number>>;
     zone?: Partial<Record<number, number>>; // keyed by zone.i; rare, resolved via cell membership
   };
@@ -1154,7 +1153,7 @@ export class GoodsModule {
     Tags.set(this.living(goodId), tags);
   }
 
-  /** Set how a good is produced: chance (0–100), recipes ([{ goodId: amount }]), biomeOutput ({ biomeId: amount }), multipliers ({ cultureType | culture | state | religion | biome | zone: { key: factor } }), demandCoverage ({ category: share }). A key set to null clears it. Takes effect on the next economy run */
+  /** Set how a good is produced: chance (0–100), recipes ([{ goodId: amount }]), biomeOutput ({ biomeId: amount }), multipliers ({ cultureType | culture | state | biome | zone: { key: factor } }), demandCoverage ({ category: share }). A key set to null clears it. Takes effect on the next economy run */
   setProduction(goodId: number, rules: ProductionRules): void {
     const good = this.living(goodId);
     if (typeof rules !== "object" || rules === null) throw new Error("The production rules must be an object");
@@ -1195,7 +1194,6 @@ export class GoodsModule {
           cultureType: id => (CULTURE_TYPES as readonly string[]).includes(id),
           culture: isId,
           state: isId,
-          religion: isId,
           biome: isId,
           zone: isId
         };

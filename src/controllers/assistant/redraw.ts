@@ -23,7 +23,6 @@ const ENTITY_LAYERS: Record<string, Record<string, readonly LayerId[]>> = {
   state: { "": TERRITORY, ...NAMES, color: ["states", "military"], military: ["military"] },
   province: { "": PROVINCES, ...NAMES, name: ["provinces", "labels"], color: ["provinces"], center: ["emblems"] },
   culture: { "": ["cultures"], color: ["cultures"] },
-  religion: { "": ["religions"], color: ["religions"] },
   biome: { "": ["biomes"], color: ["biomes"] },
   river: {
     "": ["rivers", "labels"],

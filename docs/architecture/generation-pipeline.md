@@ -69,7 +69,7 @@ the pipeline, since it depends only on name bases and the seeded random source.
 | Climate art              | `ice`                                           | `pack.ice`                                                                      |
 | Goods catalogue          | `goods`                                         | `pack.goods` (map-independent), `cells.good`                                    |
 | Ranking & cultures       | `rankCells`, `cultures`, `culturesExpand`       | `cells.s`, `cells.pop`, `pack.cultures`, `cells.culture`                        |
-| Settlement & politics    | `burgs`, `states`, `routes`, `religions`        | `pack.burgs`, `pack.states`, `pack.routes`, `pack.religions`                    |
+| Settlement & politics    | `burgs`, `states`, `routes`, `noReligion`       | `pack.burgs`, `pack.states`, `pack.routes`, `pack.religions` (always empty)     |
 | Specification            | `burgsSpecify`, `stateStatistics`, `stateForms` | burg types, state stats and forms                                               |
 | Provinces                | `provinces`, `provincePoles`                    | `pack.provinces`                                                                |
 | Naming polish            | `riversSpecify`, `featureNames`                 | river and feature (island, ocean, lake) names                                   |
@@ -116,7 +116,7 @@ flowchart TD
     burgs["burgs<br/><i>writes: pack.burgs</i>"]
     states["states<br/><i>writes: pack.states</i>"]
     routes["routes<br/><i>writes: pack.routes</i>"]
-    relig["religions<br/><i>writes: pack.religions</i>"]
+    relig["noReligion<br/><i>empties pack.religions</i>"]
     spec["burgsSpecify + stateStatistics + stateForms"]
     prov["provinces + provincePoles<br/><i>writes: pack.provinces</i>"]
     names["riversSpecify + featureNames"]
@@ -153,7 +153,7 @@ flowchart TD
 
 ## `ErasePipeline` — heightmap edited, everything downstream regenerated
 
-Exiting the heightmap editor in **erase** mode clears `pack.cultures/burgs/states/provinces/religions`
+Exiting the heightmap editor in **erase** mode clears `pack.cultures/burgs/states/provinces`
 and runs `ErasePipeline.run({erosion})`. It is a second generate over the freshly edited
 `grid.cells.h`: the same steps, in the same order, from `markupGrid` to `zones`.
 
@@ -218,7 +218,7 @@ and each one is a site that can silently fall behind when a generation step is a
   only when no land is left for it. Feature and port water are found again.
 - **Centers**: states and provinces center on their capital. One whose capital left the map takes its
   most populous burg as the new capital. A state with no burg left founds one at its center; a province
-  with none keeps its center while it is its own, else moves to its pole. Cultures and religions
+  with none keeps its center while it is its own, else moves to its pole. Cultures
   keep their origin while it is land on the map. An entity left without cells is removed.
 - **Paths**: route and journey points keep the cell they were routed through while it is under or next
   to the point, else they take the cell under it. Where two consecutive cells are no longer neighbors,

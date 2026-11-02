@@ -32,7 +32,7 @@ const TARGETS = [
   "#lakes", "#freshwater", "#salt", "#sinkhole", "#frozen", "#lava", "#dry", "#landmass",
   "#legend", "#markers", "#markets", "#oceanLayers", "#oceanBase", "#oceanicPattern",
   "#population", "#rural", "#urban", "#prec", "#provs", "#regions", "#statesBody", "#statesHalo",
-  "#relig", "#rivers", "#routes", "#roads", "#trails", "#searoutes", "#ruler", "#scaleBar",
+  "#rivers", "#routes", "#roads", "#trails", "#searoutes", "#ruler", "#scaleBar",
   "#scaleBarBack", "#temperature", "#terrain", "#terrs", "#landHeights", "#oceanHeights",
   "#texture", "#tradeAnimation", "#vignette", "#vignette-rect", "#zones",
   // every burg-icon and anchor group type the two maps carry - the style tree addresses these

@@ -11,6 +11,7 @@ import { Options } from "@/model/options/options-model";
 import { Features } from "@/model/physical/features-generator";
 import { HeightmapGenerator } from "@/model/physical/heightmap-generator";
 import { Names } from "@/model/society/names-generator";
+import { clearReligions } from "@/model/society/no-religion";
 import { Journeys } from "@/model/story/journeys/journeys-generator";
 import { Styles } from "@/model/styles/styles";
 import { applyVignetteOptions } from "@/renderers/draw-vignette";
@@ -388,11 +389,12 @@ async function parseLoadedData(data: string[], mapVersion: string | null): Promi
     Names.clearChains();
 
     await resolveVersionConflicts(mapVersion!, data);
+    clearReligions(); // maps made with religions lose them
     migrateAuthoringEntities();
 
     // hidden layers save no paths, so colored hatchings are restored from data
-    const { biomes, cultures, states, religions, provinces, zones, markets } = pack;
-    const entities = [biomes, cultures, states, religions, provinces, zones, markets].flat();
+    const { biomes, cultures, states, provinces, zones, markets } = pack;
+    const entities = [biomes, cultures, states, provinces, zones, markets].flat();
     Hatches.ensureAll(entities.map(entity => entity?.color));
 
     const styleRecord = data[48] ? safeParseJSON(data[48]) : undefined; // data[48] should be already migrated by auto-update

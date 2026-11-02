@@ -763,7 +763,6 @@ export class ProductionModule {
     const biomeId = pack.cells.biome[cellId];
     const cultureId = pack.cells.culture[cellId];
     const stateId = pack.cells.state[cellId];
-    const religionId = pack.cells.religion[cellId];
 
     const burgId = pack.cells.burg[cellId];
     const cultureType = (burgId ? pack.burgs[burgId]?.type : pack.cultures[cultureId]?.type) ?? DEFAULT_CULTURE_TYPE;
@@ -772,7 +771,6 @@ export class ProductionModule {
       (mult.cultureType?.[cultureType] ?? 1) *
       (mult.culture?.[cultureId] ?? 1) *
       (mult.state?.[stateId] ?? 1) *
-      (mult.religion?.[religionId] ?? 1) *
       (mult.biome?.[biomeId] ?? 1);
 
     if (mult.zone) {

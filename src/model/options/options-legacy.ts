@@ -40,7 +40,6 @@ const DISCARDED_KEYS = [
   "culturesSet",
   "statesNumber",
   "provincesRatio",
-  "religionsNumber",
   "manors",
   "sizeVariety",
   "growthRate",
@@ -147,7 +146,7 @@ export function normalizeLegacyBurgGroupFilters(groups: unknown): void {
   if (!Array.isArray(groups)) return;
   for (const group of groups) {
     if (!group || typeof group !== "object") continue;
-    for (const key of ["biomes", "states", "cultures", "religions"] as const) {
+    for (const key of ["biomes", "states", "cultures"] as const) {
       const value = (group as Record<string, unknown>)[key];
       if (typeof value !== "string") continue;
       (group as Record<string, unknown>)[key] = value

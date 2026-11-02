@@ -372,8 +372,7 @@ function militaryCustomize(): void {
   const LIMIT_TIPS = {
     biomes: t("Select allowed biomes"),
     states: t("Select allowed states"),
-    cultures: t("Select allowed cultures"),
-    religions: t("Select allowed religions")
+    cultures: t("Select allowed cultures")
   };
   removeUnitLines();
   options.map.military.units.map(unit => addUnitLine(unit));
@@ -435,7 +434,6 @@ function militaryCustomize(): void {
     }
     if (type === "states") return selectLimitation(el, pack.states);
     if (type === "cultures") return selectLimitation(el, pack.cultures);
-    if (type === "religions") return selectLimitation(el, pack.religions);
   });
 
   function removeUnitLines(): void {
@@ -461,7 +459,7 @@ function militaryCustomize(): void {
     const row = document.createElement("tr");
     const typeOptions = types.map(t => `<option ${type === t ? "selected" : ""} value="${t}">${t}</option>`).join(" ");
 
-    const getLimitButton = (attr: "biomes" | "states" | "cultures" | "religions"): string => {
+    const getLimitButton = (attr: "biomes" | "states" | "cultures"): string => {
       const data = pack[attr] as LimitationItem[];
       return `<button
           data-tip="${LIMIT_TIPS[attr]}"
@@ -479,7 +477,6 @@ function militaryCustomize(): void {
         <td>${getLimitButton("biomes")}</td>
         <td>${getLimitButton("states")}</td>
         <td>${getLimitButton("cultures")}</td>
-        <td>${getLimitButton("religions")}</td>
         <td><input data-tip="${t("Conscription percentage for rural population")}" type="number" min="0" max="100" step=".01" value="${rural}" /></td>
         <td><input data-tip="${t("Conscription percentage for urban population")}" type="number" min="0" max="100" step=".01" value="${urban}" /></td>
         <td><input data-tip="${t("Average number of people in crew (used for total personnel calculation)")}" type="number" min="1" step="1" value="${crew}" /></td>
@@ -555,7 +552,6 @@ function militaryCustomize(): void {
         number[] | null,
         number[] | null,
         number[] | null,
-        number[] | null,
         number,
         number,
         number,
@@ -563,7 +559,7 @@ function militaryCustomize(): void {
         string,
         number
       ];
-      const [icon, , biomes, states, cultures, religions, rural, urban, crew, power, type, separate] = values;
+      const [icon, , biomes, states, cultures, rural, urban, crew, power, type, separate] = values;
 
       const unit: MilitaryUnit = {
         icon,
@@ -578,7 +574,6 @@ function militaryCustomize(): void {
       if (biomes) unit.biomes = biomes;
       if (states) unit.states = states;
       if (cultures) unit.cultures = cultures;
-      if (religions) unit.religions = religions;
       return unit;
     });
     options.map.military.units = units;
@@ -611,7 +606,6 @@ function renderOptions(): void {
               <th style="width: 5em" data-tip="${t("Select allowed biomes")}">${t("Biomes")}</th>
               <th style="width: 5em" data-tip="${t("Select allowed states")}">${t("States")}</th>
               <th style="width: 5em" data-tip="${t("Select allowed cultures")}">${t("Cultures")}</th>
-              <th style="width: 5em" data-tip="${t("Select allowed religions")}">${t("Religions")}</th>
               <th data-tip="${t("Conscription percentage for rural population")}">${t("Rural")}</th>
               <th data-tip="${t("Conscription percentage for urban population")}">${t("Urban")}</th>
               <th data-tip="${t("Average number of people in crew (used for total personnel calculation)")}">${t("Crew")}</th>

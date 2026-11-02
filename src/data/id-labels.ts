@@ -34,19 +34,6 @@ export const LABEL_TYPE_LABELS: Record<LabelType, string> = {
 
 export const LABEL_MODE_LABELS: Record<string, string> = { auto: t("Auto"), short: t("Short"), full: t("Full") };
 
-export const RELIGION_EXPANSION_LABELS: Record<string, string> = {
-  global: t("global"),
-  state: t("state"),
-  culture: t("culture")
-};
-
-export const RELIGION_TYPE_LABELS: Record<string, string> = {
-  Folk: t("Folk"),
-  Organized: t("Organized"),
-  Cult: t("Cult"),
-  Heresy: t("Heresy")
-};
-
 export const CULTURE_TYPE_LABELS: Record<string, string> = {
   Generic: t("Generic"),
   Hunting: t("Hunting"),

@@ -34,7 +34,6 @@ export function registerMap(created: number = Date.now()): void {
     States: ${pack.states.length - 1}
     Provinces: ${pack.provinces.length - 1}
     Burgs: ${pack.burgs.length - 1}
-    Religions: ${pack.religions.length - 1}
     Culture set: ${options.map.cultures.set}
     Cultures: ${pack.cultures.length - 1}`);
 

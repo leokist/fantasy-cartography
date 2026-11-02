@@ -17,7 +17,6 @@ import { States } from "@/model/political/states-generator";
 import { Zones } from "@/model/political/zones-generator";
 import { Cultures } from "@/model/society/cultures-generator";
 import { Names } from "@/model/society/names-generator";
-import { Religions } from "@/model/society/religions-generator";
 import { Journeys } from "@/model/story/journeys/journeys-generator";
 import { Markers } from "@/model/story/markers-generator";
 import { Emblems } from "./political/emblems-generator";
@@ -31,7 +30,6 @@ const MODELS: Record<string, any> = {
   Journeys,
   Markers,
   Provinces,
-  Religions,
   Routes,
   States,
   Zones
@@ -43,7 +41,6 @@ beforeAll(async () => {
     import("./political/states-generator"),
     import("./political/provinces-generator"),
     import("./society/cultures-generator"),
-    import("./society/religions-generator"),
     import("./physical/biomes-generator"),
     import("./political/zones-generator"),
     import("./economy/routes-generator"),
@@ -75,7 +72,6 @@ describe("recolor", () => {
     ["States", "states"],
     ["Provinces", "provinces"],
     ["Cultures", "cultures"],
-    ["Religions", "religions"],
     ["Biomes", "biomes"],
     ["Zones", "zones"]
   ])("%s.recolor sets a HEX color and rejects anything else", (model, key) => {
@@ -198,20 +194,12 @@ describe("population", () => {
   });
 });
 
-describe("Cultures and Religions", () => {
+describe("Cultures", () => {
   it("setType accepts culture types only", () => {
     vi.stubGlobal("pack", { cultures: [{ i: 0 }, { i: 1, type: "Generic" }] });
     Cultures.setType(1, "Highland");
     expect(pack.cultures[1].type).toBe("Highland");
     expect(() => Cultures.setType(1, "Elvish")).toThrow("The type must be one of");
-  });
-
-  it("setDeity sets and clears the deity", () => {
-    vi.stubGlobal("pack", { religions: [{ i: 0 }, { i: 1, deity: "Old One" }] });
-    Religions.setDeity(1, " Sun Father ");
-    expect(pack.religions[1].deity).toBe("Sun Father");
-    Religions.setDeity(1, "");
-    expect(pack.religions[1].deity).toBeNull();
   });
 });
 
@@ -406,26 +394,19 @@ describe("Provinces", () => {
   });
 });
 
-describe("Cultures and Religions removal", () => {
-  it("frees cells, burgs, states, religions and origins", () => {
+describe("Cultures removal", () => {
+  it("frees cells, burgs, states and origins", () => {
     vi.stubGlobal("pack", {
       cultures: [{ i: 0 }, { i: 1 }, { i: 2, origins: [1] }],
-      religions: [{ i: 0 }, { i: 1, culture: 1 }, { i: 2, culture: 1, origins: [1, 0] }],
       burgs: [0, { i: 1, culture: 1 }],
       states: [{ i: 0 }, { i: 1, culture: 1 }],
-      cells: { culture: [0, 1, 2], religion: [1, 1, 2] }
+      cells: { culture: [0, 1, 2] }
     });
     Cultures.remove(1);
-    Religions.remove(1);
     expect([...pack.cells.culture]).toEqual([0, 0, 2]);
-    expect([...pack.cells.religion]).toEqual([0, 0, 2]);
     expect(pack.burgs[1].culture).toBe(0);
     expect(pack.states[1].culture).toBe(0);
-    expect(pack.religions[2].culture).toBe(0);
     expect(pack.cultures[2].origins).toEqual([0]);
-    expect(pack.religions[2].origins).toEqual([0]);
-    expect(() => Religions.setType(2, "Pantheon")).toThrow("The type must be one of");
-    expect(() => Religions.setExpansion(2, "world")).toThrow("The expansion must be one of");
     expect(() => Cultures.setExpansionism(2, 100)).toThrow("from 0 to 99");
   });
 });
@@ -552,7 +533,6 @@ describe("founding at a map point", () => {
       states: [{ i: 0 }, { i: 1, capital: 1 }],
       provinces: [0, { i: 1, state: 1, burg: 1, center: 2 }],
       cultures: [{ i: 0 }, { i: 1, center: 1 }],
-      religions: [{ i: 0 }],
       addedLabels: []
     });
   });
@@ -560,8 +540,7 @@ describe("founding at a map point", () => {
   it("refuses water, occupied centers and existing capitals", () => {
     const at = (cell: number) => vi.spyOn(Pack, "requireCell").mockReturnValue(cell);
     at(0);
-    for (const model of [States, Provinces, Cultures, Religions, Rivers])
-      expect(() => model.add(1, 1)).toThrow("water");
+    for (const model of [States, Provinces, Cultures, Rivers]) expect(() => model.add(1, 1)).toThrow("water");
     at(1);
     expect(() => Cultures.add(1, 1)).toThrow("Cell 1 is already a culture center");
     at(2);
@@ -601,7 +580,6 @@ describe("locks, treasuries and links", () => {
       states: [{ i: 0 }, { i: 1, salesTax: 0, pollTax: 0, treasury: 0 }],
       provinces: [{ i: 0 }, { i: 1 }],
       cultures: [{ i: 0 }, { i: 1 }],
-      religions: [{ i: 0 }, { i: 1 }],
       routes: [{ i: 4, points: [] }],
       markers: [{ i: 0 }],
       journeys: [{ i: 2, segments: [] }]
@@ -613,7 +591,6 @@ describe("locks, treasuries and links", () => {
     ["States", 1, "states"],
     ["Provinces", 1, "provinces"],
     ["Cultures", 1, "cultures"],
-    ["Religions", 1, "religions"],
     ["Routes", 4, "routes"],
     ["Markers", 0, "markers"],
     ["Journeys", 2, "journeys"]
@@ -737,15 +714,14 @@ describe("Provinces: merge and painting", () => {
   });
 });
 
-describe("Cultures and Religions: origins, codes, centers, cells and shields", () => {
+describe("Cultures: origins, codes, centers, cells and shields", () => {
   beforeEach(() => {
     vi.stubGlobal("pack", {
       cultures: [{ i: 0 }, { i: 1, origins: [0] }, { i: 2, origins: [1] }, { i: 3, origins: [2], center: 3 }],
-      religions: [{ i: 0 }, { i: 1, origins: [0] }, { i: 2, origins: [1] }],
       states: [{ i: 0 }, { i: 1, culture: 1, coa: { t1: "or", shield: "heater" } }],
       provinces: [{ i: 0 }, { i: 1, center: 2, coa: { icon: "castle" } }],
       burgs: [0, { i: 1, cell: 2, culture: 1, coa: { t1: "or", shield: "heater" } }],
-      cells: { i: [0, 1, 2, 3], h: [10, 30, 30, 30], culture: [0, 1, 1, 3], religion: [0, 1, 1, 2], burg: [0, 0, 1, 0] }
+      cells: { i: [0, 1, 2, 3], h: [10, 30, 30, 30], culture: [0, 1, 1, 3], burg: [0, 0, 1, 0] }
     });
   });
 
@@ -754,9 +730,7 @@ describe("Cultures and Religions: origins, codes, centers, cells and shields", (
     expect(pack.cultures[3].origins).toEqual([1, 2]);
     expect(() => Cultures.setOrigins(1, [3])).toThrow("descends from 1");
     expect(() => Cultures.setOrigins(2, [2])).toThrow("descends from 2");
-    expect(() => Religions.setOrigins(2, [0, 0 + 9])).toThrow("Origin 9 does not exist");
-    Religions.setCode(2, "Sol");
-    expect(pack.religions[2].code).toBe("Sol");
+    expect(() => Cultures.setOrigins(2, [0, 9])).toThrow("Origin 9 does not exist");
     expect(() => Cultures.setCode(1, "Long")).toThrow("1 to 3 characters");
   });
 
@@ -769,9 +743,7 @@ describe("Cultures and Religions: origins, codes, centers, cells and shields", (
     Cultures.setCells(3, [2]);
     expect(pack.cells.culture[2]).toBe(3);
     expect(pack.burgs[1].culture).toBe(3);
-    Religions.setCells(0, [1, 2]);
-    expect([...pack.cells.religion]).toEqual([0, 0, 0, 2]);
-    expect(() => Religions.setCells(1, [0])).toThrow("water");
+    expect(() => Cultures.setCells(1, [0])).toThrow("water");
   });
 
   it("gives a culture's heraldic emblems its shield shape, leaving pictures alone", () => {

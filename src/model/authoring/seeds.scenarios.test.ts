@@ -1,4 +1,4 @@
-// Declared cultures and states on real generated maps, and additions that leave locked entities untouched
+// Declared countries, each its own people, on real generated maps, and additions that leave locked entities untouched
 import { beforeEach, describe, expect, it } from "vitest";
 import { getDefaultSeeds } from "@/model/authoring/world-spec";
 import { circle, generateMap, living, newViolations, riskEdit, violations } from "@/model/real-map.testing";
@@ -16,21 +16,20 @@ beforeEach(() => {
 });
 
 describe("world seeds", () => {
-  it("found the declared cultures and states where the author placed them", async () => {
+  it("found the declared countries where the author placed them, each its own people", async () => {
     WorldSeeds.planNext({
       ...getDefaultSeeds(),
       continents: [
         { name: "Westland", x: 25, y: 50, size: "large" },
         { name: "Eastland", x: 75, y: 50, size: "large" }
       ],
-      cultures: [{ name: "Aldorians", x: 25, y: 50, color: "#aa0000" }],
       states: [
         {
           name: "Aldoria",
           capital: "Vesper",
           form: "Kingdom",
           color: "#123456",
-          culture: 0,
+          language: 3,
           emblem: "my-arms",
           x: 25,
           y: 50
@@ -42,11 +41,18 @@ describe("world seeds", () => {
     await generateMap({ seed: "seeds-1" });
 
     const culture = pack.cultures[1];
-    expect(culture).toMatchObject({ name: "Aldorians", color: "#aa0000", origin: "authored", lock: true });
-    expect(cellsOf(pack.cells.culture, 1).length).toBeGreaterThan(10); // it spread before it was locked
+    expect(culture).toMatchObject({ name: "Aldoria", color: "#123456", base: 3, origin: "authored", lock: true });
+    expect(cellsOf(pack.cells.state, 1).every(cell => pack.cells.culture[cell] === 1)).toBe(true);
+    expect(pack.cultures[2]).toMatchObject({ name: "Brennmark" });
 
     const [aldoria, brennmark] = [pack.states[1], pack.states[2]];
-    expect(aldoria).toMatchObject({ name: "Aldoria", formName: "Kingdom", color: "#123456", origin: "authored" });
+    expect(aldoria).toMatchObject({
+      name: "Aldoria",
+      formName: "Kingdom",
+      color: "#123456",
+      culture: 1,
+      origin: "authored"
+    });
     expect(aldoria.fullName).toContain("Aldoria");
     expect(aldoria.coa).toEqual({ icon: "my-arms" });
     expect(pack.burgs[aldoria.capital]).toMatchObject({ name: "Vesper", culture: 1, capital: 1, origin: "authored" });
@@ -89,7 +95,7 @@ describe("world seeds", () => {
 });
 
 describe("additions to a generated map", () => {
-  it("add a state and a culture without changing anything locked", async () => {
+  it("add a state without changing anything locked", async () => {
     await generateMap({ seed: "additions-1" });
     const before = violations();
     const [lockedState] = living(pack.states);
@@ -102,7 +108,6 @@ describe("additions to a generated map", () => {
     const provincesBefore = pack.provinces.map(province => province?.name);
 
     const stateId = Additions.addState({ name: "Nova Terra", capital: "Porto Novo", x: 50, y: 50 });
-    const cultureId = Additions.addCulture({ name: "Novos", x: 50, y: 50 });
 
     expect(cellsOf(pack.cells.state, lockedState.i)).toEqual(stateCells);
     expect(cellsOf(pack.cells.culture, lockedCulture.i)).toEqual(cultureCells);
@@ -123,8 +128,6 @@ describe("additions to a generated map", () => {
     expect(pack.states[stateId]).toMatchObject({ name: "Nova Terra", origin: "authored", lock: true });
     expect(pack.burgs[pack.states[stateId].capital]).toMatchObject({ name: "Porto Novo", origin: "authored" });
     expect(cellsOf(pack.cells.state, stateId).length).toBeGreaterThan(1);
-    expect(pack.cultures[cultureId]).toMatchObject({ name: "Novos", origin: "authored", lock: true });
-    expect(cellsOf(pack.cells.culture, cultureId).length).toBeGreaterThan(1);
     expect(newViolations(before)).toEqual([]);
   });
 });

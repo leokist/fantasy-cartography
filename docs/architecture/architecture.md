@@ -72,7 +72,6 @@ Example stored entities:
 - Burgs
 - States
 - Cultures
-- Religions
 - Rivers
 - Biomes
 - Routes
@@ -137,7 +136,6 @@ Examples:
 - River editor
 - States editor
 - Burg editor
-- Religion editor
 - Province editor
 - Heightmap editor
 
@@ -253,7 +251,7 @@ Inside the two large role folders, `model/` and `controllers/`, files are groupe
 | -------------- | --------------------------------------------------------------------------- |
 | `graph/`       | the grid and packed Voronoi graph, and the tools that rebuild it            |
 | `physical/`    | heightmap, climate, features, coastline, lakes, rivers, ice, biomes, relief |
-| `society/`     | population, cultures, religions, names                                      |
+| `society/`     | population, cultures, names                                                 |
 | `political/`   | states, provinces, burgs, diplomacy, military, zones, emblems               |
 | `economy/`     | goods, production, markets and trade, transports, routes                    |
 | `story/`       | markers, notes, lore, journeys                                              |

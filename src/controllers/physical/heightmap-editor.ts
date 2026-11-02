@@ -522,7 +522,6 @@ async function regenerateErasedData(): Promise<void> {
   pack.burgs = [];
   pack.states = [];
   pack.provinces = [];
-  pack.religions = [];
   pack.relief = [];
 
   const erosionAllowed = options.app.heightmapEditor.allowErosion;

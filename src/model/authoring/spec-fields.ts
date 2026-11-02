@@ -9,7 +9,7 @@ import { AUTO_BURG_LIMIT, pinSchemas } from "@/model/options/options-schema";
 import { Pins } from "@/model/options/pins";
 import { t } from "@/utils/i18n";
 
-export const WIZARD_STEPS = ["map", "countries", "regions", "peoples"] as const;
+export const WIZARD_STEPS = ["map", "countries", "regions"] as const;
 export type WizardStep = (typeof WIZARD_STEPS)[number];
 
 export type FieldInput =
@@ -186,35 +186,20 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
     current: () => options.map.climate.precipitation
   },
   {
-    key: "cultures",
-    step: "peoples",
-    label: t("Number of cultures"),
-    hint: t("Capped by the size of the culture set"),
-    input: number(1, 100),
-    current: () => options.generation.cultures.limit
-  },
-  {
     key: "culturesSet",
-    step: "peoples",
-    label: t("Culture set"),
-    hint: t("The languages and naming styles cultures are drawn from"),
+    step: "countries",
+    advanced: true,
+    label: t("Languages"),
+    hint: t("Where the languages of countries without one of their own come from"),
     input: choice(cultureSets),
     current: () => options.generation.cultures.set
-  },
-  {
-    key: "religionsNumber",
-    step: "peoples",
-    label: t("Number of organized religions"),
-    hint: t("Every culture also keeps its folk religion"),
-    input: number(0, 50),
-    current: () => options.generation.religions.limit
   },
   {
     key: "sizeVariety",
     step: "countries",
     advanced: true,
     label: t("Size variety"),
-    hint: t("How unequal cultures and states are in size"),
+    hint: t("How unequal countries are in size"),
     input: number(0, 10, 0.1),
     current: () => options.generation.states.sizeVariety
   },
@@ -223,7 +208,7 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
     step: "countries",
     advanced: true,
     label: t("Growth rate"),
-    hint: t("How far cultures and states spread over the land"),
+    hint: t("How far countries spread over the land"),
     input: number(0.1, 2, 0.1),
     current: () => options.generation.states.growthRate
   },
@@ -256,7 +241,8 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "populationRate",
-    step: "peoples",
+    step: "countries",
+    advanced: true,
     label: t("People per population point"),
     hint: t("Scales every population figure on the map"),
     input: number(10, 10000, 10),
@@ -264,7 +250,8 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "urbanization",
-    step: "peoples",
+    step: "countries",
+    advanced: true,
     label: t("Urbanization rate"),
     hint: t("How much of the population lives in burgs"),
     input: number(0.01, 5, 0.01),
@@ -272,7 +259,8 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "urbanDensity",
-    step: "peoples",
+    step: "countries",
+    advanced: true,
     label: t("Urban density"),
     hint: t("People per building in burg previews"),
     input: number(1, 200),

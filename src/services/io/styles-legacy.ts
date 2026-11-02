@@ -33,6 +33,8 @@ const SELECTOR_ALIASES: Record<string, string> = {
   "#terrs #oceanHeights": "#terrs > #oceanHeights"
 };
 
+const RETIRED_SELECTORS = new Set(["#relig"]); // layers this app no longer has
+
 const PRESET_ROUTES: Record<string, PresetRoute> = {
   // legacy kept the pick in data-filter, the store in the filter attr: normalizeStyles folds the option into it
   "#map": { path: ["map"], options: { "data-filter": "dataFilter" }, drop: ["background-color"] },
@@ -78,7 +80,6 @@ const PRESET_ROUTES: Record<string, PresetRoute> = {
     bools: ["render"]
   },
   "#terrain": { path: ["relief"], options: { set: "set", size: "size", density: "density" } },
-  "#relig": { path: ["religions"] },
   "#cults": { path: ["cultures"] },
   "#statesBody": { path: ["states", "groups", "statesBody"] },
   // #statesHalo's stroke-width is the zoom-derived render value; data-width is the base
@@ -765,6 +766,7 @@ export function presetFromLegacy(
 
   for (const [rawSelector, bag] of Object.entries(legacy)) {
     const selector = SELECTOR_ALIASES[rawSelector] ?? rawSelector;
+    if (RETIRED_SELECTORS.has(selector)) continue;
     const route = routeFor(selector);
     if (!route) {
       fail(onUnknown, `unknown legacy selector "${selector}"`);

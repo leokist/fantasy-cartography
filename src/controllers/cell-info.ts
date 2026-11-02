@@ -58,7 +58,6 @@ function renderDialog(): void {
     <p><b>${t("State")}:</b> <span id="infoState">n/a</span></p>
     <p><b>${t("Province")}:</b> <span id="infoProvince">n/a</span></p>
     <p><b>${t("Culture")}:</b> <span id="infoCulture">n/a</span></p>
-    <p><b>${t("Religion")}:</b> <span id="infoReligion">n/a</span></p>
     <p><b>${t("Burg")}:</b> <span id="infoBurg">n/a</span></p>
     <p><b>${t("Good")}:</b> <span id="infoGood">n/a</span></p>
     <p><b>${t("Market")}:</b> <span id="infoMarket">n/a</span></p>
@@ -106,7 +105,6 @@ function updateFields(point: Point, cellId: number, gridCellId: number): void {
   set("infoState", getStateInfo(cellId));
   set("infoProvince", getNamedInfo(pack.provinces, cells.province[cellId], "fullName"));
   set("infoCulture", getCultureInfo(cells.culture[cellId]));
-  set("infoReligion", getNamedInfo(pack.religions, cells.religion[cellId], "name"));
   set("infoPopulation", getFriendlyPopulation(cellId));
   set("infoBurg", getNamedInfo(pack.burgs, cells.burg[cellId], "name"));
   set("infoFeature", featureId ? `${feature.subtype || feature.type} (${featureId})` : "n/a");

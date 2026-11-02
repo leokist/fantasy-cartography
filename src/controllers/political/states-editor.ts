@@ -214,7 +214,7 @@ function open(): void {
 
   Dialog.closeAll(`#${dialogId}, .stable`);
   Layers.show("states", "borders");
-  Layers.hide("cultures", "biomes", "religions");
+  Layers.hide("cultures", "biomes");
 
   renderDialog();
   States.collectStatistics();

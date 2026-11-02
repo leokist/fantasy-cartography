@@ -179,14 +179,12 @@ function cardHtml(widget: Of<"card">, live: boolean): string {
 
   const people = getPeople(state.rural, state.urban);
   const capital = pack.burgs[state.capital];
-  const religion = capital ? pack.cells.religion?.[capital.cell] : undefined;
   const facts: [string, string][] = [
     ["Capital", capital ? entityLink(`burg:${capital.i}`, live, capital.name) : "none"],
     ["Population", si(people)],
     ["Area", `${si(getArea(state.area || 0))} ${getAreaUnit()}`],
     ["Burgs", String(state.burgs ?? 0)],
-    ["Culture", entityLink(`culture:${state.culture}`, live)],
-    ["Religion", religion ? entityLink(`religion:${religion}`, live) : ""]
+    ["Culture", entityLink(`culture:${state.culture}`, live)]
   ];
   const note = state.note ? plainText(state.note) : "";
   const excerpt = note.length > NOTE_PREVIEW ? `${note.slice(0, NOTE_PREVIEW)}…` : note;

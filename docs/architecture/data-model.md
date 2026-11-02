@@ -103,7 +103,7 @@ World data is mainly stored in typed arrays within `cells` object in both `grid`
 - `pack.cells.culture`: `number[]` - cells culture index. `Uint16Array`
 - `pack.cells.state`: `number[]` - cells state index. `Uint16Array`
 - `pack.cells.province`: `number[]` - cells province index. `Uint16Array`
-- `pack.cells.religion`: `number[]` - cells religion index. `Uint16Array`
+- `pack.cells.religion`: `number[]` - always 0, see [Religions](#religions). `Uint16Array`
 - `pack.cells.good`: `number[]` - cells bonus resource good id (`0` if none). Marks the special good extracted on the cell. `Uint16Array`
 - `pack.cells.market`: `number[]` - cells market index (`0` if unassigned). Filled by the market territory flood-fill. `Uint16Array`
 - `pack.cells.area`: `number[]` - cells area in pixels. `Uint16Array`
@@ -230,7 +230,7 @@ States (countries) data is stored as an array of objects with strict element ord
 
 ## Provinces
 
-Provinces data is stored as an array of objects with strict element order. Element 0 is not used. If religion is removed, the element is not getting removed, but instead a `removed` attribute is added. Object structure:
+Provinces data is stored as an array of objects with strict element order. Element 0 is not used. If province is removed, the element is not getting removed, but instead a `removed` attribute is added. Object structure:
 
 - `i`: `number` - province id, always equal to the array index
 - `name`: `string` - short (proper) form of the province name
@@ -253,27 +253,7 @@ Provinces data is stored as an array of objects with strict element order. Eleme
 
 ## Religions
 
-Religions data is stored as an array of objects with strict element order. Element 0 is reserved for "No religion". If province is removed, the element is not getting removed, but instead a `removed` attribute is added. Object structure:
-
-- `i`: `number` - religion id, always equal to the array index
-- `name`: `string` - religion name
-- `type`: `string` - religion type. Available types are `Folk`, `Organized`, `Heresy` and `Cult`
-- `form`: `string` - religion form
-- `deity`: `string` - religion supreme deity if any
-- `color`: `string` - religion color in hex (e.g. `#45ff12`) or link to hatching pattern (e.g. `url(#hatch7)`, or `url(#hatch7-c0392b)` for one drawn in a color)
-- `code`: `string` - religion name abbreviation. Used to render religions tree
-- `origins`: `number[]` - ids of ancestor religions. `[0]` if religion doesn't have an ancestor. Used to render religions tree. The first array member is main link, other - supporting out-of-tree links
-- `center`: `number` - cell id of religion center (initial cell)
-- `culture`: `number` - religion original culture
-- `expansionism`: `number` - religion growth multiplier. Used during religion generation to define competitive size
-- `expansion`: `string` - religion expansion type. Can be `culture` so that religion grow only within its culture or `global`
-- `area`: `number` - religion area in pixels
-- `cells`: `number` - number of cells within the religion
-- `rural`: `number` - rural (non-burg) population of religion cells. In population points
-- `urban`: `number` - urban (burg) population of state religion. In population points
-- `lock`: `boolean` - `true` if religion is locked (not affected by regeneration)
-- `removed`: `boolean` - `true` if religion is removed
-- `note`: `string` - optional. The user's note (legend) about the religion, as html. Removed with it
+Fantasy Cartography has no religions. `pack.religions` holds only element 0, "No religion", and `pack.cells.religion` is all 0; both stay so the `.map` file layout keeps its positions. Loading a map made with religions clears them.
 
 ## Rivers
 
@@ -473,7 +453,7 @@ Goods (tradable resources and products) are stored in `pack.goods: Good[]`. Good
 - `distribution`: `string` - JS expression evaluated per cell to decide where the raw good is placed (uses the distribution method table; see [goods_schema.md](../domain/goods_schema.md)). Optional
 - `biomeOutput`: `Record<biomeId, number>` - units produced per rural population point per production cycle, per biome. Optional
 - `recipes`: `Record<goodId, number>[]` - array of alternative recipes; each maps input good id → units consumed per 1 unit of output. Optional
-- `multipliers`: `object` - per-dimension production scalars, each an optional `Record<id, number>`: `cultureType`, `culture`, `state`, `religion`, `biome`, `zone`. Absent or `1` = no effect, `0` = fully suppressed; active factors combine multiplicatively. Only the map-independent `cultureType` is present in `GOODS_DATA`; the rest are set per map via the editor. Optional
+- `multipliers`: `object` - per-dimension production scalars, each an optional `Record<id, number>`: `cultureType`, `culture`, `state`, `biome`, `zone`. Absent or `1` = no effect, `0` = fully suppressed; active factors combine multiplicatively. Only the map-independent `cultureType` is present in `GOODS_DATA`; the rest are set per map via the editor. Optional
 - `demandCoverage`: `Record<category, number>` - how much one unit of the good covers each demand category (`food`, `utilities`, `construction`, `military`, `luxury`). Optional
 - `note`: `string` - optional. The user's note (legend) about the good, as html. Removed with it
 
@@ -495,7 +475,7 @@ Biome definitions are stored in `pack.biomes: Biome[]`, where `i` equals the arr
 - `i`: `number` - biome id, always equal to the array index
 - `name`: `string` - biome name
 - `color`: `string` - biome color in hex (e.g. `#45ff12`) or link to a hatching pattern (e.g. `url(#hatch7)`, or `url(#hatch7-c0392b)` for one drawn in a color)
-- `cost`: `number` - non-negative movement cost used during culture, state and religion growth
+- `cost`: `number` - non-negative movement cost used during culture and state growth
 - `habitability`: `number` - non-negative suitability value; `0` means uninhabitable
 - `icons`: `Record<string, { weight: number; size?: number }>` - the relief pool: lowland relief entries in insertion order, each with a positive weight and an optional positive `size`, a multiplier of the pool's icon size (absent is 1). A key is a relief type (`dune`) or an icon reference (`custom-1a2b3c4d`). Before v1.154.0 a list of repeated entries
 - `iconsDensity`: `number` - how packed the biome's lowland relief is. An integer from `0` (none) to `250`

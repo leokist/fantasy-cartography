@@ -313,7 +313,6 @@ export async function buildGodotFiles(
   const statePolygons = polygons(cellId => pack.cells.state[cellId]);
   const provincePolygons = polygons(cellId => pack.cells.province[cellId]);
   const culturePolygons = polygons(cellId => pack.cells.culture[cellId]);
-  const religionPolygons = polygons(cellId => pack.cells.religion[cellId]);
   const political = {
     states: pack.states
       .filter(state => state.i && !state.removed)
@@ -349,18 +348,6 @@ export async function buildGodotFiles(
         type: culture.type,
         color: culture.color,
         polygons: culturePolygons(culture.i)
-      })),
-    religions: pack.religions
-      .filter(religion => religion.i && !religion.removed)
-      .map(religion => ({
-        id: religion.i,
-        name: religion.name,
-        type: religion.type,
-        form: religion.form,
-        deity: religion.deity,
-        culture: religion.culture,
-        color: religion.color,
-        polygons: religionPolygons(religion.i)
       }))
   };
 

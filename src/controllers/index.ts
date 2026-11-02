@@ -70,7 +70,6 @@ export const Controllers = createRegistry(
       import("@/controllers/political/military/regiments-overview").then(m => m.RegimentsOverview),
     ReliefEditor: () => import("@/controllers/physical/relief/relief-editor").then(m => m.ReliefEditor),
     ReliefRulesEditor: () => import("@/controllers/physical/relief/relief-rules-editor").then(m => m.ReliefRulesEditor),
-    ReligionsEditor: () => import("@/controllers/society/religions-editor").then(m => m.ReligionsEditor),
     RiverCreator: () => import("@/controllers/physical/rivers/river-creator").then(m => m.RiverCreator),
     RiverAutoCreator: () => import("@/controllers/physical/rivers/river-auto-creator").then(m => m.RiverAutoCreator),
     RiverEditor: () => import("@/controllers/physical/rivers/river-editor").then(m => m.RiverEditor),

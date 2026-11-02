@@ -28,7 +28,6 @@ import { States } from "@/model/political/states-generator";
 import { Zones } from "@/model/political/zones-generator";
 import { Cultures } from "@/model/society/cultures-generator";
 import { Population } from "@/model/society/population-generator";
-import { Religions } from "@/model/society/religions-generator";
 import type { LayerId } from "@/renderers/layers";
 import { Layers } from "@/renderers/layers";
 import { unfog } from "@/renderers/overlays/fogging";
@@ -150,13 +149,6 @@ export const MAP_COMMANDS: MapCommand[] = [
     link: true,
     aliases: "people",
     run: () => Controllers.CulturesEditor.open()
-  },
-  {
-    id: "editReligions",
-    name: t("Religions Editor"),
-    link: true,
-    aliases: "faith beliefs",
-    run: () => Controllers.ReligionsEditor.open()
   },
   {
     id: "editProvincesButton",
@@ -485,13 +477,6 @@ export const MAP_COMMANDS: MapCommand[] = [
     run: () => Controllers.CulturesEditor.showHierarchy()
   },
   {
-    id: "showReligionsHierarchy",
-    name: t("Religions tree"),
-    link: true,
-    aliases: "faith beliefs origins tree",
-    run: () => Controllers.ReligionsEditor.showHierarchy()
-  },
-  {
     id: "showRelationsHistory",
     name: t("Relations history"),
     link: true,
@@ -522,12 +507,6 @@ export const MAP_COMMANDS: MapCommand[] = [
     name: `${t("Regenerate")}: ${t("Cultures")}`,
     aliases: "generate people",
     run: () => confirmRegeneration(regenerateCultures)
-  },
-  {
-    id: "regenerateReligions",
-    name: `${t("Regenerate")}: ${t("Religions")}`,
-    aliases: "generate faith",
-    run: () => confirmRegeneration(regenerateReligions)
   },
   {
     id: "regenerateRivers",
@@ -913,11 +892,6 @@ function regenerateProduction(): void {
 function regenerateEmblems(): void {
   Emblems.regenerate();
   Layers.draw("emblems");
-}
-
-function regenerateReligions(): void {
-  Religions.regenerate();
-  Layers.draw("religions", "goods");
 }
 
 function regenerateCultures(): void {

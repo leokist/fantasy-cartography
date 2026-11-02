@@ -40,11 +40,10 @@ const RULES = [
   "province-centers",
   "province-capitals", // a province capital is a living burg
   "culture-centers",
-  "religion-centers",
   "regiment-cells",
   "zone-cells",
   "market-centers",
-  "cell-owners", // cells point at living states, cultures, provinces and religions
+  "cell-owners", // cells point at living states, cultures and provinces
   "lake-links", // a lake's inlets and outlet are rivers
   "cell-arrays", // every per-cell array covers every cell
   "cell-values", // population is a number, land has a biome
@@ -194,7 +193,6 @@ class MapIntegrityModule {
         fail("province-centers", province.i);
     }
     for (const culture of living(pack.cultures)) if (!land(culture.center!)) fail("culture-centers", culture.i);
-    for (const religion of living(pack.religions)) if (!land(religion.center)) fail("religion-centers", religion.i);
     for (const zone of pack.zones) if (zone.cells.some(cell => !valid(cell))) fail("zone-cells", zone.i);
     for (const market of pack.markets ?? [])
       if (!alive(pack.burgs, market.centerBurgId)) fail("market-centers", market.i);
@@ -202,8 +200,7 @@ class MapIntegrityModule {
     const owners = [
       [cells.state, pack.states],
       [cells.culture, pack.cultures],
-      [cells.province, pack.provinces],
-      [cells.religion, pack.religions]
+      [cells.province, pack.provinces]
     ] as const;
     for (const [values, list] of owners) {
       for (let cell = 0; cell < n; cell++) if (values?.[cell] && !alive(list, values[cell])) fail("cell-owners", cell);
