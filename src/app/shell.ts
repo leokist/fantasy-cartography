@@ -1,5 +1,6 @@
 // The app window itself: the SVG layer scaffold, browser-level behaviours
 
+import { closePanel } from "@/app/chrome/options-panel";
 import { Controllers } from "@/controllers";
 import { Options } from "@/model/options/options-model";
 import { Pins } from "@/model/options/pins";
@@ -81,12 +82,15 @@ function onResize(): void {
   fitMapToScreen();
 }
 
-/** The assistant's call button: always in the markup, shown only when the preference says so */
+/** The assistant's call button, in the bottom bar: always in the markup, shown only when the preference says so */
 function initAssistantBubble(): void {
   const bubble = findEl("assistantBubble");
   if (!bubble) return;
 
-  bubble.addEventListener("click", () => Controllers.Assistant.toggle());
+  bubble.addEventListener("click", () => {
+    closePanel(); // the assistant opens where the panels do
+    void Controllers.Assistant.toggle();
+  });
   bubble.addEventListener("mouseover", showDataTip);
 }
 

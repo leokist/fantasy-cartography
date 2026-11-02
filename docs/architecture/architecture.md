@@ -307,7 +307,7 @@ Widgets like `hierarchy-tree` and `minimap` may move to `ui/` if they generalize
 `src/app/` is the composition root. `app/index.ts` loads every eager module in order and exports
 `boot`; `lifecycle`, `shell`, `canvas`, `seed`, `hotkeys` and `map-commands` drive the application.
 `app/chrome/` is the UI that is always there and loads with the shell: the options panel and its
-tabs, the bottom bar with its panels (layers, view mode, style, interface settings), the load/save/export panes, the Assistant bubble and the About dialog (`app-info`). Nothing
+tabs, the bottom bar with its panels (layers, view mode, style, interface settings) and the Assistant button, the load/save/export panes and the About dialog (`app-info`). Nothing
 below `app/` imports it.
 
 ## Cross-layer subsystems
