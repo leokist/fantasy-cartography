@@ -398,6 +398,7 @@ export async function buildGodotFiles(
     files: {
       heightmap: "heightmap.exr",
       biomes: "biomes.png",
+      biomeBlend: "biome_blend.png",
       colormap: "colormap.png",
       masks: Object.fromEntries((Object.keys(raster.masks) as MaskName[]).map(name => [name, `masks/${name}.png`]))
     },
@@ -422,6 +423,7 @@ export async function buildGodotFiles(
     "fauna_flora.json": toJson(faunaFlora, 1),
     "heightmap.exr": encodeExr(raster.heights, columns, rows),
     "biomes.png": await encodePng(raster.biomes, columns, rows, 1),
+    "biome_blend.png": await encodePng(blendPixels(raster), columns, rows, 3),
     "colormap.png": await encodePng(colors, columns, rows, 3)
   };
   for (const [name, mask] of Object.entries(raster.masks))
@@ -444,6 +446,16 @@ const hexToRgb = (hex: string): [number, number, number] => {
 };
 
 // biome colors on land, water darkening with depth
+// red: the biome a pixel fades into, green: how much of it shows
+function blendPixels({ blendBiomes, blendWeights }: TerrainRaster): Uint8Array {
+  const pixels = new Uint8Array(blendBiomes.length * 3);
+  for (let i = 0; i < blendBiomes.length; i++) {
+    pixels[i * 3] = blendBiomes[i];
+    pixels[i * 3 + 1] = blendWeights[i];
+  }
+  return pixels;
+}
+
 function colormap(raster: TerrainRaster, settings: TerrainSettings): Uint8Array {
   const colors = pack.biomes.map(biome => hexToRgb(biome?.color ?? "#808080"));
   const pixels = new Uint8Array(raster.columns * raster.rows * 3);
@@ -454,7 +466,12 @@ function colormap(raster: TerrainRaster, settings: TerrainSettings): Uint8Array 
     if (raster.masks.sea[i] || raster.masks.lakes[i] || raster.masks.rivers[i] === 255) {
       const t = Math.min(1, Math.max(0, -height / Math.max(settings.seaDepth, 1)));
       rgb = shallow.map((value, c) => value + (deep[c] - value) * t);
-    } else rgb = colors[raster.biomes[i]] ?? [128, 128, 128];
+    } else {
+      const own = colors[raster.biomes[i]] ?? [128, 128, 128];
+      const other = colors[raster.blendBiomes[i]] ?? own;
+      const share = raster.blendWeights[i] / 255;
+      rgb = own.map((value, c) => value + (other[c] - value) * share);
+    }
     pixels.set(rgb, i * 3);
   });
   return pixels;

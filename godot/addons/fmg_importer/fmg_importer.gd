@@ -116,6 +116,7 @@ func _terrain(parent: Node, package_dir: String, world: Dictionary, out_dir: Str
 	parent.add_child(terrain)
 	terrain.assets = _assets(world, out_dir)
 	terrain.free_editor_textures = true
+	terrain.material.set_shader_param("blend_sharpness", 0.15) # soft fades between biomes
 	terrain.change_region_size(region_size)
 	terrain.vertex_spacing = float(world.metersPerPixel)
 
@@ -189,7 +190,8 @@ func _save(resource: Resource, path: String) -> void:
 	resource.take_over_path(path)
 
 
-# Terrain3D's control map: base texture per biome, road and riverbed overlays blended by their masks
+# Terrain3D's control map: base texture per biome; the overlay is the riverbed or road where their masks are,
+# elsewhere the neighbouring biome, so biomes fade into each other at their borders
 func _control_map(package_dir: String, world: Dictionary) -> Image:
 	var slots := _texture_slots(world)
 	var biomes := Image.load_from_file(package_dir.path_join("biomes.png"))
@@ -200,16 +202,25 @@ func _control_map(package_dir: String, world: Dictionary) -> Image:
 	var width := biomes.get_width()
 	var height := biomes.get_height()
 
+	var blend_path := package_dir.path_join("biome_blend.png")
+	var blend := Image.load_from_file(blend_path) if FileAccess.file_exists(blend_path) else Image.create(width, height, false, Image.FORMAT_RGB8)
+	blend.convert(Image.FORMAT_RGB8)
+
 	var base := PackedInt64Array()
+	var overlay := PackedInt64Array()
 	base.resize(256)
+	overlay.resize(256)
 	for i in 256:
-		base[i] = (int(slots.biomes.get(i, 0)) & 0x1F) << 27
+		var slot := int(slots.biomes.get(i, 0)) & 0x1F
+		base[i] = slot << 27
+		overlay[i] = slot << 22
 	var road_bits := (int(slots.road) & 0x1F) << 22
 	var riverbed_bits := (int(slots.riverbed) & 0x1F) << 22
 
 	var biome_bytes := biomes.get_data()
 	var road_bytes := roads.get_data()
 	var river_bytes := rivers.get_data()
+	var blend_bytes := blend.get_data()
 	var bytes := PackedByteArray()
 	bytes.resize(width * height * 4)
 	for i in width * height:
@@ -220,6 +231,10 @@ func _control_map(package_dir: String, world: Dictionary) -> Image:
 			bits |= riverbed_bits | (river << 14)
 		elif road > 0:
 			bits |= road_bits | (road << 14)
+		else:
+			var share := blend_bytes[i * 3 + 1]
+			if share > 0:
+				bits |= overlay[blend_bytes[i * 3]] | (share << 14)
 		bytes.encode_u32(i * 4, bits)
 	return Image.create_from_data(width, height, false, Image.FORMAT_RF, bytes)
 

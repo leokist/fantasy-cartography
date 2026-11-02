@@ -39,6 +39,8 @@ export interface TerrainRaster {
   rows: number;
   heights: Float32Array; // meters, sea level at 0
   biomes: Uint8Array;
+  blendBiomes: Uint8Array; // the neighbouring biome a pixel fades into
+  blendWeights: Uint8Array; // its share, 0-255: about half on the border
   masks: Record<MaskName, Uint8Array>;
   lakeSurfaces: number[]; // meters, per source lake
   roadHeights: number[][]; // meters, per source road point
@@ -89,6 +91,10 @@ export function buildTerrain(source: TerrainSource, settings: TerrainSettings): 
   const wavelength = cellSpacing * 1.2;
   const octaves = Math.max(1, Math.min(5, Math.floor(Math.log2(wavelength / (unit * 4))) + 1)); // finest wave spans 4+ pixels
   const noise = createNoise(source.seed, octaves);
+  const fade = Math.max(2, (cellSpacing * 0.3) / unit); // pixels from the border to a pure biome
+  const { blendBiomes, blendWeights } = blendBiomeBorders(biomes, columns, rows, fade, (column, row) =>
+    noise((settings.region.x0 + column * unit) / (fade * unit), (settings.region.y0 + row * unit) / (fade * unit))
+  );
   const frequency = 1 / wavelength;
   const amplitude = settings.detail * settings.maxAltitude * 0.06;
   for (let row = 0, i = 0; row < rows; row++) {
@@ -136,6 +142,8 @@ export function buildTerrain(source: TerrainSource, settings: TerrainSettings): 
     rows,
     heights,
     biomes,
+    blendBiomes,
+    blendWeights,
     masks: { sea, lakes, rivers, roads, coast },
     lakeSurfaces,
     roadHeights,
@@ -327,6 +335,77 @@ function shapeLake(
       mask[i] = 255;
     } else if (toShore[i] <= 2) heights[i] = Math.max(heights[i], surface + 0.3 * toShore[i]);
   }
+}
+
+// for each pixel the nearest other biome and how much of it shows: a soft, ragged border instead of a pixel step
+function blendBiomeBorders(
+  biomes: Uint8Array,
+  columns: number,
+  rows: number,
+  fade: number,
+  wobble: (column: number, row: number) => number
+) {
+  const far = 1e9;
+  const distance = new Float32Array(biomes.length).fill(far);
+  const blendBiomes = new Uint8Array(biomes.length);
+  const water = (biome: number) => biome === 0; // marine: the shore keeps its land biome
+  const neighbors = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1]
+  ];
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < columns; x++) {
+      const i = y * columns + x;
+      if (water(biomes[i])) continue;
+      for (const [dx, dy] of neighbors) {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= columns || ny >= rows) continue;
+        const other = biomes[ny * columns + nx];
+        if (other === biomes[i] || water(other)) continue;
+        distance[i] = 1.5; // half a pixel, in chamfer steps of a third
+        blendBiomes[i] = other;
+      }
+    }
+  }
+  // spread the nearest other biome inside each biome area (chamfer 3-4)
+  const relax = (i: number, x: number, y: number, step: number) => {
+    if (x < 0 || y < 0 || x >= columns || y >= rows) return;
+    const j = y * columns + x;
+    if (biomes[j] !== biomes[i] || distance[j] + step >= distance[i]) return;
+    distance[i] = distance[j] + step;
+    blendBiomes[i] = blendBiomes[j];
+  };
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < columns; x++) {
+      const i = y * columns + x;
+      relax(i, x - 1, y, 3);
+      relax(i, x, y - 1, 3);
+      relax(i, x - 1, y - 1, 4);
+      relax(i, x + 1, y - 1, 4);
+    }
+  }
+  for (let y = rows - 1; y >= 0; y--) {
+    for (let x = columns - 1; x >= 0; x--) {
+      const i = y * columns + x;
+      relax(i, x + 1, y, 3);
+      relax(i, x, y + 1, 3);
+      relax(i, x + 1, y + 1, 4);
+      relax(i, x - 1, y + 1, 4);
+    }
+  }
+  const blendWeights = new Uint8Array(biomes.length);
+  for (let y = 0, i = 0; y < rows; y++) {
+    for (let x = 0; x < columns; x++, i++) {
+      if (distance[i] >= far) continue;
+      const side = biomes[i] < blendBiomes[i] ? 1 : -1; // the wobble pushes the border into one biome or the other
+      const pixels = distance[i] / 3 + side * wobble(x, y) * fade * 0.7;
+      blendWeights[i] = Math.round(255 * Math.min(1, Math.max(0, 0.5 * (1 - pixels / fade))));
+    }
+  }
+  return { blendBiomes, blendWeights };
 }
 
 // distance in pixels from each pixel of the given value to the nearest pixel of the other one (chamfer 3-4)
