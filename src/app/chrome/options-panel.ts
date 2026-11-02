@@ -43,6 +43,9 @@ const PANELS: Record<string, { content: string; title: () => string }> = {
   layers: { content: "layersContent", title: () => t("Layers") },
   view: { content: "viewContent", title: () => t("View mode") },
   style: { content: "styleContent", title: () => t("Style") },
+  edit: { content: "editContent", title: () => t("Edit") },
+  add: { content: "addContent", title: () => t("Add") },
+  regenerate: { content: "regenerateContent", title: () => t("Regenerate") },
   settings: { content: "interfaceContent", title: () => t("Interface settings") },
   about: { content: "aboutContent", title: () => t("About") }
 };

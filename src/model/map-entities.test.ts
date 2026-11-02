@@ -9,7 +9,7 @@ beforeEach(() => {
     burgs: [0, { i: 1, name: "Vaeltown", note: "A river port" }],
     states: [
       { i: 0, name: "Neutrals" },
-      { i: 1, name: "Ardenia", fullName: "Duchy of Ardenia", military: [{ i: 0, name: "1st Cavalry", note: "Elite" }] }
+      { i: 1, name: "Ardenia", fullName: "Duchy of Ardenia" }
     ],
     markers: [{ i: 4, type: "volcanoes", name: "Mount Doom", note: "Active volcano" }],
     rivers: [0, { i: 1, name: "Ald", type: "River" }],
@@ -48,8 +48,7 @@ describe("resolveElementId", () => {
     ["journey2", { type: "journey", id: 2 }],
     ["segment2_5", { type: "journey", id: 2 }],
     ["market8", { type: "market", id: 8 }],
-    ["addedLabel6", { type: "addedLabel", id: 6 }],
-    ["regiment3-1", { type: "regiment", id: 3, sub: 1 }]
+    ["addedLabel6", { type: "addedLabel", id: 6 }]
   ])("maps %s to its entity", (elementId, expected) => {
     expect(MapEntities.resolveElement(elementId)).toEqual(expected);
   });
@@ -59,7 +58,6 @@ describe("resolveElementId", () => {
   });
 
   it("round-trips a reference through its element id", () => {
-    expect(MapEntities.getElementId({ type: "regiment", id: 3, sub: 1 })).toBe("regiment3-1");
     expect(MapEntities.resolveElement(MapEntities.getElementId({ type: "feature", id: 9 })!)).toEqual({
       type: "feature",
       id: 9
@@ -75,7 +73,6 @@ describe("entity on the map", () => {
   it("knows whether the entity is still there", () => {
     expect(Boolean(MapEntities.get({ type: "burg", id: 1 }))).toBe(true);
     expect(Boolean(MapEntities.get({ type: "burg", id: 99 }))).toBe(false);
-    expect(Boolean(MapEntities.get({ type: "regiment", id: 1, sub: 0 }))).toBe(true);
   });
 
   it("gives the position to zoom to, for entities placed on the map", () => {
@@ -95,7 +92,6 @@ describe("entity on the map", () => {
 describe("keys", () => {
   it.each([
     [{ type: "burg", id: 1 } as const, "burg:1"],
-    [{ type: "regiment", id: 3, sub: 2 } as const, "regiment:3-2"],
     [{ type: "journey", id: 2, sub: 1 } as const, "journey:2-1"]
   ])("round-trips %o", (ref, key) => {
     expect(MapEntities.key(ref)).toBe(key);
@@ -184,7 +180,7 @@ describe("shared entity geometry and context", () => {
     expect(MapEntities.collect("river").map(({ ref }) => ref.id)).toEqual([1, 2]); // notes still list everything
   });
 
-  it("resolves sparse IDs and regiment zero without relying on array positions", () => {
+  it("resolves sparse IDs without relying on array positions", () => {
     pack.routes = [
       {
         i: 42,
@@ -202,7 +198,6 @@ describe("shared entity geometry and context", () => {
       [10, 20],
       [30, 40]
     ]);
-    expect(MapEntities.collect("regiment")[0].ref).toEqual({ type: "regiment", id: 1, sub: 0 });
   });
 
   it("filters invalid geometry and gives non-spatial goods no points", () => {
@@ -217,9 +212,8 @@ describe("shared entity geometry and context", () => {
     expect(MapEntities.getPoints({ type: "good", id: 1 })).toEqual([]);
   });
 
-  it.each(["burg:NaN", "burg:-1", "burg:1-2", "regiment:1", "regiment:1-2-3", "burg:1:2"])(
-    "rejects malformed reference %s",
-    key => expect(MapEntities.parseKey(key)).toBeUndefined()
+  it.each(["burg:NaN", "burg:-1", "burg:1-2", "burg:1:2"])("rejects malformed reference %s", key =>
+    expect(MapEntities.parseKey(key)).toBeUndefined()
   );
 });
 
@@ -284,7 +278,7 @@ describe("entities at a cell", () => {
       burgs: [0, { i: 1, name: "Vaeltown", production: [{ goodId: 5, units: 2, recipe: [] }, { dealId: 0 }] }],
       states: [
         { i: 0, name: "Neutrals" },
-        { i: 1, name: "Ardenia", military: [{ i: 0, name: "1st Cavalry", x: 1, y: 1 }] }
+        { i: 1, name: "Ardenia" }
       ],
       journeys: [
         {
@@ -320,7 +314,6 @@ describe("entities at a cell", () => {
       { type: "zone", id: 1 },
       { type: "journey", id: 0 },
       { type: "market", id: 2 },
-      { type: "regiment", id: 1, sub: 0 },
       { type: "biome", id: 0 },
       { type: "good", id: 3 },
       { type: "good", id: 5 }

@@ -4,7 +4,6 @@ import { createRegistry } from "@/utils/registry";
 export const Controllers = createRegistry(
   {
     AiGenerator: () => import("@/controllers/ai-generator").then(m => m.AiGenerator),
-    BattleScreen: () => import("@/controllers/political/military/battle-screen").then(m => m.BattleScreen),
     BiomesEditor: () => import("@/controllers/physical/biomes-editor").then(m => m.BiomesEditor),
     BurgCreator: () => import("@/controllers/political/burgs/burg-creator").then(m => m.BurgCreator),
     BurgEditor: () => import("@/controllers/political/burgs/burg-editor").then(m => m.BurgEditor),
@@ -18,8 +17,6 @@ export const Controllers = createRegistry(
     ContextMenu: () => import("@/controllers/context-menu").then(m => m.ContextMenu),
     CsvUpload: () => import("@/controllers/csv-upload").then(m => m.CsvUpload),
     CulturesEditor: () => import("@/controllers/society/cultures-editor").then(m => m.CulturesEditor),
-    DiplomacyEditor: () => import("@/controllers/political/diplomacy-editor").then(m => m.DiplomacyEditor),
-    DiplomacyOverview: () => import("@/controllers/political/diplomacy-overview").then(m => m.DiplomacyOverview),
     DistributionEditor: () =>
       import("@/controllers/economy/goods/goods-distribution-editor").then(m => m.DistributionEditor),
     ElevationProfile: () => import("@/controllers/physical/elevation-profile").then(m => m.ElevationProfile),
@@ -53,7 +50,6 @@ export const Controllers = createRegistry(
     MarketOverview: () => import("@/controllers/economy/trade/market-overview").then(m => m.MarketOverview),
     MarketsOverview: () => import("@/controllers/economy/trade/markets-overview").then(m => m.MarketsOverview),
     MeasurersEditor: () => import("@/controllers/annotations/measurers-editor").then(m => m.MeasurersEditor),
-    MilitaryOverview: () => import("@/controllers/political/military/military-overview").then(m => m.MilitaryOverview),
     Minimap: () => import("@/controllers/minimap").then(m => m.Minimap),
     NamesbaseEditor: () => import("@/controllers/society/namesbase-editor").then(m => m.NamesbaseEditor),
     NotesEditor: () => import("@/controllers/story/notes-editor").then(m => m.NotesEditor),
@@ -64,9 +60,6 @@ export const Controllers = createRegistry(
     ProvincesEditor: () => import("@/controllers/political/provinces-editor").then(m => m.ProvincesEditor),
     ProvincesRegeneration: () =>
       import("@/controllers/political/provinces-regeneration").then(m => m.ProvincesRegeneration),
-    RegimentEditor: () => import("@/controllers/political/military/regiment-editor").then(m => m.RegimentEditor),
-    RegimentsOverview: () =>
-      import("@/controllers/political/military/regiments-overview").then(m => m.RegimentsOverview),
     ReliefEditor: () => import("@/controllers/physical/relief/relief-editor").then(m => m.ReliefEditor),
     ReliefRulesEditor: () => import("@/controllers/physical/relief/relief-rules-editor").then(m => m.ReliefRulesEditor),
     RiverCreator: () => import("@/controllers/physical/rivers/river-creator").then(m => m.RiverCreator),

@@ -29,18 +29,6 @@ const DEFAULT_PRESETS: Record<string, LayerId[]> = {
     "vignette"
   ],
   trade: ["borders", "burgIcons", "lakes", "rivers", "routes", "scaleBar", "states", "trade", "vignette"],
-  military: [
-    "borders",
-    "burgIcons",
-    "labels",
-    "lakes",
-    "military",
-    "rivers",
-    "routes",
-    "scaleBar",
-    "states",
-    "vignette"
-  ],
   emblems: ["borders", "burgIcons", "emblems", "ice", "lakes", "rivers", "routes", "scaleBar", "states", "vignette"],
   landmass: ["scaleBar"]
 };

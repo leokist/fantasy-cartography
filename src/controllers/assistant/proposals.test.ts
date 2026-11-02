@@ -104,26 +104,10 @@ it("applies and undoes property edits, including a field that was absent", () =>
   expect(apply(proposal, MAP)).toBe(true);
   expect(pack.states[1].color).toBe("#ff0000");
   expect(pack.zones[0].hidden).toBe(true);
-  expect(Layers.draw).toHaveBeenCalledWith("states", "military", "zones");
+  expect(Layers.draw).toHaveBeenCalledWith("states", "zones");
   expect(undo(proposal, MAP)).toBe(true);
   expect(pack.states[1].color).toBeUndefined();
   expect("hidden" in pack.zones[0]).toBe(false);
-});
-
-it("adds chronicle entries from proposals made side by side, and undoes each alone", () => {
-  const chronicle = [["Old War"]];
-  pack.states[0].diplomacy = chronicle as unknown as string[];
-  const entry = (title: string) => propose(title, [{ op: "States.setChronicleEntry", args: [-1, [title]] }], 1, MAP);
-  const [peace, treaty] = [entry("Peace"), entry("Treaty")] as Proposal[];
-  expect(peace.change).toEqual([
-    { key: "state:0", entity: "State: Neutrals", field: "diplomacy", after: [["Peace"]], append: true }
-  ]);
-  expect(apply(peace, MAP)).toBe(true);
-  expect(apply(treaty, MAP)).toBe(true);
-  expect(chronicle).toEqual([["Old War"], ["Peace"], ["Treaty"]]);
-  expect(undo(peace, MAP)).toBe(true);
-  expect(chronicle).toEqual([["Old War"], ["Treaty"]]);
-  expect(undo(peace, MAP)).toBe(false);
 });
 
 it("refreshes the Population layer when a burg's population changes", () => {

@@ -8,7 +8,7 @@ beforeEach(() => {
     burgs: [0, { i: 1, name: "Vaeltown", note: "A river port" }],
     states: [
       { i: 0, name: "Neutrals" },
-      { i: 1, name: "Ardenia", fullName: "Duchy of Ardenia", military: [{ i: 0, name: "1st Cavalry", note: "Elite" }] }
+      { i: 1, name: "Ardenia", fullName: "Duchy of Ardenia" }
     ],
     markers: [{ i: 4, type: "volcanoes", name: "Mount Doom", note: "Active volcano" }],
     rivers: [0, { i: 1, name: "Ald", type: "River" }],
@@ -48,12 +48,6 @@ describe("note access", () => {
     expect(pack.burgs).toHaveLength(2);
   });
 
-  it("addresses a regiment through its state", () => {
-    const ref = { type: "regiment", id: 1, sub: 0 } as const;
-    expect(Notes.get(ref)).toBe("Elite");
-    expect(MapEntities.getName(ref)).toBe("1st Cavalry");
-  });
-
   it("addresses a journey segment through its journey", () => {
     (pack.journeys as any) = [
       {
@@ -77,13 +71,7 @@ describe("note access", () => {
 
 describe("listNotes", () => {
   it("collects notes from every collection, grouped by entity type", () => {
-    expect(Notes.list().map(entry => entry.key)).toEqual([
-      "burg:1",
-      "marker:4",
-      "feature:1",
-      "regiment:1-0",
-      "culture:1"
-    ]);
+    expect(Notes.list().map(entry => entry.key)).toEqual(["burg:1", "marker:4", "feature:1", "culture:1"]);
   });
 
   it("skips entities without a note", () => {

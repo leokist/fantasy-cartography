@@ -75,7 +75,6 @@ Example stored entities:
 - Rivers
 - Biomes
 - Routes
-- Military
 - Zones
 - Labels (addedLabels)
 - Style configuration
@@ -98,7 +97,6 @@ Responsibilities:
 - Burg generation
 - Route generation
 - Economy simulation
-- Military calculations
 
 Key design ideas:
 
@@ -252,7 +250,7 @@ Inside the two large role folders, `model/` and `controllers/`, files are groupe
 | `graph/`       | the grid and packed Voronoi graph, and the tools that rebuild it            |
 | `physical/`    | heightmap, climate, features, coastline, lakes, rivers, ice, biomes, relief |
 | `society/`     | population, cultures, names                                                 |
-| `political/`   | states, provinces, burgs, diplomacy, military, zones, emblems               |
+| `political/`   | states, provinces, burgs, zones, emblems                                    |
 | `economy/`     | goods, production, markets and trade, transports, routes                    |
 | `story/`       | markers, notes, lore, journeys                                              |
 | `annotations/` | labels, rulers, the legend: what the map adds on top of the world           |
@@ -307,7 +305,7 @@ Widgets like `hierarchy-tree` and `minimap` may move to `ui/` if they generalize
 `src/app/` is the composition root. `app/index.ts` loads every eager module in order and exports
 `boot`; `lifecycle`, `shell`, `canvas`, `seed`, `hotkeys` and `map-commands` drive the application.
 `app/chrome/` is the UI that is always there and loads with the shell: the options panel and its
-tabs, the bottom bar with its panels (layers, view mode, style, interface settings) and the Assistant button, the load/save/export panes and the About dialog (`app-info`). Nothing
+tabs, the bottom bar with its panels (layers, view mode, style, edit, add, regenerate, interface settings) and the Assistant button, the load/save/export panes and the About dialog (`app-info`). Nothing
 below `app/` imports it.
 
 ## Cross-layer subsystems

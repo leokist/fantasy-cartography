@@ -23,7 +23,6 @@ import { Relief } from "@/model/physical/relief-generator";
 import { Rivers } from "@/model/physical/river-generator";
 import { Burgs } from "@/model/political/burgs-generator";
 import { Emblems } from "@/model/political/emblems-generator";
-import { Military } from "@/model/political/military-generator";
 import { States } from "@/model/political/states-generator";
 import { Zones } from "@/model/political/zones-generator";
 import { Cultures } from "@/model/society/cultures-generator";
@@ -186,13 +185,6 @@ export const MAP_COMMANDS: MapCommand[] = [
     run: () => Controllers.ReliefRulesEditor.open()
   },
   {
-    id: "editDiplomacyButton",
-    name: t("Diplomacy Overview"),
-    link: true,
-    aliases: "relations allies wars",
-    run: () => Controllers.DiplomacyOverview.open()
-  },
-  {
     id: "overviewFeaturesButton",
     name: t("Geographical Features Overview"),
     link: true,
@@ -233,20 +225,6 @@ export const MAP_COMMANDS: MapCommand[] = [
     link: true,
     aliases: "areas regions",
     run: () => Controllers.ZonesEditor.open()
-  },
-  {
-    id: "overviewMilitaryButton",
-    name: t("Military Overview"),
-    link: true,
-    aliases: "armies regiments",
-    run: () => Controllers.MilitaryOverview.open()
-  },
-  {
-    id: "regiments",
-    name: t("Regiments Overview"),
-    link: true,
-    aliases: "military armies",
-    run: () => Controllers.RegimentsOverview.open()
   },
   {
     id: "editEmblemButton",
@@ -463,13 +441,6 @@ export const MAP_COMMANDS: MapCommand[] = [
     run: () => Controllers.CulturesEditor.showHierarchy()
   },
   {
-    id: "showRelationsHistory",
-    name: t("Relations history"),
-    link: true,
-    aliases: "diplomacy chronicle wars",
-    run: () => Controllers.DiplomacyOverview.showHistory()
-  },
-  {
     id: "regenerateStates",
     name: `${t("Regenerate")}: ${t("States")}`,
     aliases: "generate countries kingdoms",
@@ -536,12 +507,6 @@ export const MAP_COMMANDS: MapCommand[] = [
     name: `${t("Regenerate")}: ${t("Zones")}`,
     aliases: "generate regions",
     run: event => confirmRegeneration(() => regenerateZones(event))
-  },
-  {
-    id: "regenerateMilitary",
-    name: `${t("Regenerate")}: ${t("Military")}`,
-    aliases: "generate armies regiments",
-    run: () => confirmRegeneration(regenerateMilitary)
   },
   {
     id: "regeneratePopulation",
@@ -693,12 +658,6 @@ export const MAP_COMMANDS: MapCommand[] = [
     run: () => Controllers.BiomesEditor.exportCsv()
   },
   {
-    id: "exportCsvRelations",
-    name: `${t("Export to CSV")}: ${t("Relations")}`,
-    aliases: "download table diplomacy matrix",
-    run: () => Controllers.DiplomacyOverview.exportCsv()
-  },
-  {
     id: "exportCsvGoods",
     name: `${t("Export to CSV")}: ${t("Goods")}`,
     aliases: "download table resources economy",
@@ -715,18 +674,6 @@ export const MAP_COMMANDS: MapCommand[] = [
     name: `${t("Export to CSV")}: ${t("Markets")}`,
     aliases: "download table economy trade",
     run: () => Controllers.MarketsOverview.exportCsv()
-  },
-  {
-    id: "exportCsvMilitary",
-    name: `${t("Export to CSV")}: ${t("Military")}`,
-    aliases: "download table armies forces",
-    run: () => Controllers.MilitaryOverview.exportCsv()
-  },
-  {
-    id: "exportCsvRegiments",
-    name: `${t("Export to CSV")}: ${t("Regiments")}`,
-    aliases: "download table military armies",
-    run: () => Controllers.RegimentsOverview.exportCsv()
   },
   {
     id: "exportCsvNotes",
@@ -841,7 +788,7 @@ function regenerateStates(): void {
   if (warning) tip(warning, false, "warn");
 
   unfog();
-  Layers.draw("states", "borders", "provinces", "labels", "burgIcons", "military", "goods", "emblems");
+  Layers.draw("states", "borders", "provinces", "labels", "burgIcons", "goods", "emblems");
 }
 
 function regenerateBurgs(): void {
@@ -877,11 +824,6 @@ function regenerateEmblems(): void {
 function regenerateCultures(): void {
   Cultures.regenerate();
   Layers.draw("cultures", "goods");
-}
-
-function regenerateMilitary(): void {
-  Military.regenerate();
-  Layers.draw("military");
 }
 
 function regenerateIce(): void {

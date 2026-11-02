@@ -349,11 +349,9 @@ test.describe("Map loading", () => {
         rendered: addedLabels.map(
           (added: any) => document.getElementById(`addedLabel${added.i}`)?.dataset.labelShape ?? "missing"
         ),
-        // legacy notes ride on the entity now: this fixture's are all on markers and regiments,
-        // and nothing may be left over to raise the "notes without an element" prompt
+        // legacy notes ride on the entity now: this fixture's are on markers and regiments, whose notes go with
+        // the armies, and nothing may be left over to raise the "notes without an element" prompt
         notedMarkers: (window as any).pack.markers.filter((marker: any) => marker.note).length,
-        notedRegiments: (window as any).pack.states.flatMap((state: any) => state.military || [])
-          .filter((regiment: any) => regiment.note).length,
         unattachedPrompt: document.querySelector(".message") !== null
       };
     });
@@ -371,7 +369,6 @@ test.describe("Map loading", () => {
     }
     expect(migrated.rendered).toEqual(["path", "path", "path", "path"]);
     expect(migrated.notedMarkers).toBe(86);
-    expect(migrated.notedRegiments).toBe(143);
     expect(migrated.unattachedPrompt).toBe(false);
   });
 

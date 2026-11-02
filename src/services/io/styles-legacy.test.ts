@@ -48,7 +48,6 @@ test("converts the frozen default preset without warnings", () => {
   expect(styles.relief.options).toEqual({ set: "simple", size: 1, density: 0.4 });
   expect(styles.ocean.groups.oceanLayers.options.outline).toBe("-6,-3,-1");
   expect(styles.ocean.groups.pattern.attrs).toEqual({ href: "./images/pattern1.png", opacity: 0.2 });
-  expect(styles.military.options).toEqual({ boxSize: 3, showNames: false });
   expect(styles.coordinates.attrs["font-size"]).toBe("12px");
   expect(styles.states.groups.statesHalo.attrs["stroke-width"]).toBe(10);
   expect(styles.legend.options).toEqual({ columns: 8 });
@@ -70,9 +69,8 @@ test('the string "null" converts to a real null', () => {
 });
 
 test("R5: an attribute absent from the legacy bag keeps the default, not null", () => {
-  const styles = presetFromLegacy({ "#armies": { "font-size": 6, "box-size": 3 } } as any, { onUnknown: "skip" });
-  expect(styles.military.attrs["stroke-dasharray"]).toBe(Styles.defaults.military.attrs["stroke-dasharray"]);
-  expect(styles.military.attrs["stroke-linecap"]).toBe(Styles.defaults.military.attrs["stroke-linecap"]);
+  const styles = presetFromLegacy({ "#rivers": { opacity: 0.5 } } as any, { onUnknown: "skip" });
+  expect(styles.rivers.attrs.filter).toBe(Styles.defaults.rivers.attrs.filter);
 });
 
 test("the zoom-derived render values are dropped for their base: #coordinates font-size, #statesHalo stroke-width", () => {

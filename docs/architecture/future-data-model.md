@@ -87,10 +87,6 @@ This document outlines the expected data structure. Current data model described
       "groups": []
     },
 
-    "military": {
-      "units": []
-    },
-
     "transports": [],
 
     "coastline": {

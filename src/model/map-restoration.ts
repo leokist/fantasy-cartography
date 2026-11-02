@@ -31,7 +31,6 @@ import type { Label } from "./annotations/labels-generator";
 import { GraphOverride } from "./graph/graph-override";
 import type { LockedRiver, River } from "./physical/river-generator";
 import type { Burg } from "./political/burgs-generator";
-import type { Regiment } from "./political/military-generator";
 import type { Province } from "./political/provinces-generator";
 import { Population } from "./society/population-generator";
 
@@ -761,19 +760,6 @@ class MapRestorationModule {
         Burgs.setCapital(successor ?? Burgs.add(...cells.p[center()]));
       }
       state.center = burgs[state.capital].cell;
-
-      const restoreRegiment = (regiment: Regiment): Regiment => {
-        const [x, y] = projection(regiment.x, regiment.y);
-        const home = this.projectPoint(parent, regiment.cell, projection);
-        const cell = home && this.isInMap(...home) ? this.findCell(...home) : this.findCell(x, y);
-        const [baseX, baseY] = projection(regiment.bx, regiment.by);
-        const [bx, by] = this.isInMap(baseX, baseY) ? [rn(baseX, 2), rn(baseY, 2)] : cells.p[cell];
-        const children = regiment.children?.map(restoreRegiment);
-        return { ...regiment, cell, x: rn(x, 2), y: rn(y, 2), bx, by, ...(children && { children }) };
-      };
-      state.military = (state.military ?? [])
-        .filter(regiment => this.isInMap(...projection(regiment.x, regiment.y)))
-        .map(restoreRegiment);
     }
   }
 

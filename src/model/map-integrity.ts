@@ -40,7 +40,6 @@ const RULES = [
   "province-centers",
   "province-capitals", // a province capital is a living burg
   "culture-centers",
-  "regiment-cells",
   "zone-cells",
   "market-centers",
   "cell-owners", // cells point at living states, cultures and provinces
@@ -183,8 +182,6 @@ class MapIntegrityModule {
       else if (state.center !== capital.cell) fail("state-centers", state.i);
       if (!state.capital && cells.state[state.center] !== state.i) fail("state-centers", state.i);
       if (state.provinces?.some(id => !alive(pack.provinces, id))) fail("state-provinces", state.i);
-      for (const regiment of state.military ?? [])
-        if (!valid(regiment.cell)) fail("regiment-cells", `${state.i}-${regiment.i}`);
     }
     for (const province of living(pack.provinces)) {
       if (province.burg && !alive(pack.burgs, province.burg)) fail("province-capitals", province.i);

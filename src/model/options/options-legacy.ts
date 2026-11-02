@@ -126,7 +126,6 @@ export function adoptLegacyOptions(): Record<string, unknown> | null {
   num("tileScale", "app.export.tiles.scale");
   if (read("noReminder")) put("app.autosave.remind", false);
   json("trade-animation", parsed => put("app.trade.animation", parsed));
-  json("military", parsed => put("map.military.units", parsed));
   json("burg-groups", parsed => {
     normalizeLegacyBurgGroupFilters(parsed);
     put("map.burgs.groups", parsed);

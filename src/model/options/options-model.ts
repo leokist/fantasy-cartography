@@ -23,7 +23,6 @@ import { Coastline } from "@/model/physical/coastline-generator";
 import { Coordinates } from "@/model/physical/coordinates";
 import { Relief } from "@/model/physical/relief-generator";
 import { Burgs } from "@/model/political/burgs-generator";
-import { Military } from "@/model/political/military-generator";
 import { Names } from "@/model/society/names-generator";
 import { LocalDB } from "@/services/local-db";
 import { t } from "@/utils/i18n";
@@ -84,7 +83,6 @@ class OptionsModel {
         style: { preset: "default" },
         burgs: { groups: Burgs.getDefaultGroups() },
         labels: { groups: Labels.getDefaultGroups() },
-        military: { units: Military.getDefaultOptions() },
         transports: Transports.getDefaults(),
         customIcons: [],
         coastline: Coastline.getDefaultSettings(),
@@ -267,7 +265,6 @@ class OptionsModel {
     map.style = previous.style;
     map.burgs.groups = previous.burgs.groups;
     map.labels.groups = previous.labels.groups;
-    map.military.units = previous.military.units;
     map.transports = previous.transports;
     map.customIcons = previous.customIcons;
     map.coastline = previous.coastline;
@@ -344,7 +341,6 @@ class OptionsModel {
     const defaults = this.getDefaultOptions().map;
     if (!map.burgs.groups.length) map.burgs.groups = defaults.burgs.groups;
     if (!map.labels.groups.length) map.labels.groups = defaults.labels.groups;
-    if (!map.military.units.length) map.military.units = defaults.military.units;
     if (!map.transports.length) map.transports = defaults.transports;
 
     Burgs.ensureDefaultGroup(map.burgs.groups);

@@ -17,7 +17,7 @@ architectural summary is in [architecture.md](./architecture.md#map-styling).
   defaults, so a read site never carries a fallback: `styles.rivers.attrs.fill` is always there.
 - **Addressed by role, not id.** Elements are found by `data-layer` and `data-group`, stamped by the
   layers registry on the groups it owns and by renderers on the elements they create. SVG ids
-  (`terrs`, `regions`, `armies`) never enter the style code.
+  (`terrs`, `regions`) never enter the style code.
 - **Layers are not style.** Visibility and z-order belong to the layers registry. A per-entity
   override (one label's size) stays with the entity, an exception to its group style.
 
@@ -82,8 +82,8 @@ mirrors the DOM tree: every `groups` entry addresses one `data-group` child of i
   or `em` (label groups, markers, burg icons) follows the zoom, per frame or once it settles as
   `viewportRedraw` says; every other layer keeps its sizes.
   There is no switch for it: `labels.resizeOnZoom` and `markers.options.rescale` were retired with
-  v1.154. An `options` size (`markets.options.iconSize`, `military.options.boxSize`) is a renderer
-  input, not a font; the regiment font follows the box.
+  v1.154. An `options` size (`markets.options.iconSize`) is a renderer
+  input, not a font.
 - **A zoom-derived attr keeps its base in the store.** The zoom writes what it derives — the halo
   `stroke-width` scaled to the viewport, the coordinates `font-size` on redraw — over the stored
   base; the store never holds the derived value.
@@ -229,7 +229,7 @@ reached only from the load migrations (`auto-update.ts`) and `parsePreset`:
   folding
   the mirrored fields into their attrs (`map.options.dataFilter` → `map.attrs.filter`, the halo
   `width`, the `fontSize` options, the ocean pattern options → `ocean.groups.pattern.attrs`), dropping
-  the retired ones (`markers.options.rescale`, `military.options.fontSize`), then `""` → `null`,
+  the retired ones (`markers.options.rescale`), then `""` → `null`,
   `inherit` → `null`, the font-size units
 - a value repair that is about the map rather than the format lives in the migration itself, next
   to its version (the anchors that carried the burg icon before ports were stylable)

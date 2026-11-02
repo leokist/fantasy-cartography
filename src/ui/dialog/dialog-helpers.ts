@@ -17,7 +17,6 @@ export function noteIcon(tip: string): string {
 const REFRESHABLE_EDITORS = [
   "culturesEditorRefresh",
   "biomesEditorRefresh",
-  "diplomacyOverviewRefresh",
   "provincesEditorRefresh",
   "statesEditorRefresh",
   "zonesEditorRefresh",
@@ -29,8 +28,6 @@ const REFRESHABLE_EDITORS = [
   "routesOverviewRefresh",
   "riversOverviewRefresh",
   "featuresOverviewRefresh",
-  "militaryOverviewRefresh",
-  "regimentsOverviewRefresh",
   "markersOverviewRefresh",
   "journeysOverviewRefresh"
 ];

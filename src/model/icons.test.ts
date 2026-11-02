@@ -99,14 +99,13 @@ test("every slot kind's uses of an icon are counted", () => {
   globalThis.styles = Styles.parse(undefined);
   styles.markets.options.icon = "custom-a";
   styles.burgIcons.groups.city.groups.anchors.options.icon = "custom-a";
-  options.map.military.units = [{ ...options.map.military.units[0], icon: "goods-wood" }];
   options.map.relief.rules = [
     { ...options.map.relief.rules[0], icons: { mount: { weight: 1 }, "custom-a": { weight: 1 } } }
   ];
   globalThis.pack = {
     goods: [{ icon: "goods-wood" }],
     markers: [{ icon: "custom-a" }, { icon: "custom-a" }],
-    states: [{ i: 0 }, { i: 1, military: [{ icon: "custom-a" }], coa: { icon: "custom-a" } }],
+    states: [{ i: 0 }, { i: 1, coa: { icon: "custom-a" } }],
     provinces: [{ i: 0 }, { i: 1, coa: { icon: "custom-a" } }],
     burgs: [
       { i: 0 },
@@ -126,7 +125,6 @@ test("every slot kind's uses of an icon are counted", () => {
 
   expect(Icons.uses("custom-a")).toEqual({
     marker: 2,
-    regiment: 1,
     burgGroup: 1,
     market: 1,
     emblem: 4,
@@ -134,7 +132,7 @@ test("every slot kind's uses of an icon are counted", () => {
     biome: 2,
     reliefRule: 1
   });
-  expect(Icons.uses("goods-wood")).toEqual({ good: 1, unit: 1 });
+  expect(Icons.uses("goods-wood")).toEqual({ good: 1 });
   expect(Icons.uses("custom-c")).toEqual({});
 });
 

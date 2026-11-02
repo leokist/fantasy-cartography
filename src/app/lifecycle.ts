@@ -17,7 +17,6 @@ import { setViewportSize } from "@/renderers/viewport/viewport";
 import { stashCallbackToken } from "@/services/assistant/azgaar-server/auth";
 import { initiateAutosave } from "@/services/autosave";
 import { declareDefaultFonts } from "@/services/fonts";
-import { adoptLegacyIconSlots } from "@/services/io/styles-legacy";
 import { registerServiceWorker } from "@/services/platform";
 import { checkLoadParameters } from "@/services/url-params";
 import { cleanupData } from "@/services/versioning";
@@ -40,7 +39,6 @@ export async function boot(): Promise<void> {
 
   Options.restore();
   await Options.restoreIcons(); // kept in IndexedDB, and needed before the first map draws
-  adoptLegacyIconSlots(options.map.military.units); // the unit types a browser kept from before v1.154.0
   syncOptionInputs();
   restoreUi();
   setViewportSize(options.map.graph.width, options.map.graph.height);

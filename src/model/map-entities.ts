@@ -1,7 +1,5 @@
 import { FEATURE_SUBTYPE_LABELS } from "@/data/id-labels";
-import { Pack } from "@/model/graph/pack-generator";
 import type { Burg } from "@/model/political/burgs-generator";
-import type { Regiment } from "@/model/political/military-generator";
 import { Names } from "@/model/society/names-generator";
 import type { LayerId } from "@/renderers/layers";
 import type { Point } from "@/types/global";
@@ -19,7 +17,6 @@ export const ENTITY_TYPES = [
   "zone",
   "journey",
   "market",
-  "regiment",
   "addedLabel",
   "culture",
   "biome",
@@ -118,7 +115,6 @@ const DATA_TARGETS: [layer: string, attribute: string, type: EntityType][] = [
   ["#terrain", "data-id", "relief"],
   ["#lakes, #coastline", "data-f", "feature"]
 ];
-const REGIMENT_PATTERN = /^regiment(\d+)-(\d+)$/;
 const SEGMENT_PATTERN = /^segment(\d+)_\d+$/; // a journey segment carries its journey's note
 
 class EntityLookup {
@@ -361,31 +357,6 @@ class EntityLookup {
         const burg = this.byId(pack.markets, ref.id)?.centerBurgId;
         return this.stateName(this.byId(pack.burgs, burg)?.state);
       }
-    },
-    regiment: {
-      label: t("Regiments"),
-      kind: t("Regiment"),
-      icon: "icon-shield-alt",
-      scale: 8,
-      layers: ["military"],
-      entity: (id, sub) => this.regiment(id, sub),
-      name: (id, sub) => this.regiment(id, sub)?.name || "",
-      refs: () =>
-        (pack.states || []).flatMap(state =>
-          state?.i && !state.removed
-            ? (state.military || []).map(regiment => ({ type: "regiment" as const, id: state.i, sub: regiment.i }))
-            : []
-        ),
-      element: (id, sub) => `regiment${id}-${sub}`,
-      isAt: (ref, cell) => {
-        const regiment = this.regiment(ref.id, ref.sub);
-        return regiment ? Pack.findCell(regiment.x, regiment.y) === cell : false; // `cell` stays put when it moves
-      },
-      position: (id, sub) => {
-        const regiment = this.regiment(id, sub);
-        return regiment && [regiment.x, regiment.y];
-      },
-      context: ref => this.stateName(ref.id)
     },
     addedLabel: {
       label: t("Labels"),
@@ -664,8 +635,6 @@ class EntityLookup {
 
   resolveElement(elementId: string | null | undefined): EntityRef | undefined {
     if (!elementId) return undefined;
-    const regiment = REGIMENT_PATTERN.exec(elementId);
-    if (regiment) return { type: "regiment", id: +regiment[1], sub: +regiment[2] };
     const segment = SEGMENT_PATTERN.exec(elementId);
     if (segment) return { type: "journey", id: +segment[1] };
 
@@ -711,8 +680,7 @@ class EntityLookup {
     if (!match || !isEntityType(match[1])) return undefined;
     const type: EntityType = match[1];
     const hasSub = match[3] !== undefined;
-    if (type === "regiment" && !hasSub) return undefined;
-    if (type !== "regiment" && type !== "journey" && hasSub) return undefined;
+    if (type !== "journey" && hasSub) return undefined;
     const id = Number(match[2]);
     const sub = match[3] === undefined ? undefined : Number(match[3]);
     if (!Number.isSafeInteger(id) || (sub !== undefined && !Number.isSafeInteger(sub))) return undefined;
@@ -764,10 +732,6 @@ class EntityLookup {
 
   private produces(burg: Burg | undefined, goodId: number): boolean {
     return Boolean(burg?.i && !burg.removed && burg.production?.some(r => "goodId" in r && r.goodId === goodId));
-  }
-
-  private regiment(stateId: number, regimentId?: number): Regiment | undefined {
-    return this.byId(this.byId(pack.states, stateId)?.military, regimentId ?? -1);
   }
 
   private journey(journeyId: number, segmentId?: number): MapEntity | undefined {

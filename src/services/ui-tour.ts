@@ -214,39 +214,40 @@ function start() {
           ),
           side: "top",
           onNextClick: () => {
-            closePanel();
-            ensureEl("toolsTab")?.click();
+            openPanel("edit");
             advanceTour(tour);
           }
         }
       },
 
-      // ── Tools tab ────────────────────────────────────────────────────────────
+      // ── Edit, Add and Regenerate ──────────────────────────────────────────────
       {
-        element: "#toolsTab",
+        element: "#editContent",
         onHighlightStarted: () => {
-          ensureEl("toolsTab")?.click();
+          openPanel("edit");
         },
         popover: {
-          title: t("Tools Tab"),
+          title: t("Edit"),
           description: t(
-            "The Tools tab gives you direct access to all of the map's editors: terrain, biomes, states, cultures, routes, and more."
+            "The pencil in the bottom bar opens the map's editors, by subject: terrain and nature, countries and peoples, economy and annotations. The icons beside it add things to the map and regenerate parts of it."
           ),
-          side: "bottom"
+          side: "top"
         }
       },
       {
         element: "#editHeightmapButton",
         onHighlightStarted: () => {
-          ensureEl("toolsTab")?.click();
+          openPanel("edit");
         },
         popover: {
           title: t("Edit Heightmap"),
           description: t(
             "Open the Heightmap editor to manually sculpt terrain by raising or lowering elevation. Changes here reshape coastlines, rivers, and biomes."
           ),
-          side: "right",
+          side: "top",
           onNextClick: () => {
+            closePanel();
+            if (ensureEl("options").style.display === "none") ensureEl("optionsTrigger").click();
             advanceTour(tour);
           }
         }
@@ -375,7 +376,7 @@ const EDITING_STEPS = [
   "#stylePreset",
   "#styleElementSelect",
   "#wizardButton",
-  "#toolsTab",
+  "#editContent",
   "#editHeightmapButton",
   "#heightmapMenu",
   "#saveButton"

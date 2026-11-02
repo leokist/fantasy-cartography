@@ -82,7 +82,6 @@ it("migrates definition sets before validating them", () => {
     layerDependency: "toggleRivers",
     zoom: { min: 2, max: 30 }
   });
-  legacy.military = [{ name: "Cavalry", rural: 0.1, urban: 0.2, crew: 3, type: "mounted", separate: 0 }];
   parts[19] = JSON.stringify(legacy);
   data[1] = parts.join("|");
   migrateLegacySettings("1.3.0", data);
@@ -90,7 +89,6 @@ it("migrates definition sets before validating them", () => {
   expect(options.map.labels.groups.find(group => group.name === "My Rivers")).toMatchObject({
     layerDependency: "rivers"
   });
-  expect(options.map.military.units).toMatchObject([{ name: "Cavalry", icon: "🐴", power: 3 }]);
 });
 
 it("preserves legacy burg groups with comma-separated biome filters through a reload", () => {

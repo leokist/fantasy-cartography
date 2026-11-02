@@ -390,6 +390,9 @@ async function parseLoadedData(data: string[], mapVersion: string | null): Promi
 
     await resolveVersionConflicts(mapVersion!, data);
     clearReligions(); // maps made with religions lose them
+    for (const state of pack.states) // nor have they armies or diplomacy any more
+      for (const key of ["military", "diplomacy", "campaigns", "alert"])
+        delete (state as unknown as Record<string, unknown>)[key];
     migrateAuthoringEntities();
 
     // hidden layers save no paths, so colored hatchings are restored from data

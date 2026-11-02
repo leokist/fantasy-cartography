@@ -1156,22 +1156,6 @@
       "icon": "glyph-2696-fe0f"
     }
   },
-  "military": {
-    "attrs": {
-      "opacity": null,
-      "fill-opacity": 1,
-      "stroke": "#000",
-      "stroke-opacity": null,
-      "stroke-width": 0.2,
-      "stroke-dasharray": null,
-      "stroke-linecap": null,
-      "stroke-linejoin": null,
-      "filter": null
-    },
-    "options": {
-      "boxSize": 4
-    }
-  },
   "ocean": {
     "options": {
       "bands": {

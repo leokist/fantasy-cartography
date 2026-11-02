@@ -149,19 +149,18 @@ describe("additions to a generated map", () => {
 
     expect(cellsOf(pack.cells.state, lockedState.i)).toEqual(stateCells);
     expect(cellsOf(pack.cells.culture, lockedCulture.i)).toEqual(cultureCells);
-    // the same state, plus its relation to the newcomer; neighbors and area are derived
+    // the same state; neighbors and area are derived
     // province regeneration renumbers the provinces a locked state keeps; their names stay
     const provinceNames = (ids?: number[]) => ids?.map(id => pack.provinces[id]?.name).sort();
     const namesBefore = stateCopy.provinces?.map(id => provincesBefore[id]).sort();
-    const { diplomacy, provinces, ...rest } = pack.states[lockedState.i];
-    const { diplomacy: diplomacyBefore, provinces: _, ...restBefore } = stateCopy;
+    const { provinces, ...rest } = pack.states[lockedState.i];
+    const { provinces: _, ...restBefore } = stateCopy;
     expect(provinceNames(provinces)).toEqual(namesBefore);
     expect({ ...rest, neighbors: undefined, area: undefined }).toEqual({
       ...restBefore,
       neighbors: undefined,
       area: undefined
     });
-    expect(diplomacy?.slice(0, diplomacyBefore?.length)).toEqual(diplomacyBefore);
 
     expect(pack.states[stateId]).toMatchObject({ name: "Nova Terra", origin: "authored", lock: true });
     expect(pack.burgs[pack.states[stateId].capital]).toMatchObject({ name: "Porto Novo", origin: "authored" });

@@ -25,7 +25,6 @@ import { Relief, type ReliefIcon, type ReliefIconType, type ReliefSet } from "@/
 import { Rivers } from "@/model/physical/river-generator";
 import { Burgs } from "@/model/political/burgs-generator";
 import { Emblems } from "@/model/political/emblems-generator";
-import { Military } from "@/model/political/military-generator";
 import { Provinces } from "@/model/political/provinces-generator";
 import { States } from "@/model/political/states-generator";
 import { Zones } from "@/model/political/zones-generator";
@@ -96,7 +95,6 @@ const LEGACY_LAYER_IDS: Record<string, LayerId> = {
   toggleEmblems: "emblems",
   toggleBurgIcons: "burgIcons",
   toggleLabels: "labels",
-  toggleMilitary: "military",
   toggleMarkers: "markers",
   toggleRulers: "rulers",
   toggleScaleBar: "scaleBar",
@@ -199,8 +197,6 @@ async function migrateLegacyMap(mapVersion: string, data: string[], svg: LegacyS
     // v1.0 added state relations, provinces, forms and full names
     selectInSvg("#viewbox").insert("g", "#borders").attr("id", "provs").attr("opacity", 0.6);
     States.collectStatistics();
-    States.generateCampaigns();
-    States.generateDiplomacy();
     States.defineStateForms();
     Provinces.generate();
     Provinces.getPoles();
@@ -235,12 +231,6 @@ async function migrateLegacyMap(mapVersion: string, data: string[], svg: LegacyS
   if (isOlderThan("1.1.0")) {
     // v1.0 code had a bug with religion layer id
     if (!selectInSvg("#relig").size()) selectInSvg("#viewbox").insert("g", "#terrain").attr("id", "relig");
-
-    // v1.0 had Sympathy status then relaced with Friendly
-    for (const s of pack.states) {
-      if (!s.diplomacy) continue;
-      s.diplomacy = s.diplomacy.map(r => (r === "Sympathy" ? "Friendly" : r));
-    }
 
     // labels should be toggled via style attribute, so remove display attribute
     selectInSvg("#labels").attr("display", null);
@@ -398,23 +388,6 @@ async function migrateLegacyMap(mapVersion: string, data: string[], svg: LegacyS
     States.collectStatistics();
   }
 
-  if (isOlderThan("1.3.0")) {
-    // v1.3 added campaings data for all states
-    States.generateCampaigns();
-
-    // v1.3 added militry layer
-    selectInSvg("#viewbox")
-      .insert("g", "#icons") // the pre-1.154 layer group; #burgIcons is nested inside it
-      .attr("id", "armies")
-      .attr("opacity", 1)
-      .attr("fill-opacity", 1)
-      .attr("font-size", 6)
-      .attr("box-size", 3)
-      .attr("stroke", "#000")
-      .attr("stroke-width", 0.3);
-    Military.generate();
-  }
-
   if (isOlderThan("1.4.0")) {
     // v1.35 added dry lakes
     if (!selectInSvg("#lakes").select("#dry").size()) {
@@ -436,15 +409,6 @@ async function migrateLegacyMap(mapVersion: string, data: string[], svg: LegacyS
       .attr("stroke", "#e8f0f6")
       .attr("stroke-width", 1)
       .attr("filter", "url(#dropShadow05)");
-
-    // v1.4 added state reference for regiments
-    pack.states
-      .filter(s => s.military)
-      .forEach(s => {
-        s.military!.forEach(r => {
-          r.state = s.i;
-        });
-      });
   }
 
   if (isOlderThan("1.5.0")) {
@@ -1562,7 +1526,6 @@ async function migrateLegacyMap(mapVersion: string, data: string[], svg: LegacyS
         shown("emblems") && has("emblems", "use") && "emblems",
         shown("icons") && "burgIcons",
         (labelsState ? labelsState === "true" : filled("labels")) && "labels",
-        shown("armies") && filled("armies") && "military",
         has("markers", "svg") && "markers",
         shown("ruler") && "rulers",
         shown("scaleBar") && "scaleBar",
@@ -1769,6 +1732,7 @@ async function migrateLegacyMap(mapVersion: string, data: string[], svg: LegacyS
     const notedMarkers = new Set<Marker>();
 
     for (const note of legacyNotes) {
+      if (/^regiment\d+-\d+$/.test(note.id)) continue; // the app has no armies any more
       const ref = MapEntities.resolveElement(noteRenames.get(note.id) ?? note.id);
       if (!ref) {
         orphan(note);
@@ -1794,7 +1758,7 @@ async function migrateLegacyMap(mapVersion: string, data: string[], svg: LegacyS
       // an untitled note was titled with its own element id, which is no title at all
       const named = note.name === note.id || note.name === MapEntities.getName(ref) || note.name === shortName(ref);
       const heading = note.name && !named ? `<h3>${note.name}</h3>` : "";
-      if (!Notes.append(ref, note.legend && `${heading}${note.legend}`) && ref.type !== "regiment") orphan(note);
+      if (!Notes.append(ref, note.legend && `${heading}${note.legend}`)) orphan(note);
     }
 
     for (const marker of pack.markers || []) marker.name ||= getDefaultMarkerName(marker.type);
@@ -1975,29 +1939,11 @@ async function migrateLegacyMap(mapVersion: string, data: string[], svg: LegacyS
       icon.replace(/^good-custom-/, "custom-goods-").replace(/^good-/, `${Goods.iconSet.id}-`);
     for (const good of pack.goods ?? []) if (good.icon) good.icon = goodIconId(good.icon);
 
-    // merging states kept the merged regiments' old state and could repeat an id; regiments are addressed by
-    // their state and id since v1.154.0
-    for (const state of pack.states ?? []) {
-      const military = state?.military ?? [];
-      const ids = new Set<number>();
-      let next = Math.max(-1, ...military.map(({ i }) => i)) + 1;
-      for (const regiment of military) {
-        regiment.state = state.i;
-        if (ids.has(regiment.i)) regiment.i = next++;
-        ids.add(regiment.i);
-      }
-    }
-
     // v1.154.0 made every icon slot a bare symbol id: goods uploads (data[45], written empty since) and inline
     // images become custom icons, text becomes glyphs. The style record is converted by normalizeStyles above
     const kept = new Set(CustomIcons.all.map(icon => icon.id));
     if (data[45]) adoptGoodsUploads(data[45]);
-    adoptLegacyIconSlots([
-      ...(pack.goods ?? []),
-      ...(pack.markers ?? []),
-      ...(pack.states ?? []).flatMap(state => state?.military ?? []),
-      ...options.map.military.units
-    ]);
+    adoptLegacyIconSlots([...(pack.goods ?? []), ...(pack.markers ?? [])]);
 
     const emblemIcons = migrateLegacyCustomEmblems();
     /** custom emblems as picture emblems; the icons they use */
@@ -2094,9 +2040,8 @@ async function migrateLegacyMap(mapVersion: string, data: string[], svg: LegacyS
   if (isOlderThan("1.155.0")) {
     // v1.155.0 added tags to every taggable entity
     const { states, provinces, cultures, religions, burgs, markers, rivers, routes, zones, features, goods } = pack;
-    const regiments = (states ?? []).flatMap(state => state?.military ?? []);
     const tagged = [states, provinces, cultures, religions, burgs, markers, rivers, routes, zones, features, goods];
-    for (const entity of [...tagged, regiments].flat() as { tags?: unknown }[]) {
+    for (const entity of tagged.flat() as { tags?: unknown }[]) {
       if (entity && typeof entity === "object" && !Array.isArray(entity.tags)) entity.tags = [];
     }
 
@@ -2210,7 +2155,6 @@ export function migrateLegacySettings(mapVersion: string, data: string[]): void 
     },
     labels: { groups: [] as MapData["labels"]["groups"] },
     style: { preset: "default" },
-    military: { units: [] as MapData["military"]["units"] },
     transports: [] as MapData["transports"],
     burgs: { groups: [] as LegacyBurgGroup[] },
     coastline: {
@@ -2267,7 +2211,6 @@ export function migrateLegacySettings(mapVersion: string, data: string[]): void 
     const { resizeOnZoom: _, ...labels } = oldOptions.labels; // the zoom sizes all text since v1.154.0
     migrated.labels = labels;
   }
-  if (oldOptions.military) migrated.military.units = oldOptions.military;
   if (oldOptions.transports) migrated.transports = oldOptions.transports;
   if (oldOptions.coastline) migrated.coastline = oldOptions.coastline;
   if (oldOptions.burgs?.groups) migrated.burgs.groups = oldOptions.burgs.groups;
@@ -2316,23 +2259,6 @@ export function migrateLegacySettings(mapVersion: string, data: string[]): void 
       ) {
         group.layerDependency = LEGACY_LAYER_IDS[group.layerDependency];
       }
-    }
-  }
-
-  if (compareVersions(mapVersion, "1.4.0").isOlder && Array.isArray(migrated.military.units)) {
-    const icons: Record<string, string> = {
-      naval: "🌊",
-      ranged: "🏹",
-      mounted: "🐴",
-      machinery: "💣",
-      armored: "🐢",
-      aviation: "🦅",
-      magical: "🔮"
-    };
-    for (const unit of migrated.military.units) {
-      if (!unit || typeof unit !== "object") continue;
-      if (!unit.icon) unit.icon = icons[unit.type] ?? "⚔️";
-      if (unit.power === undefined) unit.power = unit.crew;
     }
   }
 

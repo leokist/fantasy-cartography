@@ -31,7 +31,6 @@ class ZonesModule {
 
   constructor() {
     this.config = {
-      invasion: { quantity: 2, generate: u => this.addInvasion(u) },
       rebels: { quantity: 1.5, generate: u => this.addRebels(u) },
       disease: { quantity: 1.4, generate: u => this.addDisease(u) },
       disaster: { quantity: 1, generate: u => this.addDisaster(u) },
@@ -133,69 +132,6 @@ class ZonesModule {
     for (const zone of pack.zones) {
       if (zone && !zone.tags) zone.tags = [];
     }
-  }
-
-  private addInvasion(usedCells: Uint8Array) {
-    const { cells, states } = pack;
-
-    const ongoingConflicts = states
-      .filter(s => s.i && !s.removed && s.campaigns)
-      .flatMap(s => s.campaigns!)
-      .filter(c => !c.end);
-    if (!ongoingConflicts.length) return;
-    const { defender, attacker } = ra(ongoingConflicts);
-
-    const borderCells = cells.i.filter(cellId => {
-      if (usedCells[cellId]) return false;
-      if (cells.state[cellId] !== defender) return false;
-      return cells.c[cellId].some(c => cells.state[c] === attacker);
-    });
-
-    const startCell = ra(borderCells);
-    if (startCell === undefined) return;
-
-    const invasionCells: number[] = [];
-    const queue = [startCell];
-    const maxCells = rand(5, 30);
-
-    while (queue.length) {
-      const cellId = P(0.4) ? queue.shift()! : queue.pop()!;
-      invasionCells.push(cellId);
-      if (invasionCells.length >= maxCells) break;
-
-      cells.c[cellId].forEach(neibCellId => {
-        if (usedCells[neibCellId]) return;
-        if (cells.state[neibCellId] !== defender) return;
-        usedCells[neibCellId] = 1;
-        queue.push(neibCellId);
-      });
-    }
-
-    const subtype = rw({
-      Invasion: 5,
-      Occupation: 4,
-      Conquest: 3,
-      Incursion: 2,
-      Intervention: 2,
-      Assault: 1,
-      Foray: 1,
-      Intrusion: 1,
-      Irruption: 1,
-      Offensive: 1,
-      Pillaging: 1,
-      Plunder: 1,
-      Raid: 1,
-      Skirmishes: 1
-    });
-    const name = `${getAdjective(states[attacker].name)} ${subtype}`;
-
-    pack.zones.push({
-      i: pack.zones.length,
-      name,
-      type: "Invasion",
-      cells: invasionCells,
-      color: "url(#hatch1)"
-    });
   }
 
   private addRebels(usedCells: Uint8Array) {

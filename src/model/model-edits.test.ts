@@ -11,7 +11,6 @@ import { Biomes } from "@/model/physical/biomes-generator";
 import { Features } from "@/model/physical/features-generator";
 import { Rivers } from "@/model/physical/river-generator";
 import { Burgs } from "@/model/political/burgs-generator";
-import { Military } from "@/model/political/military-generator";
 import { Provinces } from "@/model/political/provinces-generator";
 import { States } from "@/model/political/states-generator";
 import { Zones } from "@/model/political/zones-generator";
@@ -47,7 +46,6 @@ beforeAll(async () => {
     import("./physical/river-generator"),
     import("./physical/features-generator"),
     import("./story/markers-generator"),
-    import("./political/military-generator"),
     import("./annotations/added-labels"),
     import("./graph/pack-generator"),
     import("./annotations/labels-generator"),
@@ -313,11 +311,7 @@ describe("Burgs: capital, move, remove", () => {
 describe("States", () => {
   beforeEach(() => {
     vi.stubGlobal("pack", {
-      states: [
-        { i: 0, diplomacy: [] },
-        { i: 1, name: "Orwin", diplomacy: ["x", "x", "Neutral"], provinces: [1], military: [{ i: 0, name: "1st" }] },
-        { i: 2, name: "Kahor", diplomacy: ["x", "Neutral", "x"], provinces: [], military: [{ i: 0, name: "Guard" }] }
-      ],
+      states: [{ i: 0 }, { i: 1, name: "Orwin", provinces: [1] }, { i: 2, name: "Kahor", provinces: [] }],
       provinces: [{ i: 0 }, { i: 1, state: 1 }],
       burgs: [0, { i: 1, state: 1, capital: 1 }, { i: 2, state: 2, capital: 1 }],
       cells: { state: [0, 1, 1, 2], province: [0, 1, 0, 0] }
@@ -325,15 +319,6 @@ describe("States", () => {
     vi.spyOn(Burgs, "changeGroup").mockImplementation(() => {});
     for (const method of ["findNeighbors", "collectStatistics", "getPoles"] as const)
       vi.spyOn(States, method).mockImplementation(() => {});
-  });
-
-  it("setRelation sets both sides and records the change", () => {
-    States.setRelation(2, 1, "Vassal");
-    expect(pack.states[2].diplomacy![1]).toBe("Vassal");
-    expect(pack.states[1].diplomacy![2]).toBe("Suzerain");
-    expect(States.getChronicle().at(-1)).toEqual(["Vassalization", "Kahor became a vassal of Orwin"]);
-    expect(() => States.setRelation(1, 2, "Besties")).toThrow("The relation must be one of");
-    expect(() => States.setRelation(1, 1, "Ally")).toThrow("two different states");
   });
 
   it("remove leaves neutral lands and burgs and removes provinces", () => {
@@ -345,17 +330,13 @@ describe("States", () => {
     expect(pack.burgs[1]).toMatchObject({ state: 0, capital: 0 });
   });
 
-  it("merge hands lands, burgs, provinces and regiments to the ruling state", () => {
+  it("merge hands lands, burgs and provinces to the ruling state", () => {
     States.merge(2, [1]);
     expect(pack.states[1].removed).toBe(true);
     expect([...pack.cells.state]).toEqual([0, 2, 2, 2]);
     expect(pack.burgs[1]).toMatchObject({ state: 2, capital: 0 });
     expect(pack.provinces[1].state).toBe(2);
     expect(pack.states[2].provinces).toEqual([1]);
-    expect(pack.states[2].military!.map(({ i, name }) => [i, name])).toEqual([
-      [0, "Guard"],
-      [1, "1st"]
-    ]);
   });
 });
 
@@ -411,7 +392,7 @@ describe("Cultures removal", () => {
   });
 });
 
-describe("Zones, Markers, Routes, labels and regiments", () => {
+describe("Zones, Markers, Routes and labels", () => {
   beforeEach(() => {
     vi.stubGlobal("pack", {
       cells: { i: [0, 1, 2], routes: { 0: { 1: 5 }, 1: { 0: 5 } } },
@@ -428,7 +409,7 @@ describe("Zones, Markers, Routes, labels and regiments", () => {
         }
       ],
       addedLabels: [{ i: 1, x: 0, y: 0, label: { text: "Here be dragons" } }],
-      states: [{ i: 0 }, { i: 1, military: [{ i: 3, name: "1st" }] }]
+      states: [{ i: 0 }, { i: 1 }]
     });
     vi.stubGlobal("styles", { routes: { groups: { roads: {}, trails: {} } } });
   });
@@ -503,16 +484,11 @@ describe("Zones, Markers, Routes, labels and regiments", () => {
     expect(pack.cells.routes).toEqual({ 0: {}, 1: {} });
   });
 
-  it("renames and removes added labels and regiments", () => {
+  it("renames and removes added labels", () => {
     AddedLabels.rename(1, "No dragons");
     expect(pack.addedLabels[0].label.text).toBe("No dragons");
     AddedLabels.remove(1);
     expect(pack.addedLabels).toEqual([]);
-    Military.rename(1, 3, "Iron Guard");
-    expect(pack.states[1].military![0].name).toBe("Iron Guard");
-    Military.remove(1, 3);
-    expect(pack.states[1].military).toEqual([]);
-    expect(() => Military.remove(1, 3)).toThrow("Regiment 1-3 does not exist");
   });
 });
 
@@ -619,13 +595,13 @@ describe("locks, treasuries and links", () => {
   });
 });
 
-describe("States: chronicle, painting and merging as provinces", () => {
+describe("States: painting and merging as provinces", () => {
   beforeEach(() => {
     vi.stubGlobal("pack", {
       states: [
-        { i: 0, diplomacy: [["Old war", "It ended"]] },
-        { i: 1, name: "Orwin", center: 1, capital: 1, color: "#aa0000", provinces: [1], military: [] },
-        { i: 2, name: "Kahor", center: 3, capital: 2, color: "#0000aa", formName: "Duchy", provinces: [], military: [] }
+        { i: 0 },
+        { i: 1, name: "Orwin", center: 1, capital: 1, color: "#aa0000", provinces: [1] },
+        { i: 2, name: "Kahor", center: 3, capital: 2, color: "#0000aa", formName: "Duchy", provinces: [] }
       ],
       provinces: [{ i: 0 }, { i: 1, state: 1, center: 1, name: "Vel" }],
       burgs: [0, { i: 1, cell: 1, state: 1, capital: 1 }, { i: 2, cell: 3, state: 2, capital: 1 }],
@@ -643,17 +619,6 @@ describe("States: chronicle, painting and merging as provinces", () => {
     for (const method of ["findNeighbors", "collectStatistics", "getPoles"] as const)
       vi.spyOn(States, method).mockImplementation(() => {});
     vi.spyOn(Provinces, "getPoles").mockImplementation(() => {});
-  });
-
-  it("edits chronicle entries as escaped text", () => {
-    States.setChronicleEntry(1, ["Peace", "<b>Orwin</b> & Kahor"]);
-    expect(States.getChronicle()[1]).toEqual(["Peace", "&lt;b&gt;Orwin&lt;/b&gt; &amp; Kahor"]);
-    States.setChronicleEntry(0, []);
-    expect(States.getChronicle()).toHaveLength(1);
-    expect(() => States.setChronicleEntry(5, ["x"])).toThrow("does not exist");
-    States.setChronicleEntry(-1, ["Treaty"]);
-    expect(States.getChronicle().at(-1)).toEqual(["Treaty"]);
-    expect(States.getChronicle()).toHaveLength(2);
   });
 
   it("gives cells to a state with their burgs and province, never another state's center", () => {
@@ -906,73 +871,6 @@ describe("Markers and Labels", () => {
     Labels.reset("added", 1);
     expect(pack.addedLabels[0].label).toEqual({ text: "Here", group: "added" });
     expect(() => Labels.reset("burg", 9)).toThrow("burg label 9 does not exist");
-  });
-});
-
-describe("Military", () => {
-  beforeEach(() => {
-    vi.stubGlobal("pack", {
-      states: [
-        { i: 0 },
-        { i: 1, military: [{ i: 0, u: { infantry: 5, archers: 3 }, a: 8, x: 10, y: 10, n: 0 }] },
-        { i: 2, military: [{ i: 0, u: { infantry: 1 }, a: 1, x: 0, y: 0, n: 0 }] }
-      ],
-      cells: { p: [[5, 6]], h: [30] }
-    });
-    vi.stubGlobal("options", {
-      map: {
-        military: { units: [{ name: "infantry" }, { name: "archers" }] },
-        graph: { width: 100, height: 100 },
-        lore: { calendar: { year: 1200 } }
-      }
-    });
-    vi.stubGlobal("styles", { military: { options: { boxSize: 3 } } });
-    vi.spyOn(Military, "getName").mockReturnValue("New");
-    vi.spyOn(Military, "generateNote").mockImplementation(() => {});
-  });
-
-  it("sets a state's alert, scaling its regiments", () => {
-    pack.states[1].alert = 2;
-    Military.setAlert(1, 1);
-    expect(pack.states[1].alert).toBe(1);
-    expect(pack.states[1].military![0]).toMatchObject({ u: { infantry: 3, archers: 2 }, a: 5 });
-    expect(() => Military.setAlert(1, -1)).toThrow("non-negative");
-    expect(() => Military.setAlert(0, 1)).toThrow("State 0 does not exist");
-  });
-
-  it("sets regiment icons as references, turning text into a glyph", () => {
-    Military.setIcon(1, 0, "⚔️");
-    expect(pack.states[1].military![0].icon).toBe("glyph-2694-fe0f");
-  });
-
-  it("raises, staffs, splits and attaches regiments", () => {
-    vi.spyOn(Pack, "requireCell").mockReturnValue(0);
-    const id = Military.add(1, 5, 6);
-    expect(pack.states[1].military![1]).toMatchObject({ i: id, x: 5, y: 6, bx: 5, by: 6, n: 0, a: 0, name: "New" });
-    Military.setUnits(1, id, { infantry: 4 });
-    expect(pack.states[1].military![1]).toMatchObject({ u: { infantry: 4 }, a: 4 });
-    expect(() => Military.setUnits(1, id, { dragons: 1 })).toThrow("The unit must be one of");
-    const half = Military.split(1, 0);
-    expect(pack.states[1].military!.find(({ i }) => i === half)).toMatchObject({
-      u: { infantry: 2, archers: 1 },
-      a: 3,
-      y: 16
-    });
-    expect(pack.states[1].military![0]).toMatchObject({ u: { infantry: 3, archers: 2 }, a: 5 });
-    Military.attach(1, 0, 2, 0);
-    expect(pack.states[2].military![0]).toMatchObject({ u: { infantry: 4, archers: 2 }, a: 6 });
-    expect(pack.states[1].military!.some(({ i }) => i === 0)).toBe(false);
-    expect(() => Military.rotate(1, id, 270)).toThrow("from -180 to 180");
-  });
-
-  it("keeps the attached regiment's note in the target's", () => {
-    pack.states[1].military![0].name = "First";
-    pack.states[1].military![0].note = "Formed in 1100.";
-    pack.states[2].military![0].note = "Formed in 1150.";
-    Military.attach(1, 0, 2, 0);
-    expect(pack.states[2].military![0].note).toBe(
-      "Formed in 1150.<br><br>First merged into the regiment (1200). Its record: Formed in 1100."
-    );
   });
 });
 

@@ -20,7 +20,6 @@ const PRESETS = [
   "poi",
   "goods",
   "trade",
-  "military",
   "emblems",
   "landmass"
 ];

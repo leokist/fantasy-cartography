@@ -126,7 +126,7 @@ value into the control still applies it, and it stands until the next fit re-der
 
 ### The definition sets
 
-Military unit types, transport types, burg groups, label groups, the custom icons and the coastline
+Transport types, burg groups, label groups, the custom icons and the coastline
 settings sit in `options.map` however much they look like user settings, because **entities point at
 them by name or id**: a set that travels separately from its entities opens a map with unresolved
 references.
@@ -232,7 +232,7 @@ beyond that — a bound the UI merely happens to impose is not a claim about the
 slider's `max` into validation lets a repair quietly rewrite a number the user set on purpose.
 
 The definition sets have no per-entry defaults, so an entry that cannot be repaired is dropped on
-its own. Losing one unit type is a repair; losing the set is what makes every regiment that
+its own. Losing one burg group is a repair; losing the set is what makes every burg that
 referenced it stop resolving.
 
 ### Migrations

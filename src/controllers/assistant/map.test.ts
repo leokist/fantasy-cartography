@@ -111,19 +111,6 @@ it("names the first key that is not a live entity, and shows nothing", async () 
   }
 });
 
-it("names vassals with their suzerains in per-question context", async () => {
-  vi.stubGlobal("pack", {
-    cells: { i: [0] },
-    burgs: [0],
-    states: [
-      { i: 0, name: "Neutrals" },
-      { i: 1, name: "Shan", diplomacy: ["x", "x", "Suzerain"] },
-      { i: 2, name: "Kami", diplomacy: ["x", "Vassal", "x"] }
-    ]
-  });
-  expect(await AssistantMap.context(chat)).toContain("- vassals: Kami (state:2) of Shan (state:1)");
-});
-
 it("includes the open note and selection in per-question context", async () => {
   notesEditor.selection = "Old text";
   const context = await AssistantMap.context(chat);

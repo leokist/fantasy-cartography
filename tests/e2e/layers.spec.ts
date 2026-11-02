@@ -220,19 +220,12 @@ test.describe("map layers", () => {
     expect(counts.reactivated).toBe(counts.before);
   });
 
-  // Military and markers
+  // Markers
   test("markers layer", async () => {
     const markers = sharedPage.locator("#markers");
     await expect(markers).toBeAttached();
     const html = await markers.evaluate(el => el.outerHTML);
     expect(html).toMatchSnapshot("markers.html");
-  });
-
-  test("armies layer", async () => {
-    const armies = sharedPage.locator("#armies");
-    await expect(armies).toBeAttached();
-    const html = await armies.evaluate(el => el.outerHTML);
-    expect(html).toMatchSnapshot("armies.html");
   });
 
   // Special features

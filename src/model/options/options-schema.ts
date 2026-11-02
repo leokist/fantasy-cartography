@@ -64,20 +64,6 @@ const burgGroup = z.strictObject({
   preview: z.string().optional()
 });
 
-const militaryUnit = z.strictObject({
-  icon: z.string(),
-  name: z.string(),
-  rural: nonNegative,
-  urban: nonNegative,
-  crew: positive,
-  power: nonNegative,
-  type: z.string(),
-  separate: z.number().int(),
-  biomes: ids,
-  states: ids,
-  cultures: ids
-});
-
 const transport = z.strictObject({
   i: z.number().int(),
   name: z.string(),
@@ -182,7 +168,6 @@ export const mapSchema = z.strictObject({
   style: z.strictObject({ preset: z.string().min(1) }),
   burgs: z.strictObject({ groups: z.array(burgGroup) }),
   labels: z.strictObject({ groups: z.array(labelGroup) }),
-  military: z.strictObject({ units: z.array(militaryUnit) }),
   transports: z.array(transport),
   customIcons,
   coastline: coastlineSettings,

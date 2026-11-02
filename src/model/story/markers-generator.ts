@@ -47,7 +47,6 @@ import { isDealRecord, isMfgRecord } from "@/model/economy/production-generator"
 import { Routes } from "@/model/economy/routes-generator";
 import { Pack } from "@/model/graph/pack-generator";
 import { Icons } from "@/model/icons";
-import { States } from "@/model/political/states-generator";
 import { Names } from "@/model/society/names-generator";
 import { Notes } from "@/model/story/notes";
 import { convertTemperature, getFriendlyHeight } from "@/model/units";
@@ -59,20 +58,6 @@ import { rn } from "@/utils/number-utils";
 import { gauss, P, ra, rand, rw } from "@/utils/probability-utils";
 import { capitalize } from "@/utils/string-utils";
 import { requireName, requireOneOf } from "@/utils/validation-utils";
-
-/**
- * Generate a random date within a specified range
- * @param from - Start year (default is 100)
- * @param to - End year (default is 1000)
- * @returns Formatted date string
- */
-const generateDate = (from: number = 100, to: number = 1000): string => {
-  return new Date(rand(from, to), rand(11), rand(1, 28)).toLocaleDateString("en", {
-    year: "numeric",
-    month: "long",
-    day: "numeric"
-  });
-};
 
 /** Fallback for a marker with no generated name: "hot-springs" -> "Hot springs" */
 export function getDefaultMarkerName(type: string | undefined): string {
@@ -403,16 +388,6 @@ class MarkersModule {
         multiplier: 1,
         list: this.listWaterfalls.bind(this),
         add: this.addWaterfall.bind(this)
-      },
-      {
-        type: "battlefields",
-        icon: "⚔️",
-        dy: 52,
-        min: 50,
-        each: 700,
-        multiplier: 1,
-        list: this.listBattlefields.bind(this),
-        add: this.addBattlefield.bind(this)
       },
       {
         type: "dungeons",
@@ -886,25 +861,6 @@ class MarkersModule {
     const proper = cells.burg[cell] ? pack.burgs[cells.burg[cell]].name! : Names.getCulture(cells.culture[cell]);
     marker.name = `${getAdjective(proper)} Waterfall`;
     marker.note = ra(WATERFALL_DESCRIPTIONS);
-  }
-
-  private listBattlefields({ cells }: PackedGraph) {
-    return cells.i.filter(
-      i => !this.occupied[i] && cells.state[i] && cells.pop[i] > 2 && cells.h[i] < 50 && cells.h[i] > 25
-    );
-  }
-
-  private addBattlefield(marker: Marker, cell: number) {
-    const { cells, states } = pack;
-
-    const state = states[cells.state[cell]];
-    if (!state.campaigns) state.campaigns = States.generateCampaign(state);
-    const campaign = ra(state.campaigns);
-    const date = generateDate(campaign.start, campaign.end);
-    const name = `${Names.getCulture(cells.culture[cell])} Battlefield`;
-    const legend = `A historical battle of the ${campaign.name}. \r\nDate: ${date}.`;
-    marker.name = name;
-    marker.note = legend;
   }
 
   private listDungeons({ cells }: PackedGraph) {
