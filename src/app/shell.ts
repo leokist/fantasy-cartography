@@ -49,7 +49,7 @@ const SHELL_TEXT: [string, string | null, string | null][] = [
   ["#searchButton", t("Search", { context: "button" }), t("Search map and commands")],
   ["#heightmapFinalize > div", null, t("Drag to move the pane")],
   ["#finalizeHeightmap", t("Exit Customization"), t("Finalize the heightmap and exit the edit mode")],
-  ["#assistantBubble", null, t("Azgaar Assistant")],
+  ["#assistantBubble", null, t("Fantasy Cartography Assistant")],
   ["#mapOverlay", t("Drop a map file to open"), null],
   ["#tourPromptButton", null, t("Take an interactive tour of the map generator")]
 ];
@@ -61,7 +61,7 @@ function translateShell(): void {
     if (text !== null) element.textContent = text;
     if (tip !== null) element.dataset.tip = tip;
   }
-  findEl("assistantBubble")?.setAttribute("aria-label", t("Azgaar Assistant"));
+  findEl("assistantBubble")?.setAttribute("aria-label", t("Fantasy Cartography Assistant"));
   document.querySelector("#tourPromptButton button")?.setAttribute("aria-label", t("Launch UI Tour"));
   const tooltip = findEl("tooltip");
   if (tooltip) tooltip.dataset.main = t("Click the arrow button for options. Zoom in to see the map in details");
@@ -188,7 +188,7 @@ export function warnIfServerless(): boolean {
     title: t("Loading error"),
     width: "28em",
     message: t(
-      "Fantasy Map Generator cannot run serverless. Follow the {{- instructions}} on how you can easily run a local web-server",
+      "Fantasy Cartography cannot run serverless. Follow the {{- instructions}} on how you can easily run a local web-server",
       {
         instructions: `<a href="${wiki}" target="_blank">${t("instructions")}</a>`
       }

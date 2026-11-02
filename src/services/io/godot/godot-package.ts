@@ -1,4 +1,4 @@
-// The Godot package: a zip of heights in meters, maps, curves and world data for the FMG Importer addon
+// The Godot package: a zip of heights in meters, maps, curves and world data for the Fantasy Cartography Importer addon
 
 import { Rivers } from "@/model/physical/river-generator";
 import { getPeople, heightToMeters } from "@/model/units";
@@ -383,7 +383,7 @@ export async function buildGodotFiles(
     if (height > maxHeight) maxHeight = height;
   }
   const world = {
-    format: "fmg-godot",
+    format: "fantasy-cartography-godot",
     version: PACKAGE_VERSION,
     name: options.map.lore.name,
     seed: String(options.map.seed),

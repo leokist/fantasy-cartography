@@ -110,7 +110,7 @@ function build(): void {
   view = "chat";
   renderDialog();
   Dialog.open(dialogId, {
-    title: t("Azgaar Assistant"),
+    title: t("Fantasy Cartography Assistant"),
     position: { my: "right bottom", at: "right-16 bottom-44", of: window },
     width: Math.min(340, window.innerWidth - 24),
     height: Math.min(580, window.innerHeight - 140),
@@ -551,11 +551,11 @@ function welcomeHtml(now: Tier | null): string {
       ]
     : now === "key"
       ? [
-          t("Hi! Ask about the Fantasy Map Generator or this map. I can read and propose changes to your map."),
+          t("Hi! Ask about Fantasy Cartography or this map. I can read and propose changes to your map."),
           note ? t("I can work on the note “{{note}}”.", { note }) : ""
         ]
       : [
-          t("Hi! Ask anything about the Fantasy Map Generator."),
+          t("Hi! Ask anything about Fantasy Cartography."),
           note
             ? t(
                 "Connect your own AI key and I can write the note “{{note}}”, and read, answer questions about and edit this map, with no daily limit.",

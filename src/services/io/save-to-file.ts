@@ -47,7 +47,7 @@ async function writeMapFile(
     try {
       handle = await window.showSaveFilePicker({
         suggestedName,
-        types: [{ description: t("Fantasy Map Generator map"), accept: { "application/octet-stream": [".map"] } }]
+        types: [{ description: t("Fantasy Cartography map"), accept: { "application/octet-stream": [".map"] } }]
       });
     } catch (error) {
       if ((error as { name?: string } | null)?.name === "AbortError") return { type: "cancelled" };

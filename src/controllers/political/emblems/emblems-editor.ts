@@ -628,7 +628,8 @@ async function applyInput(
     else CustomIcons.add({ id: iconId, ...art });
     entity.coa = { icon: iconId, size, x, y };
     shown = iconId;
-    if (!reused) tip(t("This COA uses art FMG cannot draw; it shows as Armoria's picture"), false, "warn", 5000);
+    if (!reused)
+      tip(t("This COA uses art Fantasy Cartography cannot draw; it shows as Armoria's picture"), false, "warn", 5000);
   }
   if (currentType === type && currentEl.i === id) {
     void EmblemRenderer.trigger(currentId, entity.coa);
@@ -815,7 +816,7 @@ async function downloadGallery(): Promise<void> {
         .join("")}</div>`
     : "";
 
-  const FMG = `<a href="https://azgaar.github.io/Fantasy-Map-Generator" target="_blank">${t("Azgaar's Fantasy Map Generator")}</a>`;
+  const FMG = `<a href="https://github.com/leokist/fantasy-cartography" target="_blank">${t("Fantasy Cartography")}</a>`;
   const license = `<a target="_blank" href="https://github.com/Azgaar/Armoria#license">${t("the license")}</a>`;
   const html = /* html */ `<!DOCTYPE html>
     <html>

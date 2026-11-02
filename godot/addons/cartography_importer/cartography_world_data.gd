@@ -1,5 +1,5 @@
 @tool
-class_name FMGWorldData
+class_name CartographyWorldData
 extends Resource
 ## Everything a Fantasy Cartography package says about the world, kept for the game's code.
 

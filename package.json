@@ -1,18 +1,18 @@
 {
   "name": "fantasy-map-generator",
-  "productName": "Fantasy Map Generator",
+  "productName": "Fantasy Cartography",
   "version": "1.156.0",
-  "description": "Azgaar's _Fantasy Map Generator_ is a free web application that helps fantasy writers, game masters, and cartographers create and edit fantasy maps.",
-  "homepage": "https://github.com/Azgaar/Fantasy-Map-Generator#readme",
+  "description": "Fantasy Cartography, a fork of Azgaar's Fantasy Map Generator: a free web application that helps fantasy writers, game masters, and cartographers create and edit fantasy maps.",
+  "homepage": "https://github.com/leokist/fantasy-cartography#readme",
   "bugs": {
-    "url": "https://github.com/Azgaar/Fantasy-Map-Generator/issues"
+    "url": "https://github.com/leokist/fantasy-cartography/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Azgaar/Fantasy-Map-Generator.git"
+    "url": "git+https://github.com/leokist/fantasy-cartography.git"
   },
   "license": "MIT",
-  "author": "Azgaar",
+  "author": "LEOKIST (fork of Azgaar's Fantasy Map Generator)",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",

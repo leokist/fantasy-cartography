@@ -1,13 +1,13 @@
 @tool
-class_name FMGImporter
+class_name CartographyImporter
 extends RefCounted
 ## Builds a Terrain3D world scene from a Fantasy Cartography Godot package (.zip or unzipped folder).
 ##
-## var scene_path := FMGImporter.new().import_package("C:/maps/aldoria-godot.zip")
+## var scene_path := CartographyImporter.new().import_package("C:/maps/aldoria-godot.zip")
 
-const World := preload("fmg_world.gd")
-const WorldData := preload("fmg_world_data.gd")
-const FORMAT := "fmg-godot"
+const World := preload("cartography_world.gd")
+const WorldData := preload("cartography_world_data.gd")
+const FORMATS := ["fantasy-cartography-godot", "fmg-godot"] # the second one: packages made before the rename
 const MAX_TEXTURES := 32
 const TEXTURE_SIZE := 256
 
@@ -22,15 +22,15 @@ var riverbed_color := Color(0.33, 0.3, 0.24)
 
 ## Unpacks and builds the world, saving the scene, terrain data and world data under target_root.
 ## Returns the scene path, or "" when the package cannot be read.
-func import_package(source: String, target_root := "res://fmg") -> String:
+func import_package(source: String, target_root := "res://cartography") -> String:
 	var package_dir := source
 	if source.get_extension().to_lower() == "zip":
 		var packages := target_root.path_join("_packages")
 		package_dir = _unzip(source, packages.path_join(source.get_file().get_basename()))
 		_touch(packages.path_join(".gdignore")) # raw files stay out of the editor's import
 	var world := _json(package_dir, "world.json")
-	if world.get("format") != FORMAT:
-		push_error("FMG Importer: %s is not a Fantasy Cartography Godot package" % source)
+	if not FORMATS.has(world.get("format")):
+		push_error("Fantasy Cartography Importer: %s is not a Fantasy Cartography Godot package" % source)
 		return ""
 
 	var slug := _slug(str(world.get("name", "")))
@@ -48,9 +48,9 @@ func import_package(source: String, target_root := "res://fmg") -> String:
 		error = ResourceSaver.save(scene, path)
 	root.free()
 	if error != OK:
-		push_error("FMG Importer: cannot save %s (%s)" % [path, error_string(error)])
+		push_error("Fantasy Cartography Importer: cannot save %s (%s)" % [path, error_string(error)])
 		return ""
-	print("FMG Importer: world saved to ", path)
+	print("Fantasy Cartography Importer: world saved to ", path)
 	return path
 
 
@@ -186,7 +186,7 @@ func _texture_asset(id: int, asset_name: String, color: Color, albedo: Texture2D
 func _save(resource: Resource, path: String) -> void:
 	var error := ResourceSaver.save(resource, path, ResourceSaver.FLAG_COMPRESS)
 	if error != OK:
-		push_error("FMG Importer: cannot save %s (%s)" % [path, error_string(error)])
+		push_error("Fantasy Cartography Importer: cannot save %s (%s)" % [path, error_string(error)])
 	resource.take_over_path(path)
 
 
@@ -324,7 +324,7 @@ func _places(group_name: String, places: Array, extent: float) -> Node3D:
 		var marker := Marker3D.new()
 		marker.name = _node_name(str(place.get("name", place.get("kind", "Place"))))
 		marker.position = _vector(place.position)
-		marker.set_meta("fmg", place)
+		marker.set_meta("cartography", place)
 		if place_labels:
 			var label := Label3D.new()
 			label.name = "Label"
@@ -349,7 +349,7 @@ func _path(path_name: String, points: Array, meta: Dictionary) -> Path3D:
 	path.curve = curve
 	var info := meta.duplicate()
 	info.erase("points")
-	path.set_meta("fmg", info)
+	path.set_meta("cartography", info)
 	return path
 
 
@@ -435,7 +435,7 @@ func _touch(path: String) -> void:
 func _unzip(zip_path: String, into: String) -> String:
 	var reader := ZIPReader.new()
 	if reader.open(zip_path) != OK:
-		push_error("FMG Importer: cannot open " + zip_path)
+		push_error("Fantasy Cartography Importer: cannot open " + zip_path)
 		return ""
 	var files := reader.get_files()
 	var prefix := ""

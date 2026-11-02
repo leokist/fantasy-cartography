@@ -144,7 +144,7 @@ function showUpdateWindow(storedVersion: string | null): void {
 
   Dialog.message({
     message: /* html */ `${t(
-      "The Fantasy Map Generator is updated up to version {{version}}. This version is compatible with {{- previous}}, loaded save files will be auto-updated.",
+      "Fantasy Cartography is updated up to version {{version}}. This version is compatible with {{- previous}}, loaded save files will be auto-updated.",
       {
         version: VERSION,
         previous: `<a href="${changelog}" target="_blank" style="white-space: nowrap">${t("previous versions")}</a>`
@@ -169,7 +169,7 @@ function showUpdateWindow(storedVersion: string | null): void {
       }
     )}</p>
     <span><i>${t("Thanks for all supporters on {{- patreon}}!", { patreon: `<a href="${patreon}" target="_blank">Patreon</a>` })}</i></span>`,
-    title: t("Fantasy Map Generator update"),
+    title: t("Fantasy Cartography update"),
     width: "28em",
     position: { my: "center center-4em", at: "center", of: "svg" },
     buttons: [

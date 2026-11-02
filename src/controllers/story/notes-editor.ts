@@ -180,7 +180,7 @@ function renderDialog(): void {
       <textarea id="notesSource" hidden spellcheck="false"></textarea>
       <div id="notesFooter">
         <button id="notesFocus" data-tip="${t("Focus on selected object")}" class="icon-target"></button>
-        <button id="notesGenerateWithAi" data-tip="${t("Azgaar Assistant")}" class="icon-robot"></button>
+        <button id="notesGenerateWithAi" data-tip="${t("Fantasy Cartography Assistant")}" class="icon-robot"></button>
         <button id="notesPin" data-tip="${t("Toggle notes box display: hide or do not hide the box on mouse move")}" class="icon-pin"></button>
         <button id="notesSourceToggle" data-tip="${t("Edit the note as HTML")}" class="icon-edit"></button>
         <button id="notesFullscreen" data-tip="${t("Toggle fullscreen")}" class="icon-resize-full"></button>

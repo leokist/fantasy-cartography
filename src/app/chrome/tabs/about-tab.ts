@@ -8,6 +8,7 @@ import { sentences, t } from "@/utils/i18n";
 import { ensureEl } from "@/utils/node-utils";
 
 const REPOSITORY = "https://github.com/Azgaar/Fantasy-Map-Generator";
+const FORK = "https://github.com/leokist/fantasy-cartography";
 const WIKI = `${REPOSITORY}/wiki`;
 
 const TEMPLATE = /* html */ `
@@ -29,7 +30,8 @@ const TEMPLATE = /* html */ `
   </div>
   <p>
     ${sentences(
-      t("{{- generator}} is an {{- openSource}} tool by Azgaar and Team.", {
+      t("{{- app}} is a fork of {{- generator}}, an {{- openSource}} tool by Azgaar and Team.", {
+        app: link(FORK, t("Fantasy Cartography")),
         generator: link(REPOSITORY, t("Fantasy Map Generator")),
         openSource: link(`${REPOSITORY}/blob/master/LICENSE`, t("open source"))
       }),
@@ -59,7 +61,7 @@ const TEMPLATE = /* html */ `
         devboard: link("https://trello.com/b/7x832DG4/fantasy-map-generator", t("devboard"))
       }),
       t("For older versions see the {{- changelog}}.", { changelog: link(`${WIKI}/Changelog`, t("changelog")) }),
-      t("Please report bugs {{- here}}.", { here: link(`${REPOSITORY}/issues`, t("here")) }),
+      t("Please report bugs {{- here}}.", { here: link(`${FORK}/issues`, t("here")) }),
       t("You can also contact me directly via {{- email}}.", {
         email: `<a href="mailto:azgaar.fmg@yandex.by" target="_blank">${t("email")}</a>`
       })

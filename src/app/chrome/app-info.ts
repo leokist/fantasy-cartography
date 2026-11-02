@@ -24,7 +24,8 @@ const GUIDES = {
 };
 
 const LINKS = [
-  link("https://github.com/Azgaar/Fantasy-Map-Generator", t("GitHub repository")),
+  link("https://github.com/leokist/fantasy-cartography", t("GitHub repository")),
+  link("https://github.com/Azgaar/Fantasy-Map-Generator", t("Original Fantasy Map Generator")),
   link("https://github.com/Azgaar/Fantasy-Map-Generator/blob/master/LICENSE", t("License")),
   link(`${WIKI}/Changelog`, t("Changelog")),
   link(`${WIKI}/Hotkeys`, t("Hotkeys")),
@@ -33,7 +34,7 @@ const LINKS = [
 ];
 
 function render(): string {
-  return /* html */ `${t("Fantasy Map Generator (FMG) is a free open-source application. It means that you own all created maps and can use them as you wish.")}
+  return /* html */ `${t("Fantasy Cartography is a free open-source application, a fork of Azgaar's Fantasy Map Generator. It means that you own all created maps and can use them as you wish.")}
 
     <p>
       ${t("The development is community-backed, you can donate on {{- patreon}}. You can also help creating overviews, tutorials and spreding the word about the Generator.", { patreon: COMMUNITY.patreon })}

@@ -26,7 +26,7 @@ app.setAboutPanelOptions({
   applicationName: app.name,
   applicationVersion: app.getVersion(),
   iconPath: ICON_PATH,
-  copyright: "MIT License. Azgaar and Team, 2017-2026"
+  copyright: "MIT License. Azgaar and Team, 2017-2026; Fantasy Cartography by LEOKIST, 2026"
 });
 
 type WindowState = { width: number; height: number; x?: number; y?: number; maximized: boolean; fullscreen: boolean };
@@ -244,7 +244,7 @@ function confirmOnClose(window: BrowserWindow): void {
         defaultId: 1,
         cancelId: 1,
         title: "Quit",
-        message: "Quit the Fantasy Map Generator?",
+        message: "Quit Fantasy Cartography?",
         detail: "The map is autosaved to the app storage, but save it to a file to be safe"
       })
       .then(({ response }) => {

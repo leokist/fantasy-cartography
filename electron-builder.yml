@@ -1,5 +1,5 @@
-appId: com.azgaar.fantasy-map-generator
-copyright: Copyright © 2017-2026 Azgaar and contributors
+appId: com.leokist.fantasy-cartography
+copyright: Copyright © 2017-2026 Azgaar and contributors; Fantasy Cartography © 2026 LEOKIST
 directories:
   output: release
   buildResources: build
@@ -9,7 +9,7 @@ files:
   - "!node_modules/**/*" # the renderer is bundled by Vite, the main process only needs Electron itself
 asar: true
 afterPack: ./scripts/adhoc-sign.mjs
-artifactName: fmg-${version}-${os}-${arch}.${ext}
+artifactName: fantasy-cartography-${version}-${os}-${arch}.${ext}
 mac:
   category: public.app-category.graphics-design
   target:
@@ -23,7 +23,7 @@ win:
       arch: [x64, arm64]
 linux:
   category: Graphics
-  maintainer: Azgaar <azgaar.fmg@yandex.com>
+  maintainer: LEOKIST <LEOKIST@hotmail.com>
   synopsis: Generate and edit fantasy maps
   target:
     - target: AppImage

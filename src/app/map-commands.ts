@@ -61,7 +61,7 @@ export const isLinkable = (command: MapCommand): boolean => command.link === tru
 export const MAP_COMMANDS: MapCommand[] = [
   {
     id: "assistant",
-    name: t("Azgaar Assistant"),
+    name: t("Fantasy Cartography Assistant"),
     aliases: "help chat question ask faq support how why what ?",
     matches: isQuestion,
     run: (_event, query) =>

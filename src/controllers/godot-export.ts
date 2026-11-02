@@ -62,7 +62,7 @@ function render(): void {
       #${DIALOG_ID} .hint { font-size: 0.85em; opacity: 0.75 }
       #${DIALOG_ID} label.check { display: block; margin-top: 0.3em }
     </style>
-    <p class="hint">${t("Heights in meters, biome and mask maps, smooth rivers and roads, places and borders, ready for the FMG Importer addon and Terrain3D.")}</p>
+    <p class="hint">${t("Heights in meters, biome and mask maps, smooth rivers and roads, places and borders, ready for the Fantasy Cartography Importer addon and Terrain3D.")}</p>
     <div class="godotGrid">
       <span>${t("Area")}</span>
       <select data-setting="region">
@@ -84,7 +84,7 @@ function render(): void {
     <label class="check"><input class="native" type="checkbox" data-setting="emblems" ${settings.emblems ? "checked" : ""} /> ${t("Emblems of states and provinces")}</label>
     <label class="check"><input class="native" type="checkbox" data-setting="burgEmblems" ${settings.burgEmblems ? "checked" : ""} /> ${t("Emblems of burgs")}</label>
     <label class="check"><input class="native" type="checkbox" data-setting="preview" ${settings.preview ? "checked" : ""} /> ${t("Preview mesh (.glb)")}</label>
-    <p class="hint">${t("No need to unzip: in Godot, enable the FMG Importer addon and choose Project > Tools > Import FMG package. Get the addon from {{- link}}.", { link: link(ADDON_URL, t("the project's godot folder")) })}</p>
+    <p class="hint">${t("No need to unzip: in Godot, enable the Fantasy Cartography Importer addon and choose Project > Tools > Import Fantasy Cartography package. Get the addon from {{- link}}.", { link: link(ADDON_URL, t("the project's godot folder")) })}</p>
     <p data-status style="font-style: italic"></p>`;
 
   for (const input of body.querySelectorAll<HTMLInputElement | HTMLSelectElement>("[data-setting]"))

@@ -17,7 +17,7 @@ export interface SystemBlock {
   cache_control?: { type: "ephemeral" };
 }
 
-const ROLE = `You are Azgaar Assistant in Fantasy Map Generator. Tools: \`read_help\` searches the Knowledge Base for
+const ROLE = `You are the Fantasy Cartography Assistant (a Fantasy Map Generator fork). Tools: \`read_help\` searches the Knowledge Base for
 how-to questions; \`read_map\` runs scripts for facts about the open map (never guess them); \`read_docs\` returns
 reference docs; \`propose_change\` edits the map; \`show_*\` place widgets; \`view_emblem\` and \`view_map\` show you
 an emblem or the map.

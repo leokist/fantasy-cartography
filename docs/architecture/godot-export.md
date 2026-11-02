@@ -1,6 +1,6 @@
 # Godot package (Fantasy Cartography fork)
 
-The Export dialog's **Godot package** ([`godot-export.ts`](../../src/controllers/godot-export.ts)) downloads a zip that the [FMG Importer](../../godot/README.md) addon turns into a Terrain3D scene. The map stays the source: the package is rebuilt from it, and edits made in Godot do not come back.
+The Export dialog's **Godot package** ([`godot-export.ts`](../../src/controllers/godot-export.ts)) downloads a zip that the [Fantasy Cartography Importer](../../godot/README.md) addon turns into a Terrain3D scene. The map stays the source: the package is rebuilt from it, and edits made in Godot do not come back.
 
 ## Building it
 
@@ -17,7 +17,7 @@ Map coordinates go to Godot meters with `x = pixel column × metersPerPixel`, `z
 
 | File | Holds |
 | --- | --- |
-| `world.json` | format `fmg-godot`, version, size, `metersPerPixel`, peak, sea depth, height range, region, biomes, file list |
+| `world.json` | format `fantasy-cartography-godot`, version, size, `metersPerPixel`, peak, sea depth, height range, region, biomes, file list |
 | `heightmap.exr` | 32-bit float meters, uncompressed scanlines (R = G = B) |
 | `biomes.png` | biome id per pixel, 8-bit gray |
 | `biome_blend.png` | red: the neighbouring biome a pixel fades into, green: its share (0–255, about half on the border) |
@@ -37,4 +37,4 @@ The encoders ([`encoders.ts`](../../src/services/io/godot/encoders.ts)) write EX
 
 ## The addon
 
-The addon reads the package and saves, under `res://fmg/<world>/`, the scene, the Terrain3D data directory, `terrain_assets.res` (one texture slot per biome tinted with its color, plus road and riverbed slots) and `world_data.res` (an `FMGWorldData` with everything in the JSON files, the biome map and the emblems). Its control map takes the base texture from the biome and, as overlay, the riverbed or road where their masks are, elsewhere the neighbouring biome by its share; the material's blend sharpness is lowered so these fades stay soft. `godot/tests/test_import.gd` imports a package headless and checks heights, rivers, places and lookups.
+The addon reads the package and saves, under `res://cartography/<world>/`, the scene, the Terrain3D data directory, `terrain_assets.res` (one texture slot per biome tinted with its color, plus road and riverbed slots) and `world_data.res` (an `CartographyWorldData` with everything in the JSON files, the biome map and the emblems). Its control map takes the base texture from the biome and, as overlay, the riverbed or road where their masks are, elsewhere the neighbouring biome by its share; the material's blend sharpness is lowered so these fades stay soft. `godot/tests/test_import.gd` imports a package headless and checks heights, rivers, places and lookups.

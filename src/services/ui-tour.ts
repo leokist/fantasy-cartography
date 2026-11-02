@@ -57,7 +57,7 @@ function start() {
     steps: browsingSteps([
       {
         popover: {
-          title: t("Welcome to Fantasy Map Generator"),
+          title: t("Welcome to Fantasy Cartography"),
           description: t(
             "This quick tour covers the essential controls. Use Next/Previous to navigate, or press Esc to exit at any time."
           )
