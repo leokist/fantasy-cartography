@@ -47,7 +47,7 @@ export function showStartMenu(start: (config?: GenerationConfig) => Promise<void
     width: "min(36em, 92vw)",
     modal: true,
     closeOnEscape: false,
-    position: { my: "center top", at: "center center+6em", of: "svg" }, // below the title
+    position: { my: "center top", at: "center top+3%", of: window }, // above the logo
     beforeClose: () => chosen // there is nothing behind it to go back to
   });
 }

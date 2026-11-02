@@ -134,6 +134,10 @@ function render(): void {
       #${DIALOG_ID} .placeRow { display: flex; flex-wrap: wrap; gap: 0.3em; align-items: center; margin: 0.3em 0 }
       #${DIALOG_ID} .placeRow > input, #${DIALOG_ID} .placeRow > select { flex: 1 1 9em; min-width: 0; box-sizing: border-box }
       #${DIALOG_ID} .placeRow.end { justify-content: flex-end }
+      #${DIALOG_ID} .attrs { display: grid; grid-template-columns: repeat(auto-fit, minmax(9em, 1fr)); gap: 0.3em 0.6em; margin: 0.3em 0 }
+      #${DIALOG_ID} .attrs label { display: flex; flex-direction: column; gap: 0.1em; min-width: 0; font-size: 0.9em }
+      #${DIALOG_ID} .attrs select { width: 100%; min-width: 0; box-sizing: border-box }
+      #${DIALOG_ID} .countryCard, #${DIALOG_ID} .provinceCard { box-sizing: border-box; max-width: 100%; min-width: 0 }
       #${DIALOG_ID} .countryCard, #${DIALOG_ID} .provinceCard { border-left: 4px solid #6c3483; padding: 0.3em 0 0.3em 0.6em; margin: 0.6em 0; background: #8881 }
       #${DIALOG_ID} .cities { margin: 0.3em 0 }
       #${DIALOG_ID} .regionTabs { display: flex; flex-wrap: wrap; gap: 0.3em; margin-bottom: 0.5em }

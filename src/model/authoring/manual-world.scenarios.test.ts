@@ -111,6 +111,18 @@ describe("a world configured by hand", () => {
     expect(precipitation(province("Dustreach").i)).toBeLessThan(precipitation(greenvale.i));
   });
 
+  it("joins borders when the cells are a typed array, as in the browser", async () => {
+    const { joinBorders } = await import("./country");
+    const { cells } = pack;
+    const plain = cells.i;
+    cells.i = Uint32Array.from(plain) as unknown as typeof plain;
+    try {
+      expect(() => joinBorders(state("Aldoria").i, state("Ostara").i)).not.toThrow();
+    } finally {
+      cells.i = plain;
+    }
+  });
+
   it("marks everything declared as the author's", () => {
     expect(state("Aldoria")).toMatchObject({ origin: "authored", lock: true });
     expect(province("Highmoor")).toMatchObject({ origin: "authored", lock: true });
