@@ -142,7 +142,6 @@ class ProposalLifecycle {
     if (findEl("notesEditor")) void Controllers.NotesEditor.refresh();
     if (change.keys.has(Change.LORE)) {
       Options.save();
-      if (findEl("loreEditor")) void Controllers.LoreEditor.refresh();
     }
   }
 

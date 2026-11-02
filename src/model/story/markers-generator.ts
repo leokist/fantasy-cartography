@@ -902,7 +902,7 @@ class MarkersModule {
     const campaign = ra(state.campaigns);
     const date = generateDate(campaign.start, campaign.end);
     const name = `${Names.getCulture(cells.culture[cell])} Battlefield`;
-    const legend = `A historical battle of the ${campaign.name}. \r\nDate: ${date} ${options.map.lore.calendar.era}.`;
+    const legend = `A historical battle of the ${campaign.name}. \r\nDate: ${date}.`;
     marker.name = name;
     marker.note = legend;
   }

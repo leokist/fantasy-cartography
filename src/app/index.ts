@@ -2,10 +2,9 @@
 import "@/model/globals";
 import "@/model/options/options-defaults";
 import "./chrome/tabs";
-import { changeCellsDensity, syncOptionInputs } from "./chrome/tabs/options-tab";
+import { changeCellsDensity, syncOptionInputs } from "./chrome/interface-settings";
 import { isLinkable, MAP_COMMANDS } from "./map-commands";
 
-import "@/data/supporters";
 import "@/data/heightmap-templates";
 import "@/data/precreated-heightmaps";
 import "@/model/options/options-model";

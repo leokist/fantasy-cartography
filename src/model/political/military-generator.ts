@@ -545,7 +545,7 @@ class MilitaryModule {
           .join("\r\n")
       : null;
     const troops = composition
-      ? `\r\n\r\nRegiment composition in ${options.map.lore.calendar.year} ${options.map.lore.calendar.eraShort}:\r\n${composition}.`
+      ? `\r\n\r\nRegiment composition in ${options.map.lore.calendar.year}:\r\n${composition}.`
       : "";
 
     const campaign = s.campaigns ? ra(s.campaigns) : null;
@@ -553,7 +553,7 @@ class MilitaryModule {
       ? rand(campaign.start, campaign.end || options.map.lore.calendar.year)
       : gauss(options.map.lore.calendar.year - 100, 150, 1, options.map.lore.calendar.year - 6);
     const conflict = campaign ? ` during the ${campaign.name}` : "";
-    r.note = `Regiment was formed in ${year} ${options.map.lore.calendar.era}${conflict}. ${station}${troops}`;
+    r.note = `Regiment was formed in ${year}${conflict}. ${station}${troops}`;
   }
 
   /** Rename a regiment, addressed by its state and its own id */
@@ -712,9 +712,9 @@ class MilitaryModule {
     for (const [unit, count] of Object.entries(regiment.u)) if (count) target.u[unit] = (target.u[unit] || 0) + count;
     target.a = sum(Object.values(target.u));
 
-    const { year, eraShort } = options.map.lore.calendar;
+    const { year } = options.map.lore.calendar;
     const record = regiment.note ? ` Its record: ${regiment.note}` : "";
-    const merger = `${regiment.name} merged into the regiment (${year} ${eraShort}).${record}`;
+    const merger = `${regiment.name} merged into the regiment (${year}).${record}`;
     target.note = target.note ? `${target.note}<br><br>${merger}` : merger;
     this.remove(stateId, regimentId);
   }

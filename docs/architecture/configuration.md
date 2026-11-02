@@ -80,7 +80,7 @@ template raised the terrain and is never consulted again.
 ## The three sections
 
 **`options.map`** is cell-independent map data: the seed, the graph extent, where the map sits on
-the globe and the climate that produced its per-cell values, the culture set, lore, units, the
+the globe and the climate that produced its per-cell values, the culture set, the map name and its internal year (`lore`), units, the
 style preset, the definition sets, the coastline settings the renderer reads, the relief rules, and `viewOnly`
 when the file opens for browsing only (written only by a view-only save). Everything keyed by cell lives in `data`
 instead.
@@ -205,8 +205,9 @@ instead, with no callback into the options model.
   parameters the map needs, such as its culture set.
 - **A recalculation is not a regeneration.** Re-deriving climate or rebuilding a coastline path
   reads `options.map`, never `options.generation`.
-- **Editing a map value directly** is what the panels that own them do — world position and
-  climate, units, lore, the definition sets. Such a panel writes `options.map` or pins the value,
+- **Editing a map value directly** is what the panels that own them do — units, the definition sets.
+  Settings for the next map (size, lattice, terrain, climate, the map name) are set in the World Wizard; the
+  gear in the bottom bar holds the browser's own preferences. Such a panel writes `options.map` or pins the value,
   saves, and runs whatever derivation and redraw depend on it. It does not write requests.
 
 Consequently the panel that shows requests and the panel that edits map values are different

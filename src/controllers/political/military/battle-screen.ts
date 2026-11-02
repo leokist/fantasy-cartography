@@ -1301,7 +1301,7 @@ function applyResults(): void {
         .map(t => (r.casualties![t] ? `${Math.abs(r.casualties![t])} ${t}` : null))
         .filter((c): c is string => Boolean(c));
       const casualtiesText = casualtiesList.length ? ` Casualties: ${list(casualtiesList)}.` : "";
-      r.note += `<br><br>${battleName} (${options.map.lore.calendar.year} ${options.map.lore.calendar.eraShort}): ${status}. The regiment ${regStatus}.${initialText}${casualtiesText}`;
+      r.note += `<br><br>${battleName} (${options.map.lore.calendar.year}): ${status}. The regiment ${regStatus}.${initialText}${casualtiesText}`;
     }
 
     r.u = { ...r.survivors };
@@ -1357,7 +1357,7 @@ function applyResults(): void {
 
   const status = battleStatus[+P(0.7)];
   const result = `The ${getTypeName()} ended in ${status}`;
-  let legend = `${b.name} took place in ${options.map.lore.calendar.year} ${options.map.lore.calendar.eraShort}. It was fought between ${getSide(
+  let legend = `${b.name} took place in ${options.map.lore.calendar.year}. It was fought between ${getSide(
     b.attackers.regiments,
     1
   )} and ${getSide(b.defenders.regiments, 0)}. ${result}.

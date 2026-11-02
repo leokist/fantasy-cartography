@@ -1,60 +1,35 @@
-// The "About" dialog: what the generator is, where to get help and how to support it.
-// A component, not a controller — it is opened over the map but knows nothing about it
+// The About panel, under the info icon in the bottom bar: what the app is and the generator it is built on
 
-import { Dialog } from "@/ui/dialog/dialog";
+import { openPanel } from "@/app/chrome/options-panel";
+import { Services } from "@/services";
 import { link } from "@/utils/common-utils";
 import { t } from "@/utils/i18n";
+import { ensureEl } from "@/utils/node-utils";
 
-const COMMUNITY = {
-  discord: link("https://discordapp.com/invite/X7E84HU", "Discord"),
-  reddit: link("https://www.reddit.com/r/FantasyMapGenerator", "Reddit"),
-  patreon: link("https://www.patreon.com/azgaar", "Patreon")
-};
+const FORK = "https://github.com/leokist/fantasy-cartography";
+const BASE = "https://github.com/Azgaar/Fantasy-Map-Generator";
 
-const PROJECTS = {
-  armoria: link("https://azgaar.github.io/Armoria", "Armoria"),
-  deorum: link("https://deorum.vercel.app", "Deorum")
-};
+const TEMPLATE = /* html */ `
+  <p>
+    ${t(
+      "Fantasy Cartography makes fantasy maps for games. Set up the continents, countries and regions of a world by hand, or generate one at random, then edit everything on it and export it, to Godot among others."
+    )}
+  </p>
+  <p>
+    ${t("It is built on {{- base}} by Azgaar, an open source map generator under the MIT license.", {
+      base: link(BASE, "Fantasy Map Generator")
+    })}
+    ${t("Source code: {{- repository}}.", { repository: link(FORK, "GitHub") })}
+  </p>
+  <button id="startTourButton" type="button" style="width: 100%" data-tip="${t("Take an interactive tour of the app")}">
+    ${t("Interactive Tour")}
+  </button>
+`;
 
-const WIKI = "https://github.com/Azgaar/Fantasy-Map-Generator/wiki";
-const GUIDES = {
-  quickStart: link(`${WIKI}/Quick-Start-Tutorial`, t("Quick start tutorial")),
-  qaa: link(`${WIKI}/Q&A`, t("Q&A page")),
-  video: link("https://youtube.com/playlist?list=PLtgiuDC8iVR2gIG8zMTRn7T_L0arl9h1C", t("Video tutorial"))
-};
+ensureEl("aboutContent").innerHTML = TEMPLATE;
+ensureEl("startTourButton").addEventListener("click", () => Services.UiTour.start());
 
-const LINKS = [
-  link("https://github.com/leokist/fantasy-cartography", t("GitHub repository")),
-  link("https://github.com/Azgaar/Fantasy-Map-Generator", t("Original Fantasy Map Generator")),
-  link("https://github.com/Azgaar/Fantasy-Map-Generator/blob/master/LICENSE", t("License")),
-  link(`${WIKI}/Changelog`, t("Changelog")),
-  link(`${WIKI}/Hotkeys`, t("Hotkeys")),
-  link("https://trello.com/b/7x832DG4/fantasy-map-generator", t("Devboard")),
-  `<a href="mailto:azgaar.fmg@yandex.by" target="_blank">${t("Contact Azgaar")}</a>`
-];
-
-function render(): string {
-  return /* html */ `${t("Fantasy Cartography is a free open-source application, a fork of Azgaar's Fantasy Map Generator. It means that you own all created maps and can use them as you wish.")}
-
-    <p>
-      ${t("The development is community-backed, you can donate on {{- patreon}}. You can also help creating overviews, tutorials and spreding the word about the Generator.", { patreon: COMMUNITY.patreon })}
-    </p>
-
-    <p>
-      ${t("The best way to get help is to contact the community on {{- discord}} and {{- reddit}}. Before asking questions, please check out the {{- quickStart}}, the {{- qaa}}, and {{- video}}.", { ...COMMUNITY, ...GUIDES })}
-    </p>
-
-    <ul style="columns:2">${LINKS.map(item => `<li>${item}</li>`).join("")}</ul>
-
-    <p>${t("Check out our other projects")}:
-      <ul>
-        <li>${t("{{- armoria}}: a tool for creating heraldic coats of arms", { armoria: PROJECTS.armoria })}</li>
-        <li>${t("{{- deorum}}: a vast gallery of customizable fantasy characters", { deorum: PROJECTS.deorum })}</li>
-      </ul>
-    </p>`;
-}
-
-/** Show info about the generator in a popup */
+/** Show what the app is */
 export function showInfo(): void {
-  Dialog.message({ message: render(), title: document.title, width: "28em" });
+  openPanel("about");
 }

@@ -43,7 +43,6 @@ export const Controllers = createRegistry(
     LabelCreator: () => import("@/controllers/annotations/labels/label-creator").then(m => m.LabelCreator),
     LabelsOverview: () => import("@/controllers/annotations/labels/labels-overview").then(m => m.LabelsOverview),
     LakesEditor: () => import("@/controllers/physical/lakes-editor").then(m => m.LakesEditor),
-    LoreEditor: () => import("@/controllers/story/lore-editor").then(m => m.LoreEditor),
     MarkersEditor: () => import("@/controllers/story/markers/markers-editor").then(m => m.MarkersEditor),
     MarkersSettings: () => import("@/controllers/story/markers/markers-settings").then(m => m.MarkersSettings),
     MarkerCreator: () => import("@/controllers/story/markers/marker-creator").then(m => m.MarkerCreator),
@@ -92,7 +91,6 @@ export const Controllers = createRegistry(
     TransportEditor: () => import("@/controllers/economy/transport-editor").then(m => m.TransportEditor),
     UnitsEditor: () => import("@/controllers/units-editor").then(m => m.UnitsEditor),
     View3d: () => import("@/controllers/view-3d").then(m => m.View3d),
-    WorldConfigurator: () => import("@/controllers/world-configurator").then(m => m.WorldConfigurator),
     WorldWizard: () => import("@/controllers/world-wizard").then(m => m.WorldWizard),
     ZonesEditor: () => import("@/controllers/political/zones-editor").then(m => m.ZonesEditor)
   },

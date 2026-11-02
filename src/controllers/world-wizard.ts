@@ -29,7 +29,7 @@ const DIALOG_ID = "worldWizard";
 const REVIEW = WIZARD_STEPS.length; // the last page, after the steps
 
 const STEP_TEXT: Record<WizardStep, { title: string; intro: string }> = {
-  map: { title: t("Map"), intro: t("Name the map, set its era and decide how large and detailed it is.") },
+  map: { title: t("Map"), intro: t("Name the map and decide how large and detailed it is, its terrain and climate.") },
   countries: {
     title: t("Continents and countries"),
     intro: t(
@@ -44,10 +44,7 @@ const STEP_TEXT: Record<WizardStep, { title: string; intro: string }> = {
   }
 };
 
-const AFTER: Partial<
-  Record<WizardStep, { text: string; editor: "SpeciesEditor" | "HeightmapSelection" | "LoreEditor" }>
-> = {
-  map: { text: t("Write the lore"), editor: "LoreEditor" },
+const AFTER: Partial<Record<WizardStep, { text: string; editor: "SpeciesEditor" | "HeightmapSelection" }>> = {
   regions: { text: t("Edit fauna and flora"), editor: "SpeciesEditor" }
 };
 
@@ -319,7 +316,7 @@ function act(action: string): void {
   }
 }
 
-type AfterEditor = "SpeciesEditor" | "HeightmapSelection" | "LoreEditor";
+type AfterEditor = "SpeciesEditor" | "HeightmapSelection";
 
 function confirmGenerate(editor?: AfterEditor): void {
   const current = mapHistory.at(-1);

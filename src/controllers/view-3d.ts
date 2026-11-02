@@ -1,4 +1,3 @@
-import { Controllers } from "@/controllers";
 import { DEFAULT_THREE_D, globeResolutionFor, timeOfDayPresets } from "@/data/view-3d-options";
 import { Options } from "@/model/options/options-model";
 import { is3dView } from "@/renderers/view-mode";
@@ -356,11 +355,6 @@ function renderOptionsDialog(): void {
       </div>
       <div id="options3dBottom" style="margin-top: 0.2em">
         <button id="options3dUpdate" data-tip="${t("Update the scene")}" class="icon-cw"></button>
-        <button
-          id="options3dConfigureWorld"
-          data-tip="${t("Climate settings")}"
-          class="icon-sun"
-        ></button>
         <button id="options3dSave" data-tip="${t("Save screenshot of the 3d scene")}" class="icon-button-screenshot"></button>
         <button id="options3dOBJSave" data-tip="${t("Save OBJ file of the 3d scene")}" class="icon-download"></button>
         <button id="options3dReset" data-tip="${t("Reset to default")}" class="icon-ccw"></button>
@@ -369,7 +363,6 @@ function renderOptionsDialog(): void {
   ensureEl("dialogs").insertAdjacentHTML("beforeend", editorHtml);
 
   ensureEl("options3dUpdate").addEventListener("click", () => void update());
-  ensureEl("options3dConfigureWorld").addEventListener("click", () => Controllers.WorldConfigurator.open());
   ensureEl("options3dSave").addEventListener("click", () => void saveScreenshot());
   ensureEl("options3dOBJSave").addEventListener("click", () => void saveOBJ());
   ensureEl("options3dReset").addEventListener("click", resetSettings);

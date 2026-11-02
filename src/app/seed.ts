@@ -5,9 +5,7 @@ import { mapHistory } from "@/model/map-history";
 import { Options } from "@/model/options/options-model";
 import { Pins } from "@/model/options/pins";
 import { Dialog } from "@/ui/dialog/dialog";
-import { tip } from "@/ui/tooltips";
 import { t } from "@/utils/i18n";
-import { ensureEl } from "@/utils/node-utils";
 import { generateSeed } from "@/utils/probability-utils";
 import { regeneratePrompt } from "./lifecycle";
 
@@ -24,16 +22,6 @@ export function setSeed(precreatedSeed?: string): void {
   }
 
   Math.random = Alea(options.map.seed);
-}
-
-/** Regenerate with the seed the user typed into the options panel */
-export function generateMapWithSeed(): void {
-  const requested = ensureEl<HTMLInputElement>("seedInput").value;
-  if (requested === options.map.seed) {
-    tip(t("The current map already has this seed"), false, "error");
-    return;
-  }
-  regeneratePrompt({ seed: requested });
 }
 
 export function showSeedHistoryDialog(): void {

@@ -78,9 +78,8 @@ test.describe("style editor events drive the store", () => {
 
   test("states halo width slider writes the store and re-derives stroke-width on zoom", async ({ page }) => {
     // invokeActiveZooming only re-derives the halo width when the halos are on, which the default
-    // "balance" preset leaves off - switch to "quality" through the real Options tab
-    await page.evaluate(() => document.getElementById("optionsTrigger")!.click());
-    await page.locator("#optionsTab").click();
+    // "balance" preset leaves off - switch to "quality" through the real interface settings
+    await page.locator("#settingsButton").click();
     await page.locator("#performancePreset").selectOption("quality");
 
     await openStyleElement(page, "states");

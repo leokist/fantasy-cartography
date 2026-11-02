@@ -150,23 +150,19 @@ it("refuses args that are not a list", () => {
   );
 });
 
-it("previews, applies and undoes lore edits", () => {
-  const lore = { name: "Old Map", description: "", calendar: { year: 1000, era: "Winter Era", eraShort: "WE" } };
+it("previews, applies and undoes a map rename", () => {
+  const lore = { name: "Old Map", calendar: { year: 1000 } };
   vi.stubGlobal("options", { map: { lore } });
-  const proposal = proposeOk([
-    { op: "Lore.rename", args: ["Saltmarsh"] },
-    { op: "Lore.setYear", args: [1204] }
-  ]);
+  const proposal = proposeOk([{ op: "Lore.rename", args: ["Saltmarsh"] }]);
   expect(proposal.change).toEqual([
-    { key: "lore", entity: "Map lore", field: "name", before: "Old Map", after: "Saltmarsh" },
-    { key: "lore", entity: "Map lore", field: "calendar.year", before: 1000, after: 1204 }
+    { key: "lore", entity: "Map lore", field: "name", before: "Old Map", after: "Saltmarsh" }
   ]);
   expect(lore.name).toBe("Old Map");
   expect(apply(proposal, MAP)).toBe(true);
-  expect(lore).toMatchObject({ name: "Saltmarsh", calendar: { year: 1204 } });
+  expect(lore.name).toBe("Saltmarsh");
   expect(Options.save).toHaveBeenCalled();
   expect(undo(proposal, MAP)).toBe(true);
-  expect(lore).toMatchObject({ name: "Old Map", calendar: { year: 1000 } });
+  expect(lore.name).toBe("Old Map");
   vi.unstubAllGlobals();
 });
 

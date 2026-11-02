@@ -757,22 +757,12 @@ describe("Cultures: origins, codes, centers, cells and shields", () => {
 });
 
 describe("Lore", () => {
-  it("renames the map and sets its calendar and description", () => {
-    const lore = { name: "Old", description: "", calendar: { year: 1, era: "Old Era", eraShort: "OE" } };
+  it("renames the map", () => {
+    const lore = { name: "Old", calendar: { year: 1 } };
     vi.stubGlobal("options", { map: { lore } });
     Lore.rename(" Saltmarsh ");
-    Lore.setYear(1204.4);
-    Lore.setEra("Age of Ash", "AA");
-    Lore.setDescription("Wet.");
-    expect(lore).toEqual({
-      name: "Saltmarsh",
-      description: "Wet.",
-      calendar: { year: 1204, era: "Age of Ash", eraShort: "AA" }
-    });
-    Lore.setEra("Winter Era");
-    expect(lore.calendar.eraShort).toBe("WE");
+    expect(lore).toEqual({ name: "Saltmarsh", calendar: { year: 1 } });
     expect(() => Lore.rename(" ")).toThrow("must not be empty");
-    expect(() => Lore.setYear(Number.NaN)).toThrow("The year must be a number");
   });
 });
 
@@ -933,7 +923,7 @@ describe("Military", () => {
       map: {
         military: { units: [{ name: "infantry" }, { name: "archers" }] },
         graph: { width: 100, height: 100 },
-        lore: { calendar: { year: 1200, eraShort: "AE" } }
+        lore: { calendar: { year: 1200 } }
       }
     });
     vi.stubGlobal("styles", { military: { options: { boxSize: 3 } } });
@@ -977,11 +967,11 @@ describe("Military", () => {
 
   it("keeps the attached regiment's note in the target's", () => {
     pack.states[1].military![0].name = "First";
-    pack.states[1].military![0].note = "Formed in 1100 AE.";
-    pack.states[2].military![0].note = "Formed in 1150 AE.";
+    pack.states[1].military![0].note = "Formed in 1100.";
+    pack.states[2].military![0].note = "Formed in 1150.";
     Military.attach(1, 0, 2, 0);
     expect(pack.states[2].military![0].note).toBe(
-      "Formed in 1150 AE.<br><br>First merged into the regiment (1200 AE). Its record: Formed in 1100 AE."
+      "Formed in 1150.<br><br>First merged into the regiment (1200). Its record: Formed in 1100."
     );
   });
 });
