@@ -28,6 +28,6 @@ it("draws territory from cell ownership and merges the layers of a batch", () =>
 });
 
 it("draws emblems and labels for any entity, and nothing for notes, locks, lore or data no layer shows", () => {
-  expect(layers(["culture:1", "coa.shield"], ["addedLabel:1", "label.group"])).toEqual(["emblems", "labels"]);
+  expect(layers(["province:1", "coa.shield"], ["addedLabel:1", "label.group"])).toEqual(["emblems", "labels"]);
   expect(layers(["marker:1", "note"], ["route:1", "lock"], ["lore", "name"], ["state:1", "treasury"])).toEqual([]);
 });

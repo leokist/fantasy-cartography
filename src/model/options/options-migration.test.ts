@@ -105,7 +105,7 @@ it("preserves legacy burg groups with comma-separated biome filters through a re
   expect(console.warn).not.toHaveBeenCalled();
 });
 
-it.each(["biomes", "states", "cultures"] as const)("normalizes legacy %s filters", key => {
+it.each(["biomes", "states"] as const)("normalizes legacy %s filters", key => {
   const data = legacyFile();
   const parts = data[1].split("|");
   const legacy = JSON.parse(parts[19]);

@@ -27,7 +27,7 @@ Map coordinates go to Godot meters with `x = pixel column × metersPerPixel`, `z
 | `roads.json` | `[x, y, z]` points on the road bed, width, group, name |
 | `lakes.json` | surface height and outline `[x, z]` |
 | `places.json` | burgs and markers with positions on the ground |
-| `political.json` | states, provinces and cultures with outlines `[x, z]` and emblem files |
+| `political.json` | states (with their language) and provinces with outlines `[x, z]` and emblem files |
 | `fauna_flora.json` | biomes and the species catalogue |
 | `emblems/` | 256 px PNGs: `state_1.png`, `province_4.png`, `burg_12.png` |
 | `world-spec.json` | seed, name and the World Wizard answers |

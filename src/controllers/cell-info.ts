@@ -57,7 +57,6 @@ function renderDialog(): void {
     <p><b>${t("Biome")}:</b> <span id="infoBiome">n/a</span></p>
     <p><b>${t("State")}:</b> <span id="infoState">n/a</span></p>
     <p><b>${t("Province")}:</b> <span id="infoProvince">n/a</span></p>
-    <p><b>${t("Culture")}:</b> <span id="infoCulture">n/a</span></p>
     <p><b>${t("Burg")}:</b> <span id="infoBurg">n/a</span></p>
     <p><b>${t("Good")}:</b> <span id="infoGood">n/a</span></p>
     <p><b>${t("Market")}:</b> <span id="infoMarket">n/a</span></p>
@@ -104,7 +103,6 @@ function updateFields(point: Point, cellId: number, gridCellId: number): void {
   set("infoRiver", cells.h[cellId] >= 20 && cells.r[cellId] ? getRiverInfo(cells.r[cellId]) : "no");
   set("infoState", getStateInfo(cellId));
   set("infoProvince", getNamedInfo(pack.provinces, cells.province[cellId], "fullName"));
-  set("infoCulture", getCultureInfo(cells.culture[cellId]));
   set("infoPopulation", getFriendlyPopulation(cellId));
   set("infoBurg", getNamedInfo(pack.burgs, cells.burg[cellId], "name"));
   set("infoFeature", featureId ? `${feature.subtype || feature.type} (${featureId})` : "n/a");
@@ -120,14 +118,6 @@ function updateFields(point: Point, cellId: number, gridCellId: number): void {
 
 function set(id: string, value: string | number) {
   ensureEl(id).innerHTML = String(value);
-}
-
-export function getCultureInfo(cultureId: number): string {
-  if (!cultureId) return "no";
-  const culture = pack.cultures[cultureId];
-  if (!culture) return "no";
-  const ancestry = culture.ancestry?.trim();
-  return ancestry ? `${culture.name} (${ancestry}) (${cultureId})` : `${culture.name} (${cultureId})`;
 }
 
 function getNamedInfo<T, K extends keyof T>(elements: T[], id: number, key: K): string {

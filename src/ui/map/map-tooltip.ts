@@ -308,13 +308,6 @@ function showLayerTip(point: Point, cellId: number, gridCellId: number, isLand: 
     const province = provinceId ? `${pack.provinces[provinceId].fullName}, ` : "";
     return void tip(province + pack.states[stateId].fullName);
   }
-  if (Layers.isOn("cultures") && cells.culture[cellId]) {
-    const cultureId = cells.culture[cellId];
-    const culture = pack.cultures[cultureId];
-    const ancestry = culture?.ancestry?.trim();
-    const name = ancestry ? `${culture.name} (${ancestry})` : culture?.name || "";
-    return void tip(`${t("Culture")}: ${escapeHtml(name)}`);
-  }
   if (Layers.isOn("cells")) return void tip(`${t("Cell")}: ${cellId} (${t("Grid")}: ${gridCellId})`);
   if (Layers.isOn("heightmap")) return void tip(`${t("Height")}: ${getFriendlyHeight(point, pack, grid)}`);
 }

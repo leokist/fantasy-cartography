@@ -113,10 +113,10 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "cultures",
-    step: "map",
+    step: "countries",
     advanced: true,
-    label: t("Number of cultures"),
-    hint: t("Used only when you declare no countries; each declared country is its own people"),
+    label: t("Language groups"),
+    hint: t("Used only when you declare no countries: how many languages the generated countries are drawn from"),
     input: number(1, 100),
     current: () => options.generation.cultures.limit
   },

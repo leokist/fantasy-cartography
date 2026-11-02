@@ -176,7 +176,6 @@ function exportInRange(): void {
   const { coordinates } = options.map.geography;
   const rows = inRangeMarkers.map(({ i, type, icon, x, y, cell, name, note }) => {
     const state = pack.states[pack.cells.state[cell]];
-    const culture = pack.cultures[pack.cells.culture[cell]];
     return [
       i,
       type,
@@ -184,14 +183,13 @@ function exportInRange(): void {
       name,
       note,
       state ? state.fullName || state.name : "",
-      culture?.name,
       x,
       y,
       getLatitude(y, coordinates, options.map.graph.height, 2),
       getLongitude(x, coordinates, options.map.graph.width, 2)
     ];
   });
-  const headers = ["Id", "Type", "Icon", "Name", "Note", "State", "Culture", "X", "Y", "Latitude", "Longitude"];
+  const headers = ["Id", "Type", "Icon", "Name", "Note", "State", "X", "Y", "Latitude", "Longitude"];
   Csv.download(t("Markers in Radius"), headers, rows);
 }
 

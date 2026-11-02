@@ -10,6 +10,7 @@ import { mapHistory, registerMap } from "@/model/map-history";
 import { Options } from "@/model/options/options-model";
 import { Features } from "@/model/physical/features-generator";
 import { HeightmapGenerator } from "@/model/physical/heightmap-generator";
+import { Cultures } from "@/model/society/cultures-generator";
 import { Names } from "@/model/society/names-generator";
 import { clearReligions } from "@/model/society/no-religion";
 import { Journeys } from "@/model/story/journeys/journeys-generator";
@@ -393,6 +394,7 @@ async function parseLoadedData(data: string[], mapVersion: string | null): Promi
     for (const state of pack.states) // nor have they armies or diplomacy any more
       for (const key of ["military", "diplomacy", "campaigns", "alert"])
         delete (state as unknown as Record<string, unknown>)[key];
+    Cultures.followStates(); // and their countries are their peoples
     migrateAuthoringEntities();
 
     // hidden layers save no paths, so colored hatchings are restored from data

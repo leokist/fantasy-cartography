@@ -37,7 +37,6 @@ function open(editedGood?: Good, onUpdate?: () => void): void {
 
   const multipliers: { [K in MultiplierDimKey]?: Partial<Record<string, number>> } = {
     cultureType: { ...(editedGood?.multipliers?.cultureType ?? {}) },
-    culture: { ...(editedGood?.multipliers?.culture ?? {}) },
     state: { ...(editedGood?.multipliers?.state ?? {}) },
     biome: { ...(editedGood?.multipliers?.biome ?? {}) },
     zone: { ...(editedGood?.multipliers?.zone ?? {}) }
@@ -307,7 +306,6 @@ function open(editedGood?: Good, onUpdate?: () => void): void {
         </div>
         <div class="ge-grid ge-grid--top">
           ${renderMultiplierRow("cultureType", MULTIPLIER_LABELS.cultureType)}
-          ${renderMultiplierRow("culture", MULTIPLIER_LABELS.culture)}
           ${renderMultiplierRow("state", MULTIPLIER_LABELS.state)}
           ${renderMultiplierRow("biome", MULTIPLIER_LABELS.biome)}
           ${renderMultiplierRow("zone", MULTIPLIER_LABELS.zone)}
@@ -499,13 +497,12 @@ function open(editedGood?: Good, onUpdate?: () => void): void {
   }
 }
 
-type MultiplierDimKey = "cultureType" | "culture" | "state" | "biome" | "zone";
+type MultiplierDimKey = "cultureType" | "state" | "biome" | "zone";
 
 const MULTIPLIER_LEGEND = `1 = ${t("no effect")}, 0 = ${t("fully suppressed")}`;
 
 const MULTIPLIER_LABELS: Record<MultiplierDimKey, string> = {
-  cultureType: t("Culture type"),
-  culture: t("Culture"),
+  cultureType: t("Burg or country type"),
   state: t("State"),
   biome: t("Biome"),
   zone: t("Zone")
@@ -513,7 +510,6 @@ const MULTIPLIER_LABELS: Record<MultiplierDimKey, string> = {
 
 function getMultiplierEntityName(dim: MultiplierDimKey, id: string): string {
   if (dim === "cultureType") return CULTURE_TYPE_LABELS[id] ?? id;
-  if (dim === "culture") return pack.cultures[+id]?.name ?? `Culture ${id}`;
   if (dim === "state") return pack.states[+id]?.name ?? `State ${id}`;
   if (dim === "zone") return pack.zones.find(z => z.i === +id)?.name ?? `Zone ${id}`;
   return pack.biomes[+id]?.name ?? `Biome ${id}`;
@@ -533,12 +529,6 @@ function openMultiplierPopup(
     case "cultureType":
       entities = CULTURE_TYPES.map(ct => ({ id: ct, name: CULTURE_TYPE_LABELS[ct] ?? ct }));
       label = MULTIPLIER_LABELS.cultureType;
-      break;
-    case "culture":
-      entities = pack.cultures
-        .filter(c => c.i && !c.removed)
-        .map(c => ({ id: String(c.i), name: c.name, color: c.color }));
-      label = MULTIPLIER_LABELS.culture;
       break;
     case "state":
       entities = pack.states

@@ -137,14 +137,6 @@ test.describe("map layers", () => {
     expect(html).toMatchSnapshot("borders.html");
   });
 
-  // Cultural layers
-  test("cultures layer", async () => {
-    const cults = sharedPage.locator("#cults");
-    await expect(cults).toBeAttached();
-    const html = await cults.evaluate(el => el.outerHTML);
-    expect(html).toMatchSnapshot("cultures.html");
-  });
-
   test("religions layer", async () => {
     const relig = sharedPage.locator("#relig");
     await expect(relig).toBeAttached();

@@ -10,6 +10,5 @@ export type BurgGroup = {
   features?: Record<string, boolean>;
   biomes?: number[];
   states?: number[];
-  cultures?: number[];
   preview?: string;
 };

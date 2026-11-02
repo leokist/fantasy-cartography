@@ -1,6 +1,7 @@
 // The Godot package: a zip of heights in meters, maps, curves and world data for the Fantasy Cartography Importer addon
 
 import { Rivers } from "@/model/physical/river-generator";
+import { Names } from "@/model/society/names-generator";
 import { getPeople, heightToMeters } from "@/model/units";
 import { viewport } from "@/renderers/viewport/viewport";
 import { encodeExr, encodePng } from "@/services/io/godot/encoders";
@@ -290,7 +291,6 @@ export async function buildGodotFiles(
       capital: Boolean(burg.capital),
       port: Boolean(burg.port),
       state: burg.state,
-      culture: burg.culture,
       type: burg.type,
       emblem: settings.burgEmblems && burg.coa ? emblemFile("burg", burg.i) : undefined
     }));
@@ -312,7 +312,6 @@ export async function buildGodotFiles(
   };
   const statePolygons = polygons(cellId => pack.cells.state[cellId]);
   const provincePolygons = polygons(cellId => pack.cells.province[cellId]);
-  const culturePolygons = polygons(cellId => pack.cells.culture[cellId]);
   const political = {
     states: pack.states
       .filter(state => state.i && !state.removed)
@@ -323,7 +322,7 @@ export async function buildGodotFiles(
         form: state.formName,
         color: state.color,
         capital: state.capital,
-        culture: state.culture,
+        language: Names.nameBases[pack.cultures[state.culture]?.base]?.name,
         emblem: settings.emblems && state.coa ? emblemFile("state", state.i) : undefined,
         note: plainText(state.note),
         polygons: statePolygons(state.i)
@@ -339,15 +338,6 @@ export async function buildGodotFiles(
         color: province.color,
         emblem: settings.emblems && province.coa ? emblemFile("province", province.i) : undefined,
         polygons: provincePolygons(province.i)
-      })),
-    cultures: pack.cultures
-      .filter(culture => culture.i && !culture.removed)
-      .map(culture => ({
-        id: culture.i,
-        name: culture.name,
-        type: culture.type,
-        color: culture.color,
-        polygons: culturePolygons(culture.i)
       }))
   };
 

@@ -5,7 +5,7 @@ extends Resource
 
 @export var world: Dictionary ## world.json: size, meters per pixel, heights, biomes
 @export var places: Dictionary ## burgs and markers, positions in meters
-@export var political: Dictionary ## states, provinces and cultures, polygons on the XZ plane
+@export var political: Dictionary ## states and provinces, polygons on the XZ plane
 @export var fauna_flora: Dictionary ## biomes and species
 @export var rivers: Array
 @export var roads: Array

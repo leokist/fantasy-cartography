@@ -84,7 +84,7 @@ interface ProductionContext {
 }
 
 type NamedColored = { name?: string; color?: string };
-type CollectionKey = "states" | "cultures" | "provinces";
+type CollectionKey = "states" | "provinces";
 
 type RolledEntry = [string, [string, number][]];
 type BarPoint = SeriesPoint<RolledEntry> & { i: number };
@@ -99,13 +99,6 @@ const entitiesMap: Record<string, Dimension> = {
     getId: cellId => pack.cells.state[cellId],
     getName: nameGetter("states"),
     getColors: colorsGetter("states"),
-    landOnly: true
-  },
-  cultures: {
-    label: t("Culture"),
-    getId: cellId => pack.cells.culture[cellId],
-    getName: nameGetter("cultures"),
-    getColors: colorsGetter("cultures"),
     landOnly: true
   },
   provinces: {
@@ -463,7 +456,7 @@ function renderDialog() {
   // set defaults
   ensureEl<HTMLSelectElement>("chartsOverview__entitiesSelect").value = "states";
   ensureEl<HTMLSelectElement>("chartsOverview__plotBySelect").value = "total_population";
-  ensureEl<HTMLSelectElement>("chartsOverview__groupBySelect").value = "cultures";
+  ensureEl<HTMLSelectElement>("chartsOverview__groupBySelect").value = "biomes";
 
   ensureEl("chartsOverview__form").addEventListener("submit", addChart as EventListener);
   ensureEl("chartsOverview__viewColumns").addEventListener("change", changeViewColumns);

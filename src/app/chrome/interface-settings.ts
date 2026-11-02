@@ -184,9 +184,9 @@ const EMBLEM_SHAPE_GROUPS: [group: string, shapes: [id: string, label: string][]
   [
     t("Diversiform"),
     [
-      ["culture", t("Culture-specific")],
-      ["random", t("Culture-random")],
-      ["state", t("State-specific")]
+      ["culture", t("Country-specific")],
+      ["random", t("Country-random")],
+      ["state", t("Same as the country emblem")]
     ]
   ],
   [

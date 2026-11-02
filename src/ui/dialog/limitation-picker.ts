@@ -1,4 +1,4 @@
-// Pick which entities (biomes, states, cultures) something is limited to; an empty list allows all
+// Pick which entities (biomes, states) something is limited to; an empty list allows all
 
 import { Dialog } from "@/ui/dialog/dialog";
 

@@ -28,8 +28,8 @@ import { sentences, t } from "@/utils/i18n";
 import { ensureEl, findEl } from "@/utils/node-utils";
 import { rn, si } from "@/utils/number-utils";
 
-type Filters = { stateId?: number | null; cultureId?: number | null };
-type FilterState = { search: string; stateId: number; cultureId: number };
+type Filters = { stateId?: number | null };
+type FilterState = { search: string; stateId: number };
 
 const dialogId = "burgsOverview" as const;
 const CSV_COLUMNS = [
@@ -39,7 +39,6 @@ const CSV_COLUMNS = [
   "Province Full Name",
   "State",
   "State Full Name",
-  "Culture",
   "Group",
   "Type",
   "Population",
@@ -95,14 +94,6 @@ const columns: EditorColumn<Burg>[] = [
     label: t("State"),
     width: "8em",
     sortBy: b => pack.states[b.state!]?.name || "",
-    sortType: "alpha"
-  },
-  {
-    key: "culture",
-    label: t("Culture"),
-    width: "10em",
-    mobileHidden: true,
-    sortBy: b => pack.cultures[b.culture!]?.name || "",
     sortType: "alpha"
   },
   {
@@ -171,12 +162,11 @@ const burgsTable = initEditorTable<Burg>({
 
 function open(filters: Filters = {}): void {
   if (options.app.mode) return;
-  filterState = dialogState.get(dialogId, "filters", () => ({ search: "", stateId: -1, cultureId: -1 }));
+  filterState = dialogState.get(dialogId, "filters", () => ({ search: "", stateId: -1 }));
   Dialog.closeAll(`#${dialogId}, .stable`);
   Layers.show("burgIcons", "labels");
 
   if (filters.stateId != null) filterState.stateId = filters.stateId;
-  if (filters.cultureId != null) filterState.cultureId = filters.cultureId;
   renderDialog();
   updateFilter();
   updateLockAllIcon();
@@ -195,16 +185,12 @@ function renderDialog(): void {
   const HTML = /* html */ `<div id="burgsOverview" class="dialog stable editorDialog">
       <div id="burgsBody" class="table">${renderEditorHeader({ dialogId, columns })}</div>
       <div id="burgsFilters" data-tip="${t("Apply a filter")}" class="editorFilters">
-        <label for="burgsSearch" data-tip="${t("Filter by name, province, state, culture, group, or tag")}"
+        <label for="burgsSearch" data-tip="${t("Filter by name, province, state, group, or tag")}"
           >${t("Search")}: <input id="burgsSearch" type="search"
         /></label>
         <label for="burgsFilterState"
           >${t("State")}:
           <select id="burgsFilterState"></select
-        ></label>
-        <label for="burgsFilterCulture"
-          >${t("Culture")}:
-          <select id="burgsFilterCulture"></select
         ></label>
       </div>
       <div id="burgsFooter" class="totalLine">
@@ -230,7 +216,7 @@ function renderDialog(): void {
         <button id="burgsChart" data-tip="${t("Burgs bubble chart")}" class="icon-chart-area"></button>
         <button
           id="regenerateBurgNames"
-          data-tip="${t("Regenerate burg names based on assigned culture")}"
+          data-tip="${t("Regenerate burg names in their country's language")}"
           class="icon-retweet"
         ></button>
         <button id="addNewBurg" data-tip="${sentences(t("Add"), t("Hold Shift to add multiple"))}" class="icon-plus"></button>
@@ -268,7 +254,6 @@ function renderDialog(): void {
   ensureEl("burgsGroupsEditorButton").addEventListener("click", () => Controllers.BurgGroupEditor.open());
   ensureEl("burgsChart").addEventListener("click", showBurgsChart);
   ensureEl("burgsFilterState").addEventListener("change", onFilterChange);
-  ensureEl("burgsFilterCulture").addEventListener("change", onFilterChange);
   ensureEl("burgsSearch").addEventListener("input", onFilterChange);
   ensureEl("regenerateBurgNames").addEventListener("click", regenerateNames);
   ensureEl("addNewBurg").addEventListener("click", () => void Controllers.BurgCreator.toggle());
@@ -299,24 +284,12 @@ function updateFilter(): void {
   statesSorted.forEach(
     s => void stateFilter.options.add(new Option(s.name, String(s.i), false, s.i === filterState.stateId))
   );
-
-  const cultureFilter = ensureEl<HTMLSelectElement>("burgsFilterCulture");
-  const validCultureIds = new Set(pack.cultures.filter(culture => !culture.removed).map(culture => culture.i));
-  if (!validCultureIds.has(filterState.cultureId)) filterState.cultureId = -1;
-  cultureFilter.options.length = 0; // remove all options
-  cultureFilter.options.add(new Option(t("All"), "-1", false, filterState.cultureId === -1));
-  cultureFilter.options.add(new Option(pack.cultures[0].name, "0", false, filterState.cultureId === 0));
-  const culturesSorted = pack.cultures.filter(c => c.i && !c.removed).sort((a, b) => (a.name > b.name ? 1 : -1));
-  culturesSorted.forEach(
-    c => void cultureFilter.options.add(new Option(c.name, String(c.i), false, c.i === filterState.cultureId))
-  );
   dialogState.set(dialogId, "filters", filterState);
 }
 
 function onFilterChange(): void {
   filterState.search = ensureEl<HTMLInputElement>("burgsSearch").value;
   filterState.stateId = +ensureEl<HTMLSelectElement>("burgsFilterState").value;
-  filterState.cultureId = +ensureEl<HTMLSelectElement>("burgsFilterCulture").value;
   dialogState.set(dialogId, "filters", filterState);
   burgsTable.reset();
 }
@@ -332,12 +305,10 @@ function getFilteredBurgs(): Burg[] {
       const state = pack.states[b.state!]?.name || "";
       const prov = pack.cells.province[b.cell];
       const province = prov ? pack.provinces[prov]?.name || "" : "";
-      const culture = pack.cultures[b.culture!]?.name || "";
-      return Tags.matches(searchText, b.name, b.tags, [state, province, culture, b.group]);
+      return Tags.matches(searchText, b.name, b.tags, [state, province, b.group]);
     });
   }
   if (filterState.stateId !== -1) filtered = filtered.filter(b => b.state === filterState.stateId); // filtered by state
-  if (filterState.cultureId !== -1) filtered = filtered.filter(b => b.culture === filterState.cultureId); // filtered by culture
   return filtered;
 }
 
@@ -377,7 +348,6 @@ function renderBurgsPage(view: TableView<Burg>): void {
     const state = pack.states[b.state!].name;
     const prov = pack.cells.province[b.cell];
     const province = prov ? pack.provinces[prov].name : "";
-    const culture = pack.cultures[b.culture!].name;
 
     lines += /* html */ `<div
         class="states"
@@ -385,7 +355,6 @@ function renderBurgsPage(view: TableView<Burg>): void {
         data-name="${b.name}"
         data-state="${state}"
         data-province="${province}"
-        data-culture="${culture}"
         data-group="${b.group}"
         data-population=${population}
         data-grossproduct=${grossProduct}
@@ -397,7 +366,6 @@ function renderBurgsPage(view: TableView<Burg>): void {
         <input data-tip="${t("Name")}" class="burgName" value="${b.name}" data-col="name" disabled />
         <input data-tip="${t("Burg province")}" value="${province}" data-col="province" disabled />
         <input data-tip="${t("Burg state")}" value="${state}" data-col="state" disabled />
-        <input data-tip="${t("Dominant culture")}" value="${culture}" data-col="culture" disabled />
         <input data-tip="${t("Burg group")}" value="${b.group}" data-col="group" disabled />
         <div data-col="population">
           <span data-tip="${t("Burg population")}" class="icon-male"></span>
@@ -546,14 +514,13 @@ function regenerateNames(): void {
   Layers.draw("labels");
 }
 
-// a group (state, culture, province) or a burg in the bubble chart; the parent field depends on the grouping
+// a group (state, province) or a burg in the bubble chart; the parent field depends on the grouping
 type BubbleDatum = {
   id: number;
   name?: string;
   color?: string;
   i?: number;
   state?: number | null;
-  culture?: number | null;
   province?: number | null;
   parent?: number | null;
   population?: number;
@@ -593,7 +560,6 @@ function showBurgsChart(): void {
         id,
         i: b.i,
         state: b.state,
-        culture: b.culture,
         province,
         parent,
         name: b.name,
@@ -623,7 +589,6 @@ function showBurgsChart(): void {
   const chart = document.createElement("div");
   chart.innerHTML = /* html */ `<select id="burgsTreeType" style="display:block; margin-left:13px; font-size:11px">
       <option value="states" selected>${t("Group by state")}</option>
-      <option value="cultures">${t("Group by culture")}</option>
       <option value="parent">${t("Group by province and state")}</option>
       <option value="provinces">${t("Group by province")}</option>
     </select><div id='burgsInfo' class='chartInfo'>&#8205;</div>`;
@@ -683,12 +648,6 @@ function showBurgsChart(): void {
         return { id: s.i, state: s.i ? 0 : null, color, name };
       });
 
-    const getCulturesData = () =>
-      pack.cultures.map(c => {
-        const color = c.color ? c.color : "#ccc";
-        return { id: c.i, culture: c.i ? 0 : null, color, name: c.name };
-      });
-
     const getParentData = () => {
       const states = pack.states.map(s => {
         const color = s.color ? s.color : "#ccc";
@@ -712,14 +671,12 @@ function showBurgsChart(): void {
 
     const value = (d: BubbleDatum) => {
       if (this.value === "states") return d.state;
-      if (this.value === "cultures") return d.culture;
       if (this.value === "parent") return d.parent;
       if (this.value === "provinces") return d.province;
     };
 
     const mapping: Record<string, () => BubbleDatum[]> = {
       states: getStatesData,
-      cultures: getCulturesData,
       parent: getParentData,
       provinces: getProvincesData
     };
@@ -770,7 +727,6 @@ function downloadBurgsData(): void {
         province?.i ? province.fullName : "",
         pack.states[b.state!].name,
         pack.states[b.state!].fullName,
-        pack.cultures[b.culture!].name,
         b.group,
         b.type,
         rn(b.population! * scale * urbanization.rate),
@@ -858,11 +814,6 @@ async function uploadBurgsCsv(text: string): Promise<void> {
     (id, row) => {
       const burg = find(id)!;
       row.apply("Burg", name => Burgs.rename(id, name), burg.name);
-      row.apply(
-        "Culture",
-        name => Burgs.setCulture(id, Csv.byName(pack.cultures, name).i),
-        pack.cultures[burg.culture!]?.name
-      );
       row.apply("Group", group => Burgs.setGroup(id, group), burg.group);
       row.apply("Type", type => Burgs.setType(id, type), burg.type);
       row.apply(

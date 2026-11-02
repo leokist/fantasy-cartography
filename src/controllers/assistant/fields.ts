@@ -17,7 +17,7 @@ export const CELL_FIELDS: Record<string, CellField> = {
   burg: { label: t("Burg"), layers: ["burgIcons", "labels"], references: "burg" },
   state: { label: t("State"), layers: TERRITORY, references: "state" },
   province: { label: t("Province"), layers: PROVINCES, references: "province" },
-  culture: { label: t("Culture"), layers: ["cultures"], references: "culture" },
+  culture: { label: t("People"), layers: [], references: "culture" }, // follows the state
   biome: { label: t("Biome"), layers: ["biomes"], references: "biome" },
   pop: { label: t("Rural population"), layers: ["population"] },
   r: { label: t("River"), layers: ["rivers"], references: "river" },

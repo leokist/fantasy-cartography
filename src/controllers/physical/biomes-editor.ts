@@ -102,7 +102,7 @@ function open(): void {
   if (options.app.mode) return;
   Dialog.closeAll(`#${dialogId}, .stable`);
   Layers.show("biomes");
-  Layers.hide("states", "cultures");
+  Layers.hide("states");
   Layers.hide("provinces");
 
   renderDialog();

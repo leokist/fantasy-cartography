@@ -68,3 +68,41 @@ it("recomputes a renamed culture's code without clashing with other cultures", (
   expect(pack.cultures[1]).toMatchObject({ name: "Saltmere", code: "SA" });
   expect(() => Cultures.rename(5, "X")).toThrow("Culture 5 does not exist");
 });
+
+it("makes each state its own people, in the language of the culture it was founded in", () => {
+  vi.stubGlobal("pack", {
+    cells: {
+      i: [0, 1, 2, 3],
+      h: [10, 30, 30, 30],
+      state: Uint16Array.from([0, 1, 2, 0]),
+      culture: Uint16Array.from([1, 1, 1, 2])
+    },
+    states: [
+      { i: 0, name: "Neutrals" },
+      { i: 1, name: "Arda", color: "#f00", center: 1, culture: 1, type: "Naval" },
+      { i: 2, name: "Bree", color: "#0f0", center: 2, culture: 1, type: "Generic", lock: true },
+      { i: 3, removed: true }
+    ],
+    burgs: [0, { i: 1, state: 2, culture: 1 }],
+    cultures: [
+      { i: 0, name: "Wildlands", base: 1, type: "Generic" },
+      { i: 1, name: "Old", base: 5, type: "Generic", note: "<p>old</p>" },
+      { i: 2, name: "Other", base: 7, type: "Generic" }
+    ]
+  });
+
+  Cultures.followStates();
+
+  expect(pack.cultures.map(c => [c.i, c.name, c.base, !!c.removed])).toEqual([
+    [0, "Wildlands", 1, false],
+    [1, "Arda", 5, false],
+    [2, "Bree", 5, false],
+    [3, "", 0, true]
+  ]);
+  expect(pack.cultures[1]).toMatchObject({ color: "#f00", center: 1, type: "Naval" });
+  expect(pack.cultures[1].note).toBeUndefined();
+  expect(pack.cultures[2].lock).toBe(true);
+  expect(pack.states.map(s => s.culture)).toEqual([undefined, 1, 2, undefined]);
+  expect(Array.from(pack.cells.culture)).toEqual([0, 1, 2, 0]);
+  expect(pack.burgs[1].culture).toBe(2);
+});

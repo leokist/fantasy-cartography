@@ -33,7 +33,7 @@ const EDIT = /* html */ `
     </button>
     <button id="editSpeciesButton" data-tip="${t("Fauna and Flora")}">${t("Fauna & Flora")}</button>
   </div>
-  <div class="separator">${t("Countries and peoples")}</div>
+  <div class="separator">${t("Countries")}</div>
   <div class="grid">
     <button id="editStatesButton" data-tip="${t("States Editor")}" data-shortcut="Shift + S">
       ${t("States")}
@@ -43,9 +43,6 @@ const EDIT = /* html */ `
     </button>
     <button id="overviewBurgsButton" data-tip="${t("Burgs Overview")}" data-shortcut="Shift + T">
       ${t("Burgs")}
-    </button>
-    <button id="editCulturesButton" data-tip="${t("Cultures Editor")}" data-shortcut="Shift + C">
-      ${t("Cultures")}
     </button>
     <button id="editEmblemButton" data-tip="${t("Edit Emblem")}" data-shortcut="Shift + Y">
       ${t("Emblems")}
@@ -126,11 +123,10 @@ const REGENERATE = /* html */ `
   <div id="regenerateFeature" class="grid">
     <button
       id="regenerateBurgs"
-      data-tip="${sentences(t("Click to regenerate all unlocked burgs and routes"), t("States will remain as they are"), t("Note: burgs are only generated in populated areas with culture assigned"))}"
+      data-tip="${sentences(t("Click to regenerate all unlocked burgs and routes"), t("States will remain as they are"), t("Note: burgs are only generated in populated areas"))}"
     >
       ${t("Burgs")}
     </button>
-    <button id="regenerateCultures" data-tip="${t("Click to regenerate non-locked cultures")}">${t("Cultures")}</button>
     <button
       id="regenerateEconomy"
       data-tip="${t("Rebuild market territories, production, trade deals, and taxes from the current goods and markets")}"

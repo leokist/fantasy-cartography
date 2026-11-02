@@ -1081,7 +1081,7 @@ class CulturesGenerator {
         this.cells.culture = cultureIds;
 
         Dialog.message({
-          message: `${t("The climate is harsh and people cannot live in this world.")}<br>${t("No cultures, states and burgs will be created.")}<br>${t("Please consider changing climate settings in the World Configurator")}`,
+          message: `${t("The climate is harsh and people cannot live in this world.")}<br>${t("No countries or burgs will be created.")}<br>${t("Please consider changing climate settings in the World Configurator")}`,
           title: t("Extreme climate warning")
         });
         return;
@@ -1092,7 +1092,7 @@ class CulturesGenerator {
             t("There are only {{populated}} populated cells and it's insufficient livable area.", {
               populated: populated.length
             }),
-            t("Cultures to generate: {{cultures}}, requested: {{limit}}", {
+            t("Language groups to generate: {{cultures}}, requested: {{limit}}", {
               cultures: count,
               limit: options.generation.cultures.limit
             }),
@@ -1520,6 +1520,40 @@ class CulturesGenerator {
     const culture = pack.cultures[cultureId];
     if (!culture || culture.removed) throw new Error(`Culture ${cultureId} does not exist`);
     return culture;
+  }
+
+  /** Each country is its own people: culture i is state i, in the language of the culture it was founded in */
+  followStates(): void {
+    const { cells, states, burgs } = pack;
+    const cultures = pack.cultures ?? [];
+    const wildlands = cultures[0] ?? { name: "Wildlands", i: 0, base: 1, shield: "round", type: DEFAULT_CULTURE_TYPE };
+    const peoples: Culture[] = [{ ...wildlands, i: 0 }];
+    for (const state of states) {
+      if (!state.i) continue;
+      if (state.removed) {
+        peoples[state.i] = { i: state.i, name: "", base: 0, shield: "", type: DEFAULT_CULTURE_TYPE, removed: true };
+        continue;
+      }
+      const source = cultures[state.culture] ?? wildlands;
+      peoples[state.i] = {
+        ...source,
+        i: state.i,
+        name: state.name,
+        color: state.color,
+        center: state.center,
+        type: (CULTURE_TYPES as readonly string[]).includes(state.type) ? (state.type as CultureType) : source.type,
+        origins: [0],
+        lock: state.lock,
+        removed: undefined
+      };
+      if (!peoples[state.i].lock) delete peoples[state.i].lock;
+      delete peoples[state.i].removed;
+      delete peoples[state.i].note; // a country's note is its own
+      state.culture = state.i;
+    }
+    pack.cultures = Array.from(peoples, (people, i) => people ?? { ...peoples[0], i, name: "", removed: true });
+    if (cells.culture) for (const cell of cells.i) cells.culture[cell] = cells.h[cell] >= 20 ? cells.state[cell] : 0;
+    for (const burg of burgs ?? []) if (burg?.i && !burg.removed) burg.culture = burg.state ?? 0;
   }
 
   regenerate(): void {
