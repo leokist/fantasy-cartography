@@ -170,6 +170,22 @@ describe("seeds in the world spec", () => {
     });
   });
 
+  it("size every country one way: by area when asked, else by size", () => {
+    const states = [
+      { name: "A", x: 1, y: 1, size: "large" as const, area: 7 },
+      { name: "B", x: 2, y: 2, size: "small" as const }
+    ];
+    const seeds = { continents: [], states, provinces: [], species: [] };
+    expect(cleanSeeds({ ...seeds, sizing: "area" }).states.map(state => [state.size, state.area])).toEqual([
+      [undefined, 7],
+      [undefined, 4]
+    ]);
+    expect(cleanSeeds(seeds).states.map(state => [state.size, state.area])).toEqual([
+      ["large", undefined],
+      ["small", undefined]
+    ]);
+  });
+
   it("lose the cultures declared apart from countries", () => {
     const seeds = {
       continents: [],

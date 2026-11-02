@@ -6,11 +6,13 @@ import { Additions } from "@/model/authoring/additions";
 import {
   CLIMATES,
   CONTINENT_SIZES,
+  COUNTRY_AREA,
   COUNTRY_SIZES,
   cleanSeeds,
   type ProvinceSeed,
   RELIEFS,
   type Seeds,
+  SIZINGS,
   type StateSeed,
   WATERS
 } from "@/model/authoring/world-spec";
@@ -33,6 +35,12 @@ const CONTINENT_SIZE_LABELS: Record<string, string> = {
   large: t("Large"),
   huge: t("Huge")
 };
+const SIZING_LABELS: Record<string, string> = {
+  size: t("By size: small, medium or large"),
+  area: t("By area: a share of the map")
+};
+// switching to area starts each country from about the share its size took
+const AREA_OF_SIZE = { small: 2, medium: 4, large: 8 };
 const RELIEF_LABELS: Record<string, string> = {
   plains: t("Plains"),
   hills: t("Hills"),
@@ -84,6 +92,11 @@ function placingName(seeds: Seeds): string {
 function renderSketch(seeds: Seeds, mode: "countries" | "regions", hasMap: boolean): string {
   const { width, height } = globalThis.options.generation.graph;
   const side = Math.min(width, height);
+  // a country by area is drawn as a little more than its share of the map, as the land raised for it
+  const reach = (state: StateSeed) =>
+    state.area === undefined || seeds.sizing !== "area"
+      ? COUNTRY_RADIUS[state.size ?? "medium"]
+      : Math.sqrt(((state.area / 100) * width * height * 1.3) / Math.PI) / side;
   const circle = (x: number, y: number, radius: number) =>
     `left: ${x}%; top: ${y}%; width: ${((2 * radius * side) / width) * 100}%; height: ${((2 * radius * side) / height) * 100}%`;
   const marks: string[] = [];
@@ -97,7 +110,7 @@ function renderSketch(seeds: Seeds, mode: "countries" | "regions", hasMap: boole
     const color = countryColor(state, index);
     const faded = mode === "regions" && index !== regionCountry;
     marks.push(
-      `<div class="reach" style="${circle(state.x, state.y, COUNTRY_RADIUS[state.size ?? "medium"])}; border-color: ${color}; opacity: ${faded ? 0.3 : 1}"></div>`,
+      `<div class="reach" style="${circle(state.x, state.y, reach(state))}; border-color: ${color}; opacity: ${faded ? 0.3 : 1}"></div>`,
       `<div class="mark country" style="left: ${state.x}%; top: ${state.y}%; background: ${color}; opacity: ${faded ? 0.4 : 1}"><span>${value(state.name || t("Country"))}</span></div>`
     );
     if (mode === "countries")
@@ -143,6 +156,9 @@ export function renderCountriesStep(seeds: Seeds, hasMap: boolean): string {
     ${continents}
     <h3>${t("Countries")} <button data-add="country">+ ${t("Country")}</button></h3>
     <p class="hint">${t("Place each country's capital. The generated map has exactly these countries.")}</p>
+    <div class="attrs"><label>${t("Country size")}
+      <select data-sizing>${options(SIZINGS, SIZING_LABELS, seeds.sizing ?? "size")}</select></label></div>
+    ${seeds.sizing === "area" ? `<p class="hint">${t("Each country grows from its capital until it covers its share of the map, if there is land enough; together they should take less than the land.")}</p>` : ""}
     ${countries}
     <datalist id="wizardForms">${forms}</datalist>`;
 }
@@ -185,7 +201,11 @@ function renderCountry(seeds: Seeds, state: StateSeed, index: number, hasMap: bo
     </div>
     <div class="placeRow">
       <select data-prop="continent"><option value="">${t("No continent")}</option>${continentOptions}</select>
-      <select data-prop="size">${options(COUNTRY_SIZES, CONTINENT_SIZE_LABELS, state.size ?? "medium")}</select>
+      ${
+        seeds.sizing === "area"
+          ? `<label class="areaInput"><input data-prop="area" type="number" min="${COUNTRY_AREA.min}" max="${COUNTRY_AREA.max}" step="0.5" value="${state.area ?? COUNTRY_AREA.default}" /> % ${t("of the map")}</label>`
+          : `<select data-prop="size">${options(COUNTRY_SIZES, CONTINENT_SIZE_LABELS, state.size ?? "medium")}</select>`
+      }
       <input data-prop="form" list="wizardForms" placeholder="${t("Form: Kingdom, Republic…")}" value="${value(state.form)}" />
       <label class="seedColor">${t("Color")} <input data-prop="color" type="color" value="${countryColor(state, index)}" /></label>
     </div>
@@ -316,6 +336,11 @@ export function bindPlaces(root: HTMLElement, seeds: Seeds, rerender: () => void
       rerender();
     });
 
+  root.querySelector<HTMLSelectElement>("[data-sizing]")?.addEventListener("change", event => {
+    setSizing(seeds, (event.target as HTMLSelectElement).value as Seeds["sizing"]);
+    rerender();
+  });
+
   for (const row of root.querySelectorAll<HTMLElement>("[data-continent]")) {
     const continent = seeds.continents[Number(row.dataset.continent)];
     bindProps(row, prop => (raw: string) => {
@@ -384,9 +409,28 @@ function setCountryProp(state: StateSeed, prop: string, raw: string, rerender: (
   } else if (prop === "size") {
     state.size = raw as StateSeed["size"];
     rerender();
+  } else if (prop === "area") {
+    const area = Number(raw);
+    if (!(area >= COUNTRY_AREA.min && area <= COUNTRY_AREA.max))
+      return void tip(t("This value is out of range"), false, "error");
+    state.area = area;
+    rerender();
   } else if (prop === "continent" || prop === "language") {
     if (text === "") delete state[prop];
     else state[prop] = Number(text);
+  }
+}
+
+function setSizing(seeds: Seeds, sizing: Seeds["sizing"]): void {
+  if (sizing === "area") {
+    seeds.sizing = "area";
+    for (const state of seeds.states) state.area ??= AREA_OF_SIZE[state.size ?? "medium"];
+  } else {
+    delete seeds.sizing;
+    for (const state of seeds.states) {
+      const area = state.area ?? COUNTRY_AREA.default;
+      state.size = area < 3 ? "small" : area < 6 ? "medium" : "large";
+    }
   }
 }
 
@@ -422,7 +466,8 @@ function add(seeds: Seeds, what: string, rerender: () => void): void {
     placing = { kind: "continent", index: seeds.continents.length - 1 };
   } else if (kind === "country") {
     const continent = seeds.continents.length === 1 ? 0 : undefined;
-    seeds.states.push({ name: "", x: 50, y: 50, size: "medium", ...(continent === undefined ? {} : { continent }) });
+    const size = seeds.sizing === "area" ? { area: COUNTRY_AREA.default } : { size: "medium" as const };
+    seeds.states.push({ name: "", x: 50, y: 50, ...size, ...(continent === undefined ? {} : { continent }) });
     placing = { kind: "country", index: seeds.states.length - 1 };
   } else if (kind === "city") {
     const state = seeds.states[Number(index)];

@@ -37,8 +37,16 @@ export const toPoint = ({ x, y }: { x: number; y: number }): Point => {
   return [(x / 100) * width, (y / 100) * height];
 };
 
-/** Radius in map pixels of a declared country */
-export const countryRadius = (state: StateSeed): number => COUNTRY_RADIUS[state.size ?? "medium"] * mapSize().side;
+/** Radius in map pixels of a declared country: by its size, or a circle a little larger than its area */
+export function countryRadius(state: StateSeed): number {
+  const { width, height, side } = mapSize();
+  if (state.area !== undefined) return Math.sqrt(((state.area / 100) * width * height * 1.3) / Math.PI);
+  return COUNTRY_RADIUS[state.size ?? "medium"] * side;
+}
+
+/** The area in map pixels a country sized by area asks for */
+export const countryArea = (state: StateSeed): number | undefined =>
+  state.area === undefined ? undefined : (state.area / 100) * mapSize().width * mapSize().height;
 
 /**
  * How much a point belongs to a province: 1 over the part of the map nearer its spot than any other province's,

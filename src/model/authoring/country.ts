@@ -7,6 +7,7 @@ import { Burgs } from "@/model/political/burgs-generator";
 import { Provinces } from "@/model/political/provinces-generator";
 import { Cultures } from "@/model/society/cultures-generator";
 import { Names } from "@/model/society/names-generator";
+import { FlatQueue } from "@/utils/flat-queue";
 
 interface Spot {
   x: number;
@@ -160,4 +161,43 @@ export function makePeople(stateId: number, cultureId: number, seed: StateSeed):
   state.culture = cultureId;
   const capital = burgs[state.capital];
   if (capital?.cell !== undefined) culture.center = capital.cell;
+}
+
+/**
+ * Grow countries from their capitals until each holds its target area (map pixels), cheaper across lowland. A
+ * country gives up the cells it held first; `canTake` says which cells of others or of no one it may claim
+ */
+export function growToArea(targets: Map<number, number>, canTake: (cell: number) => boolean): void {
+  const { cells, burgs, states } = pack;
+  const grown = new Map<number, number>();
+  const queue = new FlatQueue<[number, number]>();
+  const costs = new Map<number, Float32Array>(); // per country, so one that is full blocks no other
+  const taken = new Uint8Array(cells.i.length);
+
+  for (const cell of cells.i) if (targets.has(cells.state[cell])) cells.state[cell] = 0;
+  for (const id of targets.keys()) {
+    const capital = burgs[states[id]?.capital]?.cell;
+    if (capital === undefined) continue;
+    grown.set(id, 0);
+    costs.set(id, new Float32Array(cells.i.length).fill(Infinity));
+    costs.get(id)![capital] = 0;
+    queue.push([capital, id], 0);
+  }
+
+  while (queue.length) {
+    const [cell, id] = queue.pop();
+    if (taken[cell] || (grown.get(id) ?? 0) >= (targets.get(id) ?? 0)) continue;
+    taken[cell] = 1;
+    cells.state[cell] = id;
+    grown.set(id, (grown.get(id) ?? 0) + cells.area[cell]);
+    const cost = costs.get(id)!;
+    for (const next of cells.c[cell]) {
+      if (taken[next] || cells.h[next] < 20 || !canTake(next)) continue;
+      const step = cost[cell] + 1 + Math.max(0, cells.h[next] - 40) / 10 + (cells.r[next] ? 0.5 : 0);
+      if (step >= cost[next]) continue;
+      cost[next] = step;
+      queue.push([next, id], step);
+    }
+  }
+  for (const burg of burgs) if (burg?.i && !burg.removed && !burg.capital) burg.state = cells.state[burg.cell];
 }

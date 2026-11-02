@@ -3538,5 +3538,10 @@
   "Place the continents and the countries on them, with capitals, cities, emblems and borders. Each country is its own people, with its own language.": "Posicione os continentes e os países neles, com capitais, cidades, emblemas e fronteiras. Cada país é o seu próprio povo, com o seu próprio idioma.",
   "The country is its own people: names of its places are made in this language": "O país é o seu próprio povo: os nomes dos seus lugares são criados neste idioma",
   "Where the languages of countries without one of their own come from": "De onde vêm os idiomas dos países que não têm um escolhido",
-  "Language: automatic": "Idioma: automático"
+  "Language: automatic": "Idioma: automático",
+  "By area: a share of the map": "Por área: uma parte do mapa",
+  "By size: small, medium or large": "Por porte: pequeno, médio ou grande",
+  "Country size": "Tamanho dos países",
+  "Each country grows from its capital until it covers its share of the map, if there is land enough; together they should take less than the land.": "Cada país cresce a partir da capital até cobrir a sua parte do mapa, se houver terra suficiente; somados, devem ocupar menos que a terra.",
+  "of the map": "do mapa"
 }

@@ -5,12 +5,13 @@ import { type AuthorableCollection, Authoring } from "@/model/authoring/authorin
 import {
   foundCities,
   foundProvinces,
+  growToArea,
   joinBorders,
   makePeople,
   nearestCell,
   settleLand
 } from "@/model/authoring/country";
-import { countryRadius, shapeBiomes, shapeLand, toPoint, worldNoise } from "@/model/authoring/land";
+import { countryArea, countryRadius, shapeBiomes, shapeLand, toPoint, worldNoise } from "@/model/authoring/land";
 import { EXPANSIONISM, plantSpecies } from "@/model/authoring/seeds";
 import type { Seeds, SpeciesSeed, StateSeed } from "@/model/authoring/world-spec";
 import { MapRestoration } from "@/model/map-restoration";
@@ -94,7 +95,17 @@ class AdditionsModule {
 
     Authoring.markAuthored("states", id);
     Authoring.markAuthored("burgs", capital);
-    this.grow("states", id, () => this.recalculateStates());
+    const area = countryArea(seed);
+    const recalculate =
+      area === undefined
+        ? () => this.recalculateStates()
+        : () => {
+            // only the newcomer grows, taking land from unlocked countries and no capital
+            const canTake = (c: number) => !locked(c) && !burgs[cells.burg[c]]?.capital;
+            growToArea(new Map([[id, area]]), canTake);
+            this.refreshStates();
+          };
+    this.grow("states", id, recalculate);
     return id;
   }
 
@@ -122,6 +133,10 @@ class AdditionsModule {
   // like States.recalculate, but rebuilding provinces keeps the locked ones and those of locked states
   private recalculateStates(): void {
     States.expandStates();
+    this.refreshStates();
+  }
+
+  private refreshStates(): void {
     Provinces.generate(true);
     Provinces.getPoles();
     States.getPoles();
