@@ -1,9 +1,9 @@
 @tool
-class_name FMGWorld
+class_name CartographyWorld
 extends Node3D
 ## The root of an imported world, with lookups by position for the game's code.
 
-@export var data: FMGWorldData
+@export var data: CartographyWorldData
 
 
 func meters_per_pixel() -> float:

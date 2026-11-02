@@ -1,8 +1,8 @@
 @tool
 extends EditorPlugin
 
-const MENU := "Import FMG package..."
-const Importer := preload("fmg_importer.gd")
+const MENU := "Import Fantasy Cartography package..."
+const Importer := preload("cartography_importer.gd")
 
 var _dialog: EditorFileDialog
 

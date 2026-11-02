@@ -11,7 +11,7 @@ async function start(): Promise<void> {
   const language = resolveLanguage(app?.language);
   document.documentElement.lang = language;
   await Catalog.load(language).catch(error => log.error("Interface strings failed to load", error));
-  document.title = t("Azgaar's Fantasy Map Generator");
+  document.title = t("Fantasy Cartography");
   const { boot } = await import("./app");
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else void boot();

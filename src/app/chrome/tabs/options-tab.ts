@@ -417,9 +417,9 @@ const TEMPLATE = /* html */ `
         <i data-tip="${t("Open the performance settings")}" id="openPerformanceSettings" class="icon-cog"></i>
       </td>
     </tr>
-    <tr data-tip="${t("Toggle Azgaar Assistant (help bubble on the bottom right corner)")}">
+    <tr data-tip="${t("Toggle Fantasy Cartography Assistant (help bubble on the bottom right corner)")}">
       <td></td>
-      <td>${t("Azgaar Assistant")}</td>
+      <td>${t("Fantasy Cartography Assistant")}</td>
       <td>
         <select id="azgaarAssistant" data-option="azgaarAssistant">
           <option value="show" selected>${t("Show")}</option>

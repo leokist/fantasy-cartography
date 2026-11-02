@@ -2,7 +2,7 @@ extends SceneTree
 ## Imports a package and checks the world it builds:
 ## godot --headless --path godot --script tests/test_import.gd -- path/to/package.zip
 
-const Importer := preload("res://addons/fmg_importer/fmg_importer.gd")
+const Importer := preload("res://addons/cartography_importer/cartography_importer.gd")
 
 var _failures := 0
 
@@ -17,7 +17,7 @@ func _run() -> void:
 		push_error("Pass the package path after --")
 		quit(2)
 		return
-	var scene_path := Importer.new().import_package(args[0], "res://fmg")
+	var scene_path := Importer.new().import_package(args[0], "res://cartography")
 	_check(not scene_path.is_empty(), "scene saved")
 	if scene_path.is_empty():
 		quit(1)
