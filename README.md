@@ -4,8 +4,10 @@
 
 - **Assistente de mundo**: criação passo a passo, com cada ajuste definido à mão ou sorteado, e geração depois.
 - **Autoria das entidades**: o que você cria ou edita fica marcado e travado, e a regeneração não apaga.
+- **Fauna e flora**: um catálogo de espécies por bioma, ligado às mercadorias, com editor próprio.
+- **Pacote Godot**: alturas em metros, mapas de biomas e máscaras, rios, lagos, estradas, lugares e fronteiras, importados no Terrain3D pelo addon da pasta [godot](godot).
 
-O aviso de copyright original foi mantido no arquivo [LICENSE](LICENSE). Detalhes técnicos do fork em [docs/architecture/authoring.md](docs/architecture/authoring.md).
+O aviso de copyright original foi mantido no arquivo [LICENSE](LICENSE). Detalhes técnicos do fork em [docs/architecture/authoring.md](docs/architecture/authoring.md) e [docs/architecture/godot-export.md](docs/architecture/godot-export.md).
 
 Agradecimentos ao Azgaar e aos colaboradores do projeto original. Para apoiar o trabalho deles, veja o [Patreon do Azgaar](https://www.patreon.com/azgaar).
 

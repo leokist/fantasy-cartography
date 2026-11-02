@@ -710,6 +710,12 @@ export const MAP_COMMANDS: MapCommand[] = [
     run: () => Services.ExportMap.saveGeoJsonZones()
   },
   {
+    id: "exportGodot",
+    name: t("Export to Godot"),
+    aliases: "download game engine terrain3d heightmap package zip",
+    run: () => Controllers.GodotExport.open()
+  },
+  {
     id: "exportCsvBurgs",
     name: `${t("Export to CSV")}: ${t("Burgs")}`,
     aliases: "download table settlements cities towns",
