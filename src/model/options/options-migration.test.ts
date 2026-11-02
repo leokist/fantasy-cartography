@@ -175,7 +175,7 @@ it.each([
   expect(Pins.has(String(key))).toBe(false);
 });
 
-it("resolves pins into requests before the geography generator runs", () => {
+it("resolves pins into requests, and the geography generator keeps the game band", () => {
   globalThis.grid = { ...Grid.generate("geography"), features: [] };
   Pins.set("template", "britain");
   Pins.set("mapSize", 20);
@@ -183,17 +183,9 @@ it("resolves pins into requests before the geography generator runs", () => {
   Options.randomize();
   expect(options.generation.geography).toEqual({ mapSize: 20, latitude: 0, longitude: null });
 
-  Pins.set("mapSize", 70); // a later pin cannot change the request already prepared for this generation
-  Coordinates.generate();
-  expect(options.map.geography).toMatchObject({ mapSize: 20, latitude: 0, longitude: 51.3 });
-  expect(options.map.geography.coordinates).toMatchObject({ latT: 36, latN: 90 });
-
-  window.history.replaceState({}, "", "?options=default");
-  Options.randomize();
-  expect(options.generation.geography).toEqual({ mapSize: null, latitude: null, longitude: null });
-  options.generation.template = "britain";
-  Coordinates.generate();
-  expect(options.map.geography).toMatchObject({ mapSize: 7, latitude: 20, longitude: 51.3 });
+  Coordinates.generate(); // Fantasy Cartography: every map sits on the same band, whatever was asked
+  expect(options.map.geography).toMatchObject({ mapSize: 20, latitude: 30, longitude: 50 });
+  expect(options.map.geography.coordinates).toMatchObject({ latT: 36, latN: 46.8, latS: 10.8 });
 });
 
 it("generates a map name in randomize, including when pins are ignored", () => {

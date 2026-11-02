@@ -23,22 +23,43 @@ Lockable entities (`AUTHORABLE` in [`authoring.ts`](../../src/model/authoring/au
 
 `Authoring.install()` wraps the models' edit methods once at boot (`rename`, `recolor`, `set*`, `move*`…, but not `setLocked`, `setHidden`, `setPinned`) and their `add`/`create`. Every editor, CSV upload and Assistant change goes through those methods, so no editor records anything itself. Work the generator does on its own behalf runs inside `Authoring.untracked()`: every `Pipeline.run` and `MapRestoration.transaction` is wrapped that way.
 
-## Declared cultures and states
+## Start of a session
 
-`authoring.seeds` holds the cultures and states the author declared, each at a spot given in percent of the map, since the land is not known before generation. The wizard hands them to `WorldSeeds.planNext()` ([`seeds.ts`](../../src/model/authoring/seeds.ts)), and four pipeline steps apply them right after the generator makes the random ones, so everything downstream builds on them:
+Nothing is generated on start-up unless the URL or the stored-map option asks for a map: the start menu ([`start-menu.ts`](../../src/app/chrome/start-menu.ts)) offers a random world or the World Wizard over the splash. `newWorld()` takes the start-up path for the first map of a session and replaces the map on screen afterwards.
+
+Every map sits on the same latitude band (`GAME_GEOGRAPHY` in [`coordinates.ts`](../../src/model/physical/coordinates.ts)): warmer in the south, colder in the north, with no share of a globe or position on it. The Climate dialog sets the warm and cold ends and the precipitation.
+
+## Declared world
+
+`authoring.seeds` holds what the author declared, each at a spot given in percent of the map ([`world-spec.ts`](../../src/model/authoring/world-spec.ts)):
+
+- **continents**: a name and a size;
+- **countries** (`states`): capital spot and name, size, form, color, picture emblem, culture, continent, the countries it borders and its cities;
+- **provinces**: the country they belong to, with relief, climate, water and nature (a biome), each optional;
+- **cultures** and **species**.
+
+When continents or countries are declared, the land is theirs ([`land.ts`](../../src/model/authoring/land.ts)): continents are ragged ellipses and countries circles of their size, with bridges between neighbours; elsewhere is sea. A province's weight is 1 over the part of the map nearer its spot than any other province's, blending across a ragged border and fading beyond its country's reach. The same weights shape the land, the climate and the provinces themselves. The generated map has exactly the declared countries.
 
 | Step | After | Does |
 | --- | --- | --- |
-| `cultureSeeds` | `cultures` | seed k renames culture k and moves its center to the nearest populated cell; it spreads in `culturesExpand` |
-| `capitalSeeds` | `burgs` | seed k moves capital k, so state k is founded there; its culture can be a declared one |
-| `stateSeeds` | `stateForms` | names, form, color and a picture emblem (`{ icon }`), after `stateForms` would rename them |
+| `landSeeds` | `heightmap` | heights from continents, countries and province reliefs |
+| `climateSeeds` | `temperatures` | temperatures pulled toward each province's climate, cooler with altitude |
+| `waterSeeds` | `precipitation` | precipitation scaled by each province's water |
+| `biomeSeeds` | `biomes` | the biome a province asks for, over its land |
+| `cultureSeeds` | `cultures` | seed k renames culture k and moves its center; it spreads in `culturesExpand` |
+| `settleSeeds` | `culturesExpand` | land no culture reached, such as a lone island, takes the nearest culture |
+| `capitalSeeds` | `burgs` | seed k moves capital k, so country k is founded there |
+| `stateSizes` | `states` | growth by size, the land of declared provinces claimed, declared borders joined |
+| `citySeeds` | `religions` | the declared cities as burgs |
+| `stateSeeds` | `stateForms` | names, form, color and a picture emblem (`{ icon }`) |
+| `provinceSeeds` | `provinces` | a country with declared provinces is divided into them |
 | `seedsFinish` | `legends` | marks what was seeded `authored` and releases the plan |
 
-The wizard pins at least as many cultures and states as were declared. A seed with no culture or capital to take is skipped with a warning.
+The helpers for one country (borders, cities, provinces, settling) are in [`country.ts`](../../src/model/authoring/country.ts).
 
 ## Adding to a generated map
 
-[`Additions`](../../src/model/authoring/additions.ts) founds a declared state or culture on the map on screen. The newcomer is unlocked while the unlocked entities are recalculated around it, then locked. Locked states keep their land, provinces and data unchanged: a locked state no longer grows when states expand, like a locked culture. Rebuilding provinces keeps the locked ones and those of locked states (`Provinces.generate(true)`), which `States.recalculate()` does not.
+[`Additions`](../../src/model/authoring/additions.ts) puts a declared country, culture or species on the map on screen. `addCountry` raises land first where the country's spot is sea, through the Risk heightmap edit, which rebuilds the map and carries every entity over; then it founds the country, grows it to its size, joins its borders and adds its cities and provinces. The newcomer is unlocked while the unlocked entities are recalculated around it, then locked. Locked states keep their land and data: a locked state no longer grows when states expand, like a locked culture. Rebuilding provinces keeps the locked ones and those of locked states (`Provinces.generate(true)`), renumbering them.
 
 ## Fauna and flora
 

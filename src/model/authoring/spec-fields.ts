@@ -9,7 +9,7 @@ import { AUTO_BURG_LIMIT, pinSchemas } from "@/model/options/options-schema";
 import { Pins } from "@/model/options/pins";
 import { t } from "@/utils/i18n";
 
-export const WIZARD_STEPS = ["world", "terrain", "climate", "nature", "peoples", "politics", "economy"] as const;
+export const WIZARD_STEPS = ["map", "countries", "regions", "peoples"] as const;
 export type WizardStep = (typeof WIZARD_STEPS)[number];
 
 export type FieldInput =
@@ -20,6 +20,7 @@ export type FieldInput =
 export interface SpecFieldDef {
   key: string;
   step: WizardStep;
+  advanced?: boolean; // tucked under "More settings"
   label: string;
   hint: string;
   input: FieldInput;
@@ -59,7 +60,7 @@ const distanceUnits = (): [string, string][] => [
 export const SPEC_FIELDS: SpecFieldDef[] = [
   {
     key: "mapName",
-    step: "world",
+    step: "map",
     label: t("World name"),
     hint: t("Used for file names and the map title"),
     input: text,
@@ -67,7 +68,7 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "year",
-    step: "world",
+    step: "map",
     label: t("Current year"),
     hint: t("The year the map shows"),
     input: number(-100000, 100000),
@@ -75,7 +76,7 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "era",
-    step: "world",
+    step: "map",
     label: t("Era"),
     hint: t("The name of the current era"),
     input: text,
@@ -83,7 +84,7 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "mapWidth",
-    step: "world",
+    step: "map",
     label: t("Map width, px"),
     hint: t("Canvas size of the map"),
     input: number(240, 10000),
@@ -91,7 +92,7 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "mapHeight",
-    step: "world",
+    step: "map",
     label: t("Map height, px"),
     hint: t("Canvas size of the map"),
     input: number(240, 10000),
@@ -99,7 +100,7 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "points",
-    step: "world",
+    step: "map",
     label: t("Level of detail, cells"),
     hint: t("More cells give finer coasts and borders, but a slower map. 10K is recommended"),
     input: choice(densities),
@@ -107,7 +108,7 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "distanceScale",
-    step: "world",
+    step: "map",
     label: t("Distance per pixel"),
     hint: t("How much one map pixel stands for, in the distance unit"),
     input: number(0.01, 1000, 0.01),
@@ -115,47 +116,25 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "distanceUnit",
-    step: "world",
+    step: "map",
     label: t("Distance unit"),
     hint: t("Unit for distances and areas"),
     input: choice(distanceUnits),
     current: () => options.map.units.distance.unit
   },
   {
-    key: "mapSize",
-    step: "world",
-    label: t("Share of the planet, %"),
-    hint: t("How much of the globe the map covers"),
-    input: number(1, 100),
-    current: () => options.map.geography.mapSize
-  },
-  {
-    key: "latitude",
-    step: "world",
-    label: t("Latitude shift, %"),
-    hint: t("0 puts the map at the north pole, 100 at the south pole"),
-    input: number(0, 100),
-    current: () => options.map.geography.latitude
-  },
-  {
-    key: "longitude",
-    step: "world",
-    label: t("Longitude shift, %"),
-    hint: t("Where the map sits from west to east"),
-    input: number(0, 100),
-    current: () => options.map.geography.longitude
-  },
-  {
     key: "template",
-    step: "terrain",
+    step: "map",
+    advanced: true,
     label: t("Terrain shape"),
-    hint: t("A template draws a new land each time; items marked * are fixed real-world-like maps"),
+    hint: t("Used only when you declare no continents: a template draws a new land each time"),
     input: choice(templates),
     current: () => options.generation.template
   },
   {
     key: "heightExponent",
-    step: "terrain",
+    step: "map",
+    advanced: true,
     label: t("Mountain steepness"),
     hint: t("Higher values make peaks taller against the lowlands"),
     input: number(1.5, 2.2, 0.01),
@@ -163,7 +142,8 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "lakeElevationLimit",
-    step: "terrain",
+    step: "map",
+    advanced: true,
     label: t("Lake elevation limit"),
     hint: t("How deep a depression must be to hold a lake"),
     input: number(0, 80),
@@ -171,7 +151,8 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "resolveDepressionsSteps",
-    step: "terrain",
+    step: "map",
+    advanced: true,
     label: t("Depression filling steps"),
     hint: t("More steps drain more inland basins toward the sea"),
     input: number(0, 500),
@@ -179,31 +160,26 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "temperatureEquator",
-    step: "climate",
-    label: t("Temperature at the equator, °C"),
-    hint: t("Average yearly temperature"),
+    step: "map",
+    advanced: true,
+    label: t("Warmest temperature, °C"),
+    hint: t("Average yearly temperature in the south of the map"),
     input: number(-50, 50),
     current: () => options.map.climate.temperature.equator
   },
   {
     key: "temperatureNorthPole",
-    step: "climate",
-    label: t("Temperature at the North Pole, °C"),
-    hint: t("Average yearly temperature"),
+    step: "map",
+    advanced: true,
+    label: t("Coldest temperature, °C"),
+    hint: t("Average yearly temperature in the north of the map"),
     input: number(-50, 50),
     current: () => options.map.climate.temperature.northPole
   },
   {
-    key: "temperatureSouthPole",
-    step: "climate",
-    label: t("Temperature at the South Pole, °C"),
-    hint: t("Average yearly temperature"),
-    input: number(-50, 50),
-    current: () => options.map.climate.temperature.southPole
-  },
-  {
     key: "prec",
-    step: "climate",
+    step: "map",
+    advanced: true,
     label: t("Precipitation, %"),
     hint: t("More rain gives more rivers, lakes and forests"),
     input: number(0, 500),
@@ -235,7 +211,8 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "sizeVariety",
-    step: "peoples",
+    step: "countries",
+    advanced: true,
     label: t("Size variety"),
     hint: t("How unequal cultures and states are in size"),
     input: number(0, 10, 0.1),
@@ -243,7 +220,8 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "growthRate",
-    step: "peoples",
+    step: "countries",
+    advanced: true,
     label: t("Growth rate"),
     hint: t("How far cultures and states spread over the land"),
     input: number(0.1, 2, 0.1),
@@ -251,15 +229,17 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "statesNumber",
-    step: "politics",
-    label: t("Number of states"),
-    hint: t("Each state gets a capital"),
+    step: "countries",
+    advanced: true,
+    label: t("Number of countries"),
+    hint: t("Used only when you declare no countries: each gets a capital"),
     input: number(0, 100),
     current: () => options.generation.states.limit
   },
   {
     key: "provincesRatio",
-    step: "politics",
+    step: "countries",
+    advanced: true,
     label: t("Provinces, % of burgs"),
     hint: t("Share of burgs that become province centers"),
     input: number(0, 100),
@@ -267,7 +247,8 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "manors",
-    step: "politics",
+    step: "countries",
+    advanced: true,
     label: t("Number of burgs"),
     hint: t("Settlements besides the capitals; 1000 means as many as the land supports"),
     input: number(0, AUTO_BURG_LIMIT),
@@ -275,7 +256,7 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "populationRate",
-    step: "economy",
+    step: "peoples",
     label: t("People per population point"),
     hint: t("Scales every population figure on the map"),
     input: number(10, 10000, 10),
@@ -283,7 +264,7 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "urbanization",
-    step: "economy",
+    step: "peoples",
     label: t("Urbanization rate"),
     hint: t("How much of the population lives in burgs"),
     input: number(0.01, 5, 0.01),
@@ -291,7 +272,7 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
   },
   {
     key: "urbanDensity",
-    step: "economy",
+    step: "peoples",
     label: t("Urban density"),
     hint: t("People per building in burg previews"),
     input: number(1, 200),

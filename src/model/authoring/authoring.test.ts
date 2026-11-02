@@ -124,14 +124,30 @@ describe("migration of maps made before authoring", () => {
 describe("seeds in the world spec", () => {
   it("plant only named seeds and keep each state on the same culture", () => {
     const planted = cleanSeeds({
+      continents: [
+        { name: "", x: 0, y: 0, size: "small" },
+        { name: "Westland", x: 10, y: 10, size: "large" }
+      ],
+      provinces: [
+        { name: "Highmoor", state: 0, x: 3, y: 4, relief: "mountains" },
+        { name: "Lost", state: 2, x: 5, y: 5 }
+      ],
       cultures: [
         { name: "", x: 1, y: 1 },
         { name: "Aldorians", x: 2, y: 2 }
       ],
       states: [
-        { name: "Aldoria", culture: 1, x: 3, y: 3 },
-        { name: "Brennmark", culture: 0, x: 4, y: 4 },
-        { name: "", x: 5, y: 5 }
+        { name: "", x: 5, y: 5 },
+        {
+          name: "Aldoria",
+          culture: 1,
+          x: 3,
+          y: 3,
+          continent: 1,
+          neighbors: [0, 2],
+          cities: [{ name: "", x: 1, y: 1 }]
+        },
+        { name: "Brennmark", culture: 0, x: 4, y: 4, continent: 0, neighbors: [1] }
       ],
       species: [
         { name: "Dragon", kind: "fauna", biomes: [9] },
@@ -139,10 +155,13 @@ describe("seeds in the world spec", () => {
       ]
     });
     expect(planted.cultures.map(culture => culture.name)).toEqual(["Aldorians"]);
+    expect(planted.continents.map(continent => continent.name)).toEqual(["Westland"]);
     expect(planted.states).toEqual([
-      { name: "Aldoria", culture: 0, x: 3, y: 3 },
-      { name: "Brennmark", x: 4, y: 4 }
+      { name: "Aldoria", culture: 0, x: 3, y: 3, continent: 0, neighbors: [1] },
+      { name: "Brennmark", x: 4, y: 4, neighbors: [0] }
     ]);
+    // the province of the unnamed state goes with it; the other follows its state to its new index
+    expect(planted.provinces).toEqual([{ name: "Lost", state: 1, x: 5, y: 5 }]);
     expect(planted.species).toEqual([{ name: "Dragon", kind: "fauna", biomes: [9] }]);
   });
 
@@ -152,7 +171,7 @@ describe("seeds in the world spec", () => {
     expect(JSON.parse(data[1]).authoring).toEqual({
       autoLock: false,
       fields: {},
-      seeds: { cultures: [], states: [], species: [] }
+      seeds: { continents: [], cultures: [], states: [], provinces: [], species: [] }
     });
   });
 });

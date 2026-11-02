@@ -358,8 +358,8 @@ function renderOptionsDialog(): void {
         <button id="options3dUpdate" data-tip="${t("Update the scene")}" class="icon-cw"></button>
         <button
           id="options3dConfigureWorld"
-          data-tip="${t("Configure world and map size and climate settings")}"
-          class="icon-globe"
+          data-tip="${t("Climate settings")}"
+          class="icon-sun"
         ></button>
         <button id="options3dSave" data-tip="${t("Save screenshot of the 3d scene")}" class="icon-button-screenshot"></button>
         <button id="options3dOBJSave" data-tip="${t("Save OBJ file of the 3d scene")}" class="icon-download"></button>

@@ -1,10 +1,12 @@
-// The world wizard: the author sets or rolls each generation setting step by step, then generates once
+// The world wizard: the map, its continents and countries, the provinces of each country and its peoples, set by
+// hand or rolled, then generated once
 
-import { regenerateMap } from "@/app/lifecycle";
+import { newWorld } from "@/app/lifecycle";
 import { Controllers } from "@/controllers";
+import { bindPlaces, renderCountriesStep, renderRegionsStep, resetPlaces } from "@/controllers/world-wizard-places";
 import { bindSeeds, renderSeeds } from "@/controllers/world-wizard-seeds";
 import { bindSpeciesSeeds, renderSpeciesSeeds } from "@/controllers/world-wizard-species";
-import { WorldSeeds } from "@/model/authoring/seeds";
+import { buildsLand, WorldSeeds } from "@/model/authoring/seeds";
 import {
   type FieldInput,
   initialField,
@@ -15,7 +17,7 @@ import {
   WIZARD_STEPS,
   type WizardStep
 } from "@/model/authoring/spec-fields";
-import { cleanSeeds, type FieldMode, type Seeds, type SpecField } from "@/model/authoring/world-spec";
+import { cleanSeeds, type FieldMode, getDefaultSeeds, type Seeds, type SpecField } from "@/model/authoring/world-spec";
 import { mapHistory } from "@/model/map-history";
 import { Pins } from "@/model/options/pins";
 import { Dialog } from "@/ui/dialog/dialog";
@@ -28,40 +30,42 @@ const DIALOG_ID = "worldWizard";
 const REVIEW = WIZARD_STEPS.length; // the last page, after the steps
 
 const STEP_TEXT: Record<WizardStep, { title: string; intro: string }> = {
-  world: { title: t("World"), intro: t("Name the world, set its era and decide how large and detailed the map is.") },
-  terrain: { title: t("Terrain"), intro: t("Choose the shape of the land. You can draw it by hand after generating.") },
-  climate: { title: t("Climate and water"), intro: t("Temperature and rain decide rivers, lakes, ice and biomes.") },
-  nature: {
-    title: t("Nature"),
-    intro: t("Biomes follow from the climate, and each comes with its usual fauna and flora.")
+  map: { title: t("Map"), intro: t("Name the map, set its era and decide how large and detailed it is.") },
+  countries: {
+    title: t("Continents and countries"),
+    intro: t("Place the continents and the countries on them, with capitals, cities, emblems and borders.")
+  },
+  regions: {
+    title: t("Regions"),
+    intro: t("Divide each country into provinces and say what each is like: relief, climate, water and nature.")
   },
   peoples: {
-    title: t("Peoples"),
-    intro: t("How many cultures and religions the world holds, and the cultures you want for sure.")
-  },
-  politics: {
-    title: t("Politics"),
-    intro: t("How many states, provinces and burgs the generator places, and the states you want for sure.")
-  },
-  economy: { title: t("Economy and history"), intro: t("The scale of population. Routes, places and lore follow it.") }
+    title: t("Peoples and nature"),
+    intro: t("Cultures, religions and population, the cultures you want for sure, and your own fauna and flora.")
+  }
 };
 
 const AFTER: Partial<
   Record<WizardStep, { text: string; editor: "SpeciesEditor" | "HeightmapSelection" | "LoreEditor" }>
 > = {
-  terrain: { text: t("Draw or import a heightmap"), editor: "HeightmapSelection" },
-  nature: { text: t("Edit fauna and flora"), editor: "SpeciesEditor" },
-  economy: { text: t("Write the lore"), editor: "LoreEditor" }
+  map: { text: t("Write the lore"), editor: "LoreEditor" },
+  peoples: { text: t("Edit fauna and flora"), editor: "SpeciesEditor" }
 };
 
 let fields: Record<string, SpecField> = {};
 let seed: SpecField = { mode: "random", value: "" };
-let seeds: Seeds = { cultures: [], states: [], species: [] };
+let seeds: Seeds = getDefaultSeeds();
 let autoLock = true;
 let page = 0;
+let onCancel: (() => void) | undefined;
+let generating = false;
 
-function open(): void {
+/** `onCancel` runs when the wizard closes without generating: the start menu waits behind it on start-up */
+function open(settings: { onCancel?: () => void } = {}): void {
   if (options.app.mode) return void tip(t("Exit the edit mode first"), false, "error");
+  onCancel = settings.onCancel;
+  generating = false;
+  resetPlaces();
   const { authoring } = options.map;
   fields = Object.fromEntries(SPEC_FIELDS.map(def => [def.key, initialField(def, authoring)]));
   seed = authoring.fields.seed ?? { mode: "random", value: options.map.seed };
@@ -76,7 +80,10 @@ function open(): void {
     title: t("World Wizard"),
     width: "48em",
     maxHeight: 640,
-    position: { my: "center", at: "center", of: "svg" }
+    position: { my: "center", at: "center", of: "svg" },
+    onClose: () => {
+      if (!generating) onCancel?.();
+    }
   });
 }
 
@@ -111,6 +118,30 @@ function render(): void {
       #${DIALOG_ID} .checks { display: flex; flex-wrap: wrap; gap: 0.2em 0.8em; margin-top: 0.3em; font-size: 0.9em }
       #${DIALOG_ID} .seedButtons { margin-left: auto }
       #${DIALOG_ID} .wizardNav { display: flex; gap: 0.4em; justify-content: space-between; margin-top: 0.8em; width: 100% }
+      #${DIALOG_ID} h3 { margin: 0.9em 0 0.2em; font-size: 1.05em }
+      #${DIALOG_ID} .hint { font-size: 0.85em; opacity: 0.75 }
+      #${DIALOG_ID} .sketch { position: relative; margin: 0 auto; box-sizing: border-box; overflow: hidden; border: 1px solid #8888; background: #9bb5c0; cursor: default }
+      #${DIALOG_ID} .sketch.active { cursor: crosshair; outline: 2px solid #c0392b }
+      #${DIALOG_ID} .sketchMap { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.85 }
+      #${DIALOG_ID} .reach { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; border: 1.5px dashed #5c4a2a; background: #e8dcb455; pointer-events: none; display: flex; align-items: center; justify-content: center; font-size: 0.8em; color: #3b2f1a }
+      #${DIALOG_ID} .reach:not(.continent) { background: none; border-style: solid; border-width: 1px }
+      #${DIALOG_ID} .mark { position: absolute; width: 0.8em; height: 0.8em; margin: -0.4em 0 0 -0.4em; border-radius: 50%; border: 1px solid #fff; pointer-events: none }
+      #${DIALOG_ID} .mark span { position: absolute; left: 1em; top: -0.35em; white-space: nowrap; font-size: 0.8em; text-shadow: 0 0 2px #fff, 0 0 2px #fff }
+      #${DIALOG_ID} .mark.city { width: 0.5em; height: 0.5em; margin: -0.25em 0 0 -0.25em; border-radius: 0; background: #333 }
+      #${DIALOG_ID} .mark.province { border-radius: 0; transform: rotate(45deg); background: #6c3483 }
+      #${DIALOG_ID} .mark.province span { transform: rotate(-45deg) }
+      #${DIALOG_ID} .placing { background: #c0392b; color: #fff; padding: 0.3em 0.5em; margin-bottom: 0.3em }
+      #${DIALOG_ID} .placeRow { display: flex; flex-wrap: wrap; gap: 0.3em; align-items: center; margin: 0.3em 0 }
+      #${DIALOG_ID} .placeRow > input, #${DIALOG_ID} .placeRow > select { flex: 1 1 9em; min-width: 0; box-sizing: border-box }
+      #${DIALOG_ID} .placeRow.end { justify-content: flex-end }
+      #${DIALOG_ID} .countryCard, #${DIALOG_ID} .provinceCard { border-left: 4px solid #6c3483; padding: 0.3em 0 0.3em 0.6em; margin: 0.6em 0; background: #8881 }
+      #${DIALOG_ID} .cities { margin: 0.3em 0 }
+      #${DIALOG_ID} .regionTabs { display: flex; flex-wrap: wrap; gap: 0.3em; margin-bottom: 0.5em }
+      #${DIALOG_ID} .regionTabs button { border-bottom: 3px solid }
+      #${DIALOG_ID} .regionTabs button.active { font-weight: bold }
+      #${DIALOG_ID} button.unplaced { outline: 1px dashed #c0392b }
+      #${DIALOG_ID} details { margin-top: 0.8em }
+      #${DIALOG_ID} .seedColor input[type=color] { width: 2.4em; height: 1.6em; padding: 0; vertical-align: middle }
     </style>
     <div class="wizardTabs">${tabs}</div>
     ${isReview ? renderReview() : renderStep(WIZARD_STEPS[page])}
@@ -137,6 +168,7 @@ function render(): void {
   });
   bindSeeds(dialog, seeds, render);
   bindSpeciesSeeds(dialog, seeds, render);
+  bindPlaces(dialog, seeds, render);
   dialog.querySelector<HTMLInputElement>("#wizardAutoLock")?.addEventListener("change", event => {
     autoLock = (event.target as HTMLInputElement).checked;
   });
@@ -144,18 +176,25 @@ function render(): void {
 
 function renderStep(step: WizardStep): string {
   const { intro } = STEP_TEXT[step];
-  const rows = SPEC_FIELDS.filter(def => def.step === step).map(renderField);
+  const rows = (advanced: boolean) =>
+    SPEC_FIELDS.filter(def => def.step === step && Boolean(def.advanced) === advanced)
+      .map(renderField)
+      .join("");
+  const more = rows(true);
   const after = AFTER[step];
   const afterButton = after
     ? `<p><button data-action="after" data-tip="${t("Generate first, then open this editor")}">${after.text}</button></p>`
     : "";
-  const roll = rows.length ? `<button data-action="rollStep">${t("Roll this step")}</button>` : "";
+  const roll = SPEC_FIELDS.some(def => def.step === step)
+    ? `<button data-action="rollStep">${t("Roll this step")}</button>`
+    : "";
   return /* html */ `
     <p style="margin-top: 0">${intro} ${roll}</p>
-    ${rows.join("")}
-    ${step === "peoples" ? renderSeeds("cultures", seeds, hasMap()) : ""}
-    ${step === "politics" ? renderSeeds("states", seeds, hasMap()) : ""}
-    ${step === "nature" ? renderSpeciesSeeds(seeds, hasMap()) : ""}
+    ${rows(false)}
+    ${step === "countries" ? renderCountriesStep(seeds, hasMap()) : ""}
+    ${step === "regions" ? renderRegionsStep(seeds, hasMap()) : ""}
+    ${step === "peoples" ? renderSeeds("cultures", seeds, hasMap()) + renderSpeciesSeeds(seeds, hasMap()) : ""}
+    ${more ? `<details><summary>${t("More settings")}</summary>${more}</details>` : ""}
     ${afterButton}`;
 }
 
@@ -195,15 +234,20 @@ function renderReview(): string {
   const set = Object.values(fields).filter(field => field.mode === "set").length;
   const total = SPEC_FIELDS.length;
   const seedValue = escapeHtml(String(seed.value ?? ""));
-  const { cultures, states, species } = cleanSeeds(seeds);
+  const { continents, cultures, states, provinces, species } = cleanSeeds(seeds);
   const declared =
-    cultures.length || states.length || species.length
-      ? t("Declared: {{cultures}} cultures, {{states}} states and {{species}} species.", {
-          cultures: cultures.length,
-          states: states.length,
-          species: species.length
-        })
-      : "";
+    continents.length || cultures.length || states.length || provinces.length || species.length
+      ? t(
+          "Declared: {{continents}} continents, {{states}} countries, {{provinces}} provinces, {{cultures}} cultures and {{species}} species.",
+          {
+            continents: continents.length,
+            states: states.length,
+            provinces: provinces.length,
+            cultures: cultures.length,
+            species: species.length
+          }
+        )
+      : t("Nothing declared: the generator makes the whole world at random.");
   return /* html */ `
     <p style="margin-top: 0">${t("{{set}} of {{total}} settings are set by you; the generator rolls the rest.", { set, total })}
       ${declared}</p>
@@ -305,18 +349,17 @@ function generate(editor?: AfterEditor): void {
     { once: true }
   );
 
-  // every declared culture and state needs a slot to fill
+  // every declared culture needs a slot to fill; declared countries are all the countries there are
   const pins = pinsOf(fields);
-  const atLeast = (key: string, count: number) => {
-    if (count) pins[key] = Math.max(Number(fields[key]?.value ?? 0), count);
-  };
-  atLeast("cultures", planted.cultures.length);
-  atLeast("statesNumber", planted.states.length);
+  if (planted.cultures.length) pins.cultures = Math.max(Number(fields.cultures?.value ?? 0), planted.cultures.length);
+  if (planted.states.length) pins.statesNumber = planted.states.length;
+  if (buildsLand(planted)) pins.template = "continents"; // only the first strokes; the land is the author's
 
+  generating = true;
   Dialog.close(DIALOG_ID);
   WorldSeeds.planNext(planted);
   Pins.overrideNext(pins);
-  regenerateMap(seed.mode === "set" && seed.value ? { seed: String(seed.value) } : undefined);
+  void newWorld(seed.mode === "set" && seed.value ? { seed: String(seed.value) } : undefined);
 }
 
 export const WorldWizard = { open };

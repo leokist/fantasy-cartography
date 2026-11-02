@@ -370,9 +370,9 @@ export const MAP_COMMANDS: MapCommand[] = [
   },
   {
     id: "world",
-    name: t("World Configurator"),
+    name: t("Climate"),
     link: true,
-    aliases: "climate size latitude temperature",
+    aliases: "climate temperature precipitation world configurator",
     run: () => Controllers.WorldConfigurator.open()
   },
   {

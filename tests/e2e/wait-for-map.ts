@@ -7,8 +7,12 @@ const DEFAULT_TIMEOUT = 120000;
 
 const readCount = () => (window as any).FMG?.mapHistory?.length ?? 0;
 
-/** Wait until the app has generated or loaded a map */
+/** Wait until the app has generated or loaded a map; a bare start-up asks first, and gets "Generate automatically" */
 export function waitForMap(page: Page, timeout = DEFAULT_TIMEOUT): Promise<unknown> {
+  page
+    .locator('#startMenu [data-choice="auto"]')
+    .click({ timeout })
+    .catch(() => {}); // a linked, seeded or stored map opens without the start menu
   return page.waitForFunction(readCount, undefined, { timeout }).then(handle => handle.jsonValue());
 }
 

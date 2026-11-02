@@ -1,38 +1,28 @@
-import { geoGraticule, geoOrthographic, geoPath, interpolateSpectral, range, scaleSequential, select } from "d3";
+// The climate of the map: how warm, how cold and how wet, applied to the map on screen
 import { Controllers } from "@/controllers";
 import { Routes } from "@/model/economy/routes-generator";
 import { Options } from "@/model/options/options-model";
 import { Pins } from "@/model/options/pins";
 import { Biomes } from "@/model/physical/biomes-generator";
-import { Coordinates } from "@/model/physical/coordinates";
 import { Features } from "@/model/physical/features-generator";
 import { Precipitation } from "@/model/physical/precipitation-generator";
 import { Rivers } from "@/model/physical/river-generator";
 import { Temperature } from "@/model/physical/temperature-generator";
-import { convertTemperature, getKmInDistanceUnit } from "@/model/units";
+import { convertTemperature } from "@/model/units";
 import { Layers } from "@/renderers/layers";
 import { Dialog } from "@/ui/dialog/dialog";
-
 import { bindPinIcons } from "@/ui/pin-icons";
 import { t } from "@/utils/i18n";
 import { ensureEl, findEl } from "@/utils/node-utils";
-import { rn } from "@/utils/number-utils";
-import { parseTransform, round } from "@/utils/string-utils";
-
-const projection = geoOrthographic().translate([100, 100]).scale(100);
-const path = geoPath(projection);
 
 function open(): void {
   if (options.app.mode) return;
 
   renderDialog();
   updateInputValues();
-  updateGlobeTemperature();
-  updateGlobePosition();
-  updateWindDirections();
 
   Dialog.open("worldConfigurator", {
-    title: t("Configure World"),
+    title: t("Climate"),
     buttons: [{ label: t("Update world"), onClick: updateWorld, tip: t("Apply current settings to the map") }],
     footer: /* html */ `<div class="dontAsk" data-tip="${t("Automatically update world on input changes and button clicks")}">
       <input id="wcAutoChange" class="checkbox" type="checkbox" checked />
@@ -59,165 +49,27 @@ function createDialogHtml(): string {
   </div>`;
 
   return /* html */ `<div id="worldConfigurator" class="dialog stable">
-    <div style="display: flex">
-      <div id="worldControls">
-        ${temperatureControl("temperatureEquator", t("Equator"), t("Set temperature at equator"))}
-        ${temperatureControl("temperatureNorthPole", t("North Pole"), t("Set the North Pole average yearly temperature"))}
-        ${temperatureControl("temperatureSouthPole", t("South Pole"), t("Set the South Pole average yearly temperature"))}
-        <div>
-          <i data-locked="0" id="lock_mapSize" class="icon-lock-open"></i>
-          <label data-tip="${t("Set map size relative to the world size")}">
-            <i>${t("Map size")}:</i>
-            <input id="mapSizeInput" type="number" min="1" max="100" step="0.1" />%
-            <input id="mapSizeOutput" type="range" min="1" max="100" step="0.1" />
-          </label>
-        </div>
-        <div>
-          <i data-locked="0" id="lock_latitude" class="icon-lock-open"></i>
-          <label data-tip="${t("Set a North-South map shift, set to 50 to make map center lie on Equator")}">
-            <i>${t("Latitudes")}:</i>
-            <input id="latitudeInput" type="number" min="0" max="100" step="0.1" />
-            <br /><i>N</i
-            ><input
-              id="latitudeOutput"
-              type="range"
-              min="0"
-              max="100"
-              step="0.1"
-              style="width: 10.3em"
-            /><i>S</i>
-          </label>
-        </div>
-        <div>
-          <i data-locked="0" id="lock_longitude" class="icon-lock-open"></i>
-          <label data-tip="${t("Set a West-East map shift, set to 50 to make map center lie on Prime meridian")}">
-            <i>${t("Longitudes")}:</i>
-            <input id="longitudeInput" type="number" min="0" max="100" step="0.1" />
-            <br /><i>W</i
-            ><input
-              id="longitudeOutput"
-              type="range"
-              min="0"
-              max="100"
-              step="0.1"
-              style="width: 10.3em"
-            /><i>E</i>
-          </label>
-        </div>
-        <div>
-          <label
-            data-tip="${t("Set precipitation - water amount clouds can bring. Defines rivers and biomes generation. Keep around 100% for default generation")}"
-          >
-            <i data-locked="0" id="lock_prec" class="icon-lock-open"></i>
-            <i>${t("Precipitation")}:</i>
-            <input id="precInput" type="number" />%
-            <input id="precOutput" type="range" min="0" max="500" />
-          </label>
-        </div>
-        <div data-tip="${t("The coordinate extent this map was generated on. The next map's is set in Options")}">
-          <i>${t("Map size")}:</i><br />
-          <span id="mapSize"></span> px = <span id="mapSizeFriendly"></span>
-        </div>
-        <div>
-          <i data-tip="${t("Length of Meridian. Almost half of the equator length")}">${t("Meridian length")}:</i><br />
-          <span id="meridianLength" data-tip="${t("Length of Meridian in pixels")}"></span> px =
-          <span
-            id="meridianLengthFriendly"
-            data-tip="${t("Length of Meridian is friendly units (depends on user configuration)")}"
-          ></span>
-          <span
-            id="meridianLengthEarth"
-            data-tip="${t("Fantasy world Meridian length relative to real-world Earth (20k km)")}"
-          ></span>
-        </div>
-        <div data-tip="${t("Map coordinates on globe")}"><i>${t("Coords")}:</i> <span id="mapCoordinates"></span></div>
+    <div id="worldControls">
+      <p class="hint" style="margin-top: 0; max-width: 24em">${t("The map runs from warmer in the south to colder in the north. Regions you configure in the World Wizard override it locally.")}</p>
+      ${temperatureControl("temperatureEquator", t("Warmest (south)"), t("Average yearly temperature at the warm end of the scale"))}
+      ${temperatureControl("temperatureNorthPole", t("Coldest (north)"), t("Average yearly temperature at the cold end of the scale"))}
+      <div>
+        <label
+          data-tip="${t("Set precipitation - water amount clouds can bring. Defines rivers and biomes generation. Keep around 100% for default generation")}"
+        >
+          <i data-locked="0" id="lock_prec" class="icon-lock-open"></i>
+          <i>${t("Precipitation")}:</i>
+          <input id="precInput" type="number" />%
+          <input id="precOutput" type="range" min="0" max="500" />
+        </label>
       </div>
-      <div style="display: flex; flex-direction: column; align-items: flex-end">
-        <svg id="globe" width="22em" viewBox="-20 -25 240 240">
-          <defs>
-            <linearGradient id="temperatureGradient" x1="0" x2="0" y1="0" y2="1">
-              <stop id="grad90" offset="0%" stop-color="blue" />
-              <stop id="grad60" offset="16.6%" stop-color="green" />
-              <stop id="grad30" offset="33.3%" stop-color="yellow" />
-              <stop id="grad0" offset="50%" stop-color="red" />
-              <stop id="grad-30" offset="66.6%" stop-color="yellow" />
-              <stop id="grad-60" offset="83.3%" stop-color="green" />
-              <stop id="grad-90" offset="100%" stop-color="blue" />
-            </linearGradient>
-          </defs>
-          <g id="globeNoteLines">
-            <line x1="5" x2="220" y1="0" y2="0" />
-            <line x1="5" x2="220" y1="13" y2="13" />
-            <line x1="5" x2="220" y1="49.5" y2="49.5" />
-            <line x1="-5" x2="220" y1="100" y2="100" />
-            <line x1="5" x2="220" y1="150.5" y2="150.5" />
-            <line x1="5" x2="220" y1="187" y2="187" />
-            <line x1="5" x2="220" y1="200" y2="200" />
-          </g>
-          <g id="globeWindArrows" data-tip="${t("Click to change wind direction")}" stroke-linejoin="round">
-            <circle cx="210" cy="6" r="12" />
-            <path data-tier="0" d="M210,11 v-10 l-3,3 m6,0 l-3,-3" transform="rotate(225 210 6)" />
-            <circle cx="210" cy="30" r="12" />
-            <path data-tier="1" d="M210,35 v-10 l-3,3 m6,0 l-3,-3" transform="rotate(45 210 30)" />
-            <circle cx="210" cy="75" r="12" />
-            <path data-tier="2" d="M210,80 v-10 l-3,3 m6,0 l-3,-3" transform="rotate(225 210 75)" />
-            <circle cx="210" cy="130" r="12" />
-            <path data-tier="3" d="M210,135 v-10 l-3,3 m6,0 l-3,-3" transform="rotate(315 210 130)" />
-            <circle cx="210" cy="173" r="12" />
-            <path data-tier="4" d="M210,178 v-10 l-3,3 m6,0 l-3,-3" transform="rotate(135 210 173)" />
-            <circle cx="210" cy="194" r="12" />
-            <path data-tier="5" d="M210,199 v-10 l-3,3 m6,0 l-3,-3" transform="rotate(315 210 194)" />
-          </g>
-          <g id="globaAxisLabels">
-            <text x="82%" y="-4%">${t("wind")}</text>
-            <text x="-8%" y="-4%">${t("Latitude")}</text>
-          </g>
-          <g id="globeLatLabels">
-            <text x="-15" y="5">90°</text>
-            <text x="-15" y="18">60°</text>
-            <text x="-15" y="53">30°</text>
-            <text x="-15" y="103">0°</text>
-            <text x="-15" y="153">30°</text>
-            <text x="-15" y="190">60°</text>
-            <text x="-15" y="204">90°</text>
-          </g>
-          <circle id="globeGradient" cx="100" cy="100" r="100" fill="url(#temperatureGradient)" stroke="none" />
-          <line id="globePrimeMeridian" x1="100" x2="100" y1="0" y2="200" />
-          <line id="globeEquator" x1="1" x2="200" y1="100" y2="100" />
-          <circle id="globeOutline" cx="100" cy="100" r="100" fill="none" />
-          <path id="globeGraticule" />
-          <path id="globeArea" />
-        </svg>
-        <button id="restoreWinds" data-tip="${t("Click to restore default (Earth-based) wind directions")}">
-          ${t("Restore winds")}
-        </button>
-      </div>
-    </div>
-    <div style="margin-top: 0.3em">
-      <i>${t("Presets")}:</i>
-      <button id="wcWholeWorld" data-tip="${t("Click to set map size to cover the whole world")}">${t("Whole world")}</button>
-      <button id="wcNorthern" data-tip="${t("Click to set map size to cover the Northern latitudes")}">${t("Northern")}</button>
-      <button id="wcTropical" data-tip="${t("Click to set map size to cover the Tropical latitudes")}">${t("Tropical")}</button>
-      <button id="wcSouthern" data-tip="${t("Click to set map size to cover the Southern latitudes")}">${t("Southern")}</button>
     </div>
   </div>`;
 }
 
 function addListeners(): void {
-  select("#globe").select("#globeWindArrows").on("click", handleWindChange);
-  select("#globe")
-    .select("#globeGraticule")
-    .attr("d", round(path(geoGraticule()()) ?? "")); // globe graticule
-
   // every control here is a <key>Input / <key>Output pair over one value in `options.map`
   ensureEl("worldConfigurator").addEventListener("input", onWorldInput);
-
-  ensureEl("restoreWinds").addEventListener("click", restoreDefaultWinds);
-  ensureEl("wcWholeWorld").addEventListener("click", () => applyWorldPreset(100, 50));
-  ensureEl("wcNorthern").addEventListener("click", () => applyWorldPreset(33, 25));
-  ensureEl("wcTropical").addEventListener("click", () => applyWorldPreset(33, 50));
-  ensureEl("wcSouthern").addEventListener("click", () => applyWorldPreset(33, 75));
-
   bindPinIcons(ensureEl("worldConfigurator"), currentValue);
 }
 
@@ -228,9 +80,6 @@ function currentValue(key: string): number | undefined {
   if (key === "temperatureNorthPole") return temperature.northPole;
   if (key === "temperatureSouthPole") return temperature.southPole;
   if (key === "prec") return options.map.climate.precipitation;
-  if (key === "mapSize") return options.map.geography.mapSize;
-  if (key === "latitude") return options.map.geography.latitude;
-  if (key === "longitude") return options.map.geography.longitude;
   return undefined;
 }
 
@@ -251,15 +100,12 @@ function onWorldInput(event: Event): void {
   const other = findEl<HTMLInputElement>(`${key}${half === "Input" ? "Output" : "Input"}`);
   if (other) other.value = input.value;
 
-  const { geography, climate } = options.map;
+  const { climate } = options.map;
   if (key === "temperatureEquator") climate.temperature.equator = value;
   else if (key === "temperatureNorthPole") climate.temperature.northPole = value;
   else if (key === "temperatureSouthPole") climate.temperature.southPole = value;
   else if (key === "prec") climate.precipitation = value;
-  else if (key === "mapSize" || key === "latitude" || key === "longitude") {
-    geography[key] = value;
-    Coordinates.calculate(); // the lat/lon box is derived from these three, and re-derives with them
-  } else return;
+  else return;
 
   Pins.set(key, value); // set by hand: the next map keeps it
   Options.save();
@@ -275,25 +121,19 @@ function convertedTemperature(temperatureCelsius: number): string {
 }
 
 function updateConvertedTemperatures(): void {
-  const { equator, northPole, southPole } = options.map.climate.temperature;
+  const { equator, northPole } = options.map.climate.temperature;
   ensureEl("temperatureEquatorConverted").textContent = convertedTemperature(equator);
   ensureEl("temperatureNorthPoleConverted").textContent = convertedTemperature(northPole);
-  ensureEl("temperatureSouthPoleConverted").textContent = convertedTemperature(southPole);
 }
 
 /** The object is the source: push what it holds into both halves of every control that shows it */
 function updateInputValues(): void {
   const { temperature, precipitation } = options.map.climate;
-  const { mapSize, latitude, longitude } = options.map.geography;
 
   for (const [key, value] of Object.entries({
     temperatureEquator: temperature.equator,
     temperatureNorthPole: temperature.northPole,
-    temperatureSouthPole: temperature.southPole,
-    prec: precipitation,
-    mapSize,
-    latitude,
-    longitude
+    prec: precipitation
   })) {
     for (const half of ["Input", "Output"]) {
       const input = findEl<HTMLInputElement>(`${key}${half}`);
@@ -305,8 +145,6 @@ function updateInputValues(): void {
 }
 
 function updateWorld(): void {
-  updateGlobeTemperature();
-  updateGlobePosition();
   Temperature.generate();
   Precipitation.generate();
   const heights = new Uint8Array(pack.cells.h);
@@ -321,122 +159,6 @@ function updateWorld(): void {
   Layers.draw("temperature", "precipitation");
   Layers.draw("biomes", "coordinates", "rivers");
   if (findEl("canvas3d")) setTimeout(() => Controllers.View3d.update(), 500);
-}
-
-function updateGlobePosition(): void {
-  const eqD = ((options.map.graph.height / 2) * 100) / options.map.geography.mapSize;
-
-  Coordinates.calculate();
-  const mc = options.map.geography.coordinates;
-  const unit = options.map.units.distance.unit;
-  const meridian = eqD * 2 * options.map.units.distance.scale * getKmInDistanceUnit(); // 0 for a custom unit
-  ensureEl("mapSize").innerHTML = `${options.map.graph.width}x${options.map.graph.height}`;
-  ensureEl("mapSizeFriendly").innerHTML =
-    `${rn(options.map.graph.width * options.map.units.distance.scale)}x${rn(options.map.graph.height * options.map.units.distance.scale)} ${unit}`;
-  ensureEl("meridianLength").innerHTML = String(rn(eqD * 2));
-  ensureEl("meridianLengthFriendly").innerHTML = `${rn(eqD * 2 * options.map.units.distance.scale)} ${unit}`;
-  ensureEl("meridianLengthEarth").innerHTML = meridian ? ` = ${rn(meridian / 200)}%🌏` : "";
-  ensureEl("mapCoordinates").innerHTML = `${lat(mc.latN)} ${Math.abs(rn(mc.lonW))}°W; ${lat(mc.latS)} ${rn(mc.lonE)}°E`;
-
-  // parse latitude value
-  function lat(latitude: number): string {
-    return latitude > 0 ? `${Math.abs(rn(latitude))}°N` : `${Math.abs(rn(latitude))}°S`;
-  }
-
-  const area = geoGraticule().extent([
-    [mc.lonW ?? 0, mc.latN ?? 0],
-    [mc.lonE ?? 0, mc.latS ?? 0]
-  ]);
-
-  select("#globe")
-    .select("#globeArea")
-    .attr("d", round(path(area.outline()) ?? "")); // map area
-}
-
-// update temperatures on globe (visual-only)
-function updateGlobeTemperature(): void {
-  const tEq = options.map.climate.temperature.equator;
-  const tNP = options.map.climate.temperature.northPole;
-  const tSP = options.map.climate.temperature.southPole;
-
-  const scale = scaleSequential(interpolateSpectral);
-  const getColor = (value: number): string => scale(1 - value);
-  const [tMin, tMax] = [-25, 30]; // temperature extremes
-  const tDelta = tMax - tMin;
-
-  select("#globe")
-    .select("#grad90")
-    .attr("stop-color", getColor((tNP - tMin) / tDelta));
-  select("#globe")
-    .select("#grad60")
-    .attr("stop-color", getColor((tEq - ((tEq - tNP) * 2) / 3 - tMin) / tDelta));
-  select("#globe")
-    .select("#grad30")
-    .attr("stop-color", getColor((tEq - ((tEq - tNP) * 1) / 4 - tMin) / tDelta));
-  select("#globe")
-    .select("#grad0")
-    .attr("stop-color", getColor((tEq - tMin) / tDelta));
-  select("#globe")
-    .select("#grad-30")
-    .attr("stop-color", getColor((tEq - ((tEq - tSP) * 1) / 4 - tMin) / tDelta));
-  select("#globe")
-    .select("#grad-60")
-    .attr("stop-color", getColor((tEq - ((tEq - tSP) * 2) / 3 - tMin) / tDelta));
-  select("#globe")
-    .select("#grad-90")
-    .attr("stop-color", getColor((tSP - tMin) / tDelta));
-}
-
-function updateWindDirections(): void {
-  select("#globe")
-    .select("#globeWindArrows")
-    .selectAll<SVGPathElement, unknown>("path")
-    .each(function (_d, i) {
-      const tr = parseTransform(this.getAttribute("transform") ?? "");
-      this.setAttribute("transform", `rotate(${options.map.climate.winds[i]} ${tr[1]} ${tr[2]})`);
-    });
-}
-
-function handleWindChange(event: Event): void {
-  const target = event.target as SVGElement;
-  // each arrow is a circle followed by a path; the click can land on either
-  const arrow = (target.tagName === "path" ? target : target.nextElementSibling) as SVGPathElement | null;
-  if (!arrow?.dataset.tier) return;
-  const tier = +arrow.dataset.tier;
-  options.map.climate.winds[tier] = (options.map.climate.winds[tier] + 45) % 360;
-  Options.save();
-  const tr = parseTransform(arrow.getAttribute("transform") ?? "");
-  arrow.setAttribute("transform", `rotate(${options.map.climate.winds[tier]} ${tr[1]} ${tr[2]})`);
-
-  const mapTiers = range(options.map.geography.coordinates.latN, options.map.geography.coordinates.latS, -30).map(
-    c => ((90 - c) / 30) | 0
-  );
-  if (ensureEl<HTMLInputElement>("wcAutoChange").checked && mapTiers.includes(tier)) updateWorld();
-}
-
-function restoreDefaultWinds(): void {
-  const defaultWinds = [225, 45, 225, 315, 135, 315];
-  const mapTiers = range(options.map.geography.coordinates.latN, options.map.geography.coordinates.latS, -30).map(
-    c => ((90 - c) / 30) | 0
-  );
-  const shouldUpdate =
-    ensureEl<HTMLInputElement>("wcAutoChange").checked &&
-    mapTiers.some(t => options.map.climate.winds[t] !== defaultWinds[t]);
-  options.map.climate.winds = defaultWinds;
-  Options.save();
-  updateWindDirections();
-  if (shouldUpdate) updateWorld();
-}
-
-function applyWorldPreset(size: number, latitude: number): void {
-  options.map.geography.mapSize = size;
-  options.map.geography.latitude = latitude;
-  Coordinates.calculate();
-  Options.save();
-  Pins.set("mapSize", size);
-  Pins.set("latitude", latitude);
-  updateInputValues();
-  if (findEl<HTMLInputElement>("wcAutoChange")?.checked) updateWorld();
 }
 
 export const WorldConfigurator = { open };
