@@ -196,7 +196,7 @@ element is a tree of three kinds of node:
 - `groups` — a record of user-named entries (label groups, lake types, …) sharing one shape
 
 The record is declared once, as a zod schema (`src/model/styles/styles-schema.ts`). The TypeScript
-type, the defaults, validation on load and the Style tab's form are all derived from that one
+type, the defaults, validation on load and the Style panel's form are all derived from that one
 declaration: a style field cannot exist without a type, a default and a control.
 
 Roles, by layer:
@@ -307,7 +307,7 @@ Widgets like `hierarchy-tree` and `minimap` may move to `ui/` if they generalize
 `src/app/` is the composition root. `app/index.ts` loads every eager module in order and exports
 `boot`; `lifecycle`, `shell`, `canvas`, `seed`, `hotkeys` and `map-commands` drive the application.
 `app/chrome/` is the UI that is always there and loads with the shell: the options panel and its
-tabs, the load/save/export panes, the Assistant bubble and the About dialog (`app-info`). Nothing
+tabs, the bottom bar with its panels (layers, view mode, style, interface settings), the load/save/export panes, the Assistant bubble and the About dialog (`app-info`). Nothing
 below `app/` imports it.
 
 ## Cross-layer subsystems
@@ -605,7 +605,7 @@ state**, not style and not world data. They live in one registry — `src/render
 which is the single source of truth for layer identity, order and visibility.
 
 Each layer is declared exactly once, as a value in one ordered list. **Registration order is the
-z-order, the init order and the draw order**, so the SVG, the Layers tab and the draw sequence
+z-order, the init order and the draw order**, so the SVG, the Layers panel and the draw sequence
 cannot drift apart. A declaration names the layer's id, the SVG group and its parent root, any
 permanent child elements and static attributes, and the `draw` / `erase` functions.
 

@@ -328,9 +328,42 @@ const TEMPLATE = /* html */ `
       </td>
     </tr>
   </table>
-  <p data-tip="${t("Interface preferences saved in this browser. Changes apply immediately")}">
-    ${t("Interface settings")}:
-  </p>
+  <p data-tip="${t("Open the map configurators or reset all options")}">${t("Configure")}:</p>
+  <div style="display: flex; flex-wrap: wrap; gap: 0.3em; margin: 0.3em 0.3em 0">
+    <button
+      id="configureWorld"
+      style="flex: 1; min-width: max-content"
+      data-tip="${t("Open the climate settings: how warm, cold and wet the map is")}"
+    >
+      ${t("Climate")}
+    </button>
+    <button
+      id="setupLore"
+      style="flex: 1; min-width: max-content"
+      data-tip="${t("Click to name the map, date its calendar and describe the world")}"
+    >
+      ${t("Lore")}
+    </button>
+    <button
+      id="openAdvancedOptions"
+      style="flex: 1; min-width: max-content"
+      data-tip="${t("Open advanced options: settings for experienced users")}"
+    >
+      ${t("Advanced")}
+    </button>
+    <button
+      id="optionsReset"
+      style="flex: 1; min-width: max-content"
+      data-tip="${t("Click to restore default options and reload the page")}"
+    >
+      ${t("Reset")}
+    </button>
+  </div>
+`;
+
+// the interface settings open from the gear in the bottom bar
+const INTERFACE_TEMPLATE = /* html */ `
+  <p class="tip">${t("Interface preferences saved in this browser. Changes apply immediately")}</p>
   <table>
     <tr data-tip="${t("Select the interface language. It applies after a reload")}">
       <td></td>
@@ -457,49 +490,19 @@ const TEMPLATE = /* html */ `
       </td>
     </tr>
   </table>
-  <p data-tip="${t("Open the map configurators or reset all options")}">${t("Configure")}:</p>
-  <div style="display: flex; flex-wrap: wrap; gap: 0.3em; margin: 0.3em 0.3em 0">
-    <button
-      id="configureWorld"
-      style="flex: 1; min-width: max-content"
-      data-tip="${t("Open the climate settings: how warm, cold and wet the map is")}"
-    >
-      ${t("Climate")}
-    </button>
-    <button
-      id="setupLore"
-      style="flex: 1; min-width: max-content"
-      data-tip="${t("Click to name the map, date its calendar and describe the world")}"
-    >
-      ${t("Lore")}
-    </button>
-    <button
-      id="openAdvancedOptions"
-      style="flex: 1; min-width: max-content"
-      data-tip="${t("Open advanced options: settings for experienced users")}"
-    >
-      ${t("Advanced")}
-    </button>
-    <button
-      id="optionsReset"
-      style="flex: 1; min-width: max-content"
-      data-tip="${t("Click to restore default options and reload the page")}"
-    >
-      ${t("Reset")}
-    </button>
-  </div>
 `;
 
 const pendingInputs = new WeakMap<HTMLElement, string>();
 
 ensureEl("optionsContent").innerHTML = TEMPLATE;
+ensureEl("interfaceContent").innerHTML = INTERFACE_TEMPLATE;
 ensureEl("dialogs").insertAdjacentHTML("beforeend", getAdvancedOptionsHTML());
 addListeners();
 loadVoices();
 onPerformanceChange(() => syncOption("performancePreset")); // the preset follows the fields, wherever they change
 
 function addListeners(): void {
-  for (const root of [ensureEl("options"), ensureEl(ADVANCED_OPTIONS_ID)]) {
+  for (const root of [ensureEl("options"), ensureEl("interfaceContent"), ensureEl(ADVANCED_OPTIONS_ID)]) {
     root.addEventListener("input", onOptionInput);
     root.addEventListener("change", onOptionInput);
   }
@@ -523,11 +526,14 @@ function addListeners(): void {
     else if (target.id === "optionsReset") confirmCleanupData();
   };
   ensureEl("optionsContent").addEventListener("click", onClick);
+  ensureEl("interfaceContent").addEventListener("click", onClick);
   ensureEl(ADVANCED_OPTIONS_ID).addEventListener("click", onClick);
 }
 
 function optionInputs<T extends HTMLElement = HTMLInputElement>(key: string): NodeListOf<T> {
-  return document.querySelectorAll<T>(`:is(#options, #${ADVANCED_OPTIONS_ID}) [data-option="${key}"]`);
+  return document.querySelectorAll<T>(
+    `:is(#options, #interfaceContent, #${ADVANCED_OPTIONS_ID}) [data-option="${key}"]`
+  );
 }
 
 function optionInput<T extends HTMLElement = HTMLInputElement>(key: string): T {
@@ -562,7 +568,7 @@ export function syncOptionInputs(): void {
 function syncViewOnly(): void {
   const viewOnly = !!options.map.viewOnly;
   document.body.classList.toggle("view-only", viewOnly);
-  if (viewOnly) findEl("layersTab")?.click();
+  if (viewOnly) findEl("aboutTab")?.click(); // the other tabs are hidden
 
   const saveButton = findEl<HTMLButtonElement>("saveButton");
   if (!saveButton) return;
