@@ -149,11 +149,10 @@ const climate = z.strictObject({
   winds: z.array(degrees).length(6)
 });
 
-/** names files, state history and battle reports; the description is the author's own note */
+/** the name files are downloaded as; the year, internal, dates state history and battle reports */
 const lore = z.strictObject({
   name: z.string(),
-  description: z.string(),
-  calendar: z.strictObject({ year: z.number().int(), era: z.string(), eraShort: z.string() })
+  calendar: z.strictObject({ year: z.number().int() })
 });
 
 /** the map's scale, and the author's presentation of it. Units may be named by the user */
@@ -305,6 +304,8 @@ export const pinSchemas: Record<string, z.ZodType> = {
   mapWidth: generation.graph.shape.width,
   mapHeight: generation.graph.shape.height,
   points: generation.graph.shape.density,
+  sampling: generation.graph.shape.sampling,
+  jitter: generation.graph.shape.jitter,
   template: generation.template,
   resolveDepressionsSteps: generation.resolveDepressionsSteps,
   lakeElevationLimit: generation.lakeElevationLimit,
@@ -316,9 +317,6 @@ export const pinSchemas: Record<string, z.ZodType> = {
   sizeVariety: generation.states.shape.sizeVariety,
   growthRate: generation.states.shape.growthRate,
   mapName: lore.shape.name,
-  year: lore.shape.calendar.shape.year,
-  era: lore.shape.calendar.shape.era,
-  eraShort: lore.shape.calendar.shape.eraShort,
   mapSize: geography.shape.mapSize,
   latitude: geography.shape.latitude,
   longitude: geography.shape.longitude,

@@ -1,24 +1,12 @@
+// The interface settings, under the gear in the bottom bar: preferences of this browser, applied at once. Map
+// settings live in the World Wizard; only the heightmap editor's drainage controls are bound here too
 import { hsl } from "d3";
-import {
-  ADVANCED_OPTIONS_ID,
-  AdvancedOptions,
-  GRAPH_PRESETS,
-  getAdvancedOptionsHTML,
-  getGraphPreset
-} from "@/app/chrome/advanced-options";
 import { PerformanceSettings } from "@/app/chrome/performance-settings";
-import { generateMapWithSeed, showSeedHistoryDialog } from "@/app/seed";
 import { Controllers } from "@/controllers";
-import { CULTURE_SETS } from "@/data/culture-sets";
-import { cellsDensityColor, getPointsNumber } from "@/data/graph-density";
-import { heightmapTemplates } from "@/data/heightmap-templates";
 import { isLanguage, LANGUAGES } from "@/data/languages";
-import { precreatedHeightmaps } from "@/data/precreated-heightmaps";
-import type { Sampling } from "@/model/graph/lattice";
 import { DEFAULT_THEME_COLOR, Options } from "@/model/options/options-model";
 import type { OptionsData } from "@/model/options/options-schema";
 import { Pins } from "@/model/options/pins";
-import { isAutoBurgLimit } from "@/model/political/burgs-generator";
 import { Emblems } from "@/model/political/emblems-generator";
 import { Cultures } from "@/model/society/cultures-generator";
 import { EmblemRenderer } from "@/renderers/emblems/renderer";
@@ -29,16 +17,13 @@ import {
   resolvePerformancePreset
 } from "@/renderers/performance";
 import { viewport } from "@/renderers/viewport/viewport";
-import { copyMapURL } from "@/services/url-params";
 import { confirmCleanupData } from "@/services/versioning";
 import { toggleAssistant } from "@/ui/assistant-bubble";
 import { Dialog } from "@/ui/dialog/dialog";
 import { applyZoomExtent, fitMapToScreen, setViewport } from "@/ui/map/canvas";
 import { constrainZoom, setMapZoom, setTranslateExtent, setZoomExtent } from "@/ui/map/zoom";
-import { bindPinIcons } from "@/ui/pin-icons";
-import { tip } from "@/ui/tooltips";
 import { Catalog, sentences, t } from "@/utils/i18n";
-import { applyOption, ensureEl, findEl } from "@/utils/node-utils";
+import { ensureEl, findEl } from "@/utils/node-utils";
 import { minmax, rn } from "@/utils/number-utils";
 
 interface OptionBinding {
@@ -57,35 +42,6 @@ interface OptionDefinition<T extends string | number> {
 }
 
 const OPTION_BINDINGS: Record<string, OptionBinding> = {
-  mapWidth: { read: o => o.generation.graph.width, update: onMapSizeChange, pin: "mapWidth", event: "change" },
-  mapHeight: { read: o => o.generation.graph.height, update: onMapSizeChange, pin: "mapHeight", event: "change" },
-  seed: { read: o => o.map.seed, update: generateMapWithSeed, event: "change" },
-  graphPreset: { read: o => getGraphPreset(o.generation.graph), update: applyGraphPreset },
-  sampling: option({
-    read: o => o.generation.graph.sampling,
-    write: (o, value) => (o.generation.graph.sampling = value),
-    parse: value => value as Sampling,
-    effect: () => syncOption("graphPreset")
-  }),
-  jitter: option({
-    read: o => o.generation.graph.jitter,
-    write: (o, value) => (o.generation.graph.jitter = value),
-    parse: Number,
-    effect: () => syncOption("graphPreset")
-  }),
-  points: option({
-    read: o => o.generation.graph.density,
-    write: (o, value) => (o.generation.graph.density = value),
-    parse: Number,
-    pin: "points",
-    effect: syncCellsDensity
-  }),
-  template: option({
-    read: o => o.generation.template,
-    write: (o, value) => (o.generation.template = value),
-    parse: String,
-    pin: "template"
-  }),
   resolveDepressionsSteps: option({
     read: o => o.generation.resolveDepressionsSteps,
     write: (o, value) => (o.generation.resolveDepressionsSteps = value),
@@ -97,55 +53,7 @@ const OPTION_BINDINGS: Record<string, OptionBinding> = {
     write: (o, value) => (o.generation.lakeElevationLimit = value),
     parse: Number,
     pin: "lakeElevationLimit",
-    effect: () => options.app.mode === "heightmap" && Controllers.HeightmapEditor.redrawDrainage() // the heightmap editor's overlay
-  }),
-  cultures: option({
-    read: o => o.generation.cultures.limit,
-    write: (o, value) => (o.generation.cultures.limit = value),
-    parse: Number,
-    pin: "cultures",
-    effect: syncCultures
-  }),
-  culturesSet: option({
-    read: o => o.generation.cultures.set,
-    write: (o, value) => {
-      o.generation.cultures.set = value;
-      Options.capCultures();
-    },
-    parse: String,
-    pin: "culturesSet",
-    effect: syncCultures
-  }),
-  statesNumber: option({
-    read: o => o.generation.states.limit,
-    write: (o, value) => (o.generation.states.limit = value),
-    parse: Number,
-    pin: "statesNumber"
-  }),
-  provincesRatio: option({
-    read: o => o.generation.provinces.ratio,
-    write: (o, value) => (o.generation.provinces.ratio = value),
-    parse: Number,
-    pin: "provincesRatio"
-  }),
-  manors: option({
-    read: o => o.generation.burgs.limit,
-    write: (o, value) => (o.generation.burgs.limit = value),
-    parse: Number,
-    pin: "manors",
-    effect: syncManors
-  }),
-  sizeVariety: option({
-    read: o => o.generation.states.sizeVariety,
-    write: (o, value) => (o.generation.states.sizeVariety = o.generation.cultures.sizeVariety = value),
-    parse: Number,
-    pin: "sizeVariety"
-  }),
-  growthRate: option({
-    read: o => o.generation.states.growthRate,
-    write: (o, value) => (o.generation.states.growthRate = o.generation.cultures.growthRate = value),
-    parse: Number,
-    pin: "growthRate"
+    effect: () => options.app.mode === "heightmap" && Controllers.HeightmapEditor.redrawDrainage() // the editor's overlay
   }),
   uiSize: option({
     read: o => o.app.ui.size,
@@ -216,152 +124,155 @@ const LANGUAGE_OPTIONS = Object.entries(LANGUAGES).sort(([a, x], [b, y]) =>
   a === "en" ? -1 : b === "en" ? 1 : collator.compare(x, y)
 );
 
-const TEMPLATE = /* html */ `
-  <p data-tip="${t("Settings for the next map. Generate a new map to apply them")}">
-    ${t("Map settings (apply to new maps)")}:
-  </p>
-  <table>
-    <tr
-      data-tip="${t("Map seed number. Press 'Enter' to apply. A seed reproduces the same map only if the map size and the settings are the same")}"
-    >
-      <td>
-        <i
-          data-tip="${t("Show seed history to apply a previous seed")}"
-          id="optionsMapHistory"
-          class="icon-hourglass-1"
-        ></i>
-      </td>
-      <td>${t("Map seed")}</td>
-      <td>
-        <input id="seedInput" data-option="seed" class="long" type="number" min="1" max="999999999" step="1" />
-      </td>
-      <td>
-        <i
-          data-tip="${t("Copy map seed as URL. It will produce the same map only if options are default or the same")}"
-          id="optionsCopySeed"
-          class="icon-docs"
-        ></i>
-      </td>
-    </tr>
-    <tr
-      data-tip="${t("Set number of points to be used for graph generation. Highly affects performance. 10K is the only recommended value")}"
-    >
-      <td>
-        <i data-locked="0" id="lock_points" class="icon-lock-open"></i>
-      </td>
-      <td>${t("Points number")}</td>
-      <td>
-        <input
-          id="pointsInput"
-          data-option="points"
-          type="range"
-          min="1"
-          max="13"
-          value="4"
-          data-cells="10000"
-        />
-      </td>
-      <td>
-        <output id="pointsOutputFormatted" data-option-output="points" style="color: #053305">10K</output>
-      </td>
-    </tr>
-    <tr data-tip="${t("Select template or precreated heightmap to be used on generation")}">
-      <td>
-        <i data-locked="0" id="lock_template" class="icon-lock-open"></i>
-      </td>
-      <td>${t("Heightmap")}</td>
-      <td id="templateInputContainer" class="pointer">
-        <select id="templateInput" data-option="template" style="pointer-events: none"></select>
-      </td>
-      <td></td>
-    </tr>
-    <tr data-tip="${t("Define how many Cultures should be generated")}">
-      <td>
-        <i data-locked="0" id="lock_cultures" class="icon-lock-open"></i>
-      </td>
-      <td>${t("Cultures number")}</td>
-      <td>
-        <input id="culturesInput" data-option="cultures" type="range" min="1" />
-      </td>
-      <td>
-        <input id="culturesOutput" data-option="cultures" type="number" min="1" />
-      </td>
-    </tr>
-    <tr data-tip="${t("Select a set of cultures to be used for names and cultures generation")}">
-      <td>
-        <i data-locked="0" id="lock_culturesSet" class="icon-lock-open"></i>
-      </td>
-      <td>${t("Cultures set")}</td>
-      <td>
-        <select id="culturesSet" data-option="culturesSet">
-          <option value="world" data-max="32" selected>${t("All-world")}</option>
-          <option value="european" data-max="15">${t("European")}</option>
-          <option value="oriental" data-max="13">${t("Oriental")}</option>
-          <option value="english" data-max="10">${t("English")}</option>
-          <option value="antique" data-max="10">${t("Antique")}</option>
-          <option value="highFantasy" data-max="17">${t("High Fantasy")}</option>
-          <option value="darkFantasy" data-max="18">${t("Dark Fantasy")}</option>
-          <option value="random" data-max="100">${t("Random")}</option>
-        </select>
-      </td>
-      <td></td>
-    </tr>
-    <tr data-tip="${t("Define how many states and capitals should be generated")}">
-      <td>
-        <i data-locked="0" id="lock_statesNumber" class="icon-lock-open"></i>
-      </td>
-      <td>${t("States number")}</td>
-      <td colspan="2">
-        <slider-input id="statesNumber" data-option="statesNumber" min="0" max="100"></slider-input>
-      </td>
-    </tr>
-    <tr data-tip="${t("Define a number of non-capital settlements to be placed (if enough suitable land exists)")}">
-      <td>
-        <i data-locked="0" id="lock_manors" class="icon-lock-open"></i>
-      </td>
-      <td>${t("Number of burgs")}</td>
-      <td>
-        <input id="manorsInput" data-option="manors" type="range" min="0" max="1000" step="1" value="1000" />
-      </td>
-      <td>
-        <output id="manorsOutput" data-option-output="manors" value="auto"></output>
-      </td>
-    </tr>
-  </table>
-  <p data-tip="${t("Open the map configurators or reset all options")}">${t("Configure")}:</p>
-  <div style="display: flex; flex-wrap: wrap; gap: 0.3em; margin: 0.3em 0.3em 0">
-    <button
-      id="configureWorld"
-      style="flex: 1; min-width: max-content"
-      data-tip="${t("Open the climate settings: how warm, cold and wet the map is")}"
-    >
-      ${t("Climate")}
-    </button>
-    <button
-      id="setupLore"
-      style="flex: 1; min-width: max-content"
-      data-tip="${t("Click to name the map, date its calendar and describe the world")}"
-    >
-      ${t("Lore")}
-    </button>
-    <button
-      id="openAdvancedOptions"
-      style="flex: 1; min-width: max-content"
-      data-tip="${t("Open advanced options: settings for experienced users")}"
-    >
-      ${t("Advanced")}
-    </button>
-    <button
-      id="optionsReset"
-      style="flex: 1; min-width: max-content"
-      data-tip="${t("Click to restore default options and reload the page")}"
-    >
-      ${t("Reset")}
-    </button>
-  </div>
-`;
+interface Row {
+  label: string;
+  tip: string;
+  control: string;
+  icon?: string;
+}
 
-// the interface settings open from the gear in the bottom bar
+const row = ({ label, tip, control, icon = "" }: Row): string => /* html */ `
+  <tr data-tip="${tip}">
+    <td>${icon}</td>
+    <td>${label}</td>
+    <td>${control}</td>
+  </tr>`;
+
+/** a control with a small companion (a second input, a test button, a preview) in one cell */
+const inline = (...parts: string[]) => `<div class="inline">${parts.join("")}</div>`;
+
+const slider = (key: string, attributes: string) =>
+  `<slider-input id="${key}" data-option="${key}" ${attributes}></slider-input>`;
+
+const choice = (value: string, label: string) => `<option value="${value}">${label}</option>`;
+
+const interfaceRows = () =>
+  [
+    row({
+      label: t("Autosave interval"),
+      tip: t("Set autosave interval in minutes. Set 0 to disable autosave. Map is saved to browser memory"),
+      control: slider("autosaveInterval", `min="0" max="60" step="1"`)
+    }),
+    row({
+      label: t("On load"),
+      tip: t("Set what Generator should do on load"),
+      control: /* html */ `
+        <select id="onloadBehavior" data-option="onloadBehavior">
+          ${choice("random", t("Generate random map"))}
+          ${choice("lastSaved", t("Open last saved map"))}
+        </select>`
+    }),
+    row({
+      label: t("Speaker voice"),
+      tip: t("Select speech synthesis voice to pronounce generated names"),
+      control: inline(
+        `<select id="speakerVoice" data-option="speakerVoice"></select>`,
+        `<span id="speakerTest" data-tip="${t("Click to test the voice")}" style="cursor: pointer">🔊</span>`
+      )
+    }),
+    row({
+      label: t("Emblem shape"),
+      tip: t("Select emblem shape. Can be changed individually in the Emblem Editor"),
+      control: inline(
+        `<select id="emblemShape" data-option="emblemShape">${getEmblemShapeOptions()}</select>`,
+        `<svg class="emblemShapePreview" viewBox="0 0 200 210"><path id="emblemShapeImage" /></svg>`
+      )
+    })
+  ].join("");
+
+const EMBLEM_SHAPE_GROUPS: [group: string, shapes: [id: string, label: string][]][] = [
+  [
+    t("Diversiform"),
+    [
+      ["culture", t("Culture-specific")],
+      ["random", t("Culture-random")],
+      ["state", t("State-specific")]
+    ]
+  ],
+  [
+    t("Basic"),
+    [
+      ["heater", t("Heater")],
+      ["spanish", t("Spanish")],
+      ["french", t("French")]
+    ]
+  ],
+  [
+    t("Regional"),
+    [
+      ["horsehead", t("Horsehead")],
+      ["horsehead2", t("Horsehead Edgy")],
+      ["polish", t("Polish")],
+      ["hessen", t("Hessen")],
+      ["swiss", t("Swiss")]
+    ]
+  ],
+  [
+    t("Historical"),
+    [
+      ["boeotian", t("Boeotian")],
+      ["roman", t("Roman")],
+      ["kite", t("Kite")],
+      ["oldFrench", t("Old French")],
+      ["renaissance", t("Renaissance")],
+      ["baroque", t("Baroque")]
+    ]
+  ],
+  [
+    t("Specific"),
+    [
+      ["targe", t("Targe")],
+      ["targe2", `${t("Targe")} 2`],
+      ["pavise", t("Pavise")],
+      ["wedged", t("Wedged")],
+      ["embowed", t("Embowed")]
+    ]
+  ],
+  [
+    t("Banner"),
+    [
+      ["flag", t("Flag")],
+      ["pennon", t("Pennon")],
+      ["guidon", t("Guidon")],
+      ["banner", t("Banner")],
+      ["dovetail", t("Dovetail")],
+      ["gonfalon", t("Gonfalon")],
+      ["pennant", t("Pennant")]
+    ]
+  ],
+  [
+    t("Simple"),
+    [
+      ["round", t("Round")],
+      ["oval", t("Oval")],
+      ["vesicaPiscis", t("Vesica Piscis")],
+      ["square", t("Square")],
+      ["diamond", t("Diamond")],
+      ["hexagon", t("Hexagon")]
+    ]
+  ],
+  [t("Fantasy"), [1, 2, 3, 4, 5].map(n => [`fantasy${n}`, `${t("Fantasy")} ${n}`])],
+  [
+    t("Middle Earth"),
+    [
+      ["noldor", t("Noldor")],
+      ["gondor", t("Gondor")],
+      ["easterling", t("Easterling")],
+      ["erebor", t("Erebor")],
+      ["ironHills", t("Iron Hills")],
+      ["urukHai", t("UrukHai")],
+      ["moriaOrc", t("Moria Orc")]
+    ]
+  ]
+];
+
+function getEmblemShapeOptions(): string {
+  return EMBLEM_SHAPE_GROUPS.map(
+    ([group, shapes]) =>
+      `<optgroup label="${group}">${shapes.map(([id, label]) => choice(id, label)).join("")}</optgroup>`
+  ).join("");
+}
+
 const INTERFACE_TEMPLATE = /* html */ `
   <p class="tip">${t("Interface preferences saved in this browser. Changes apply immediately")}</p>
   <table>
@@ -489,51 +400,45 @@ const INTERFACE_TEMPLATE = /* html */ `
         ></i>
       </td>
     </tr>
+    ${interfaceRows()}
   </table>
+  <div style="margin: 0.5em 0.3em 0">
+    <button id="optionsReset" style="width: 100%" data-tip="${t("Click to restore default options and reload the page")}">
+      ${t("Reset all settings")}
+    </button>
+  </div>
 `;
 
 const pendingInputs = new WeakMap<HTMLElement, string>();
 
-ensureEl("optionsContent").innerHTML = TEMPLATE;
 ensureEl("interfaceContent").innerHTML = INTERFACE_TEMPLATE;
-ensureEl("dialogs").insertAdjacentHTML("beforeend", getAdvancedOptionsHTML());
 addListeners();
 loadVoices();
 onPerformanceChange(() => syncOption("performancePreset")); // the preset follows the fields, wherever they change
 
 function addListeners(): void {
-  for (const root of [ensureEl("options"), ensureEl("interfaceContent"), ensureEl(ADVANCED_OPTIONS_ID)]) {
-    root.addEventListener("input", onOptionInput);
-    root.addEventListener("change", onOptionInput);
+  const root = ensureEl("interfaceContent");
+  for (const element of [root, ensureEl("heightmapMenu")]) {
+    element.addEventListener("input", onOptionInput);
+    element.addEventListener("change", onOptionInput);
   }
   ensureEl("interfaceLanguage").addEventListener("change", event => changeLanguage(event.target as HTMLSelectElement));
 
   const onClick = (event: Event) => {
     const target = event.target as HTMLElement;
-    if (target.id === "restoreDefaultMapSize") restoreDefaultMapSize();
-    else if (target.id === "configureWorld") Controllers.WorldConfigurator.open();
-    else if (target.id === "setupLore") Controllers.LoreEditor.open();
-    else if (target.id === "optionsMapHistory") showSeedHistoryDialog();
-    else if (target.id === "optionsCopySeed") copyMapURL();
-    else if (target.id === "templateInputContainer") Controllers.HeightmapSelection.open();
-    else if (target.id === "viewportFit") fitViewportToWindow();
+    if (target.id === "viewportFit") fitViewportToWindow();
     else if (target.id === "zoomExtentDefault") restoreDefaultZoomExtent();
     else if (target.id === "translateExtent") toggleTranslateExtent(target);
     else if (target.id === "openPerformanceSettings") PerformanceSettings.open();
     else if (target.id === "speakerTest") testSpeaker();
     else if (target.id === "themeColorRestore") restoreDefaultThemeColor();
-    else if (target.id === "openAdvancedOptions") AdvancedOptions.open();
     else if (target.id === "optionsReset") confirmCleanupData();
   };
-  ensureEl("optionsContent").addEventListener("click", onClick);
-  ensureEl("interfaceContent").addEventListener("click", onClick);
-  ensureEl(ADVANCED_OPTIONS_ID).addEventListener("click", onClick);
+  root.addEventListener("click", onClick);
 }
 
 function optionInputs<T extends HTMLElement = HTMLInputElement>(key: string): NodeListOf<T> {
-  return document.querySelectorAll<T>(
-    `:is(#options, #interfaceContent, #${ADVANCED_OPTIONS_ID}) [data-option="${key}"]`
-  );
+  return document.querySelectorAll<T>(`:is(#interfaceContent, #heightmapMenu) [data-option="${key}"]`);
 }
 
 function optionInput<T extends HTMLElement = HTMLInputElement>(key: string): T {
@@ -553,22 +458,13 @@ function syncOption(key: string, source?: HTMLElement): void {
 }
 
 export function syncOptionInputs(): void {
-  const template = optionInputs<HTMLSelectElement>("template")[0];
-  const id = options.generation.template;
-  if (template && id) applyOption(template, id, heightmapTemplates[id]?.name || precreatedHeightmaps[id]?.name || id);
-
   for (const key of Object.keys(OPTION_BINDINGS)) syncOption(key);
-  syncManors();
-  syncCellsDensity();
-  syncCultures();
-  syncPngResolution();
   syncViewOnly();
 }
 
 function syncViewOnly(): void {
   const viewOnly = !!options.map.viewOnly;
   document.body.classList.toggle("view-only", viewOnly);
-  if (viewOnly) findEl("aboutTab")?.click(); // the other tabs are hidden
 
   const saveButton = findEl<HTMLButtonElement>("saveButton");
   if (!saveButton) return;
@@ -576,49 +472,6 @@ function syncViewOnly(): void {
   saveButton.dataset.tip = viewOnly
     ? t("The map is in view-only mode and cannot be saved")
     : t("Save fully-functional map file");
-}
-
-function syncManors(): void {
-  const output = ensureEl("options").querySelector<HTMLOutputElement>('[data-option-output="manors"]');
-  if (output) output.value = isAutoBurgLimit() ? t("Auto") : String(options.generation.burgs.limit);
-}
-
-function syncCellsDensity(): void {
-  const { density } = options.generation.graph;
-  const cellsDesired = getPointsNumber(density);
-
-  const input = optionInputs("points")[0];
-  if (input) {
-    input.value = String(density);
-    input.dataset.cells = String(cellsDesired);
-  }
-
-  const readout = ensureEl("options").querySelector<HTMLOutputElement>('[data-option-output="points"]');
-  if (!readout) return;
-  readout.value = `${cellsDesired / 1000}K`;
-  readout.style.color = cellsDensityColor(cellsDesired);
-}
-
-/** Cap the cultures slider at what the selected set can give, and show the number that survived it */
-function syncCultures(): void {
-  const max = String(CULTURE_SETS[options.generation.cultures.set]?.max ?? 0);
-  for (const input of optionInputs("cultures")) {
-    input.max = max;
-    input.value = String(options.generation.cultures.limit);
-  }
-}
-
-function syncPngResolution(): void {
-  const input = ensureEl("options").querySelector<HTMLInputElement>('[data-option="pngResolution"]');
-  if (input) input.value = String(options.app.export.pngResolution);
-}
-
-function currentValue(key: string): string | number | undefined {
-  return (
-    Object.values(OPTION_BINDINGS)
-      .find(binding => binding.pin === key)
-      ?.read(options) ?? undefined
-  );
 }
 
 function onOptionInput(event: Event): void {
@@ -641,56 +494,9 @@ function onOptionInput(event: Event): void {
   }
 }
 
-/** The extent the next map is generated on: not the window it will be looked at through */
-function onMapSizeChange(): void {
-  // a pin outlives the control, so it cannot hold what the input's own `min` would have rejected
-  const asked = (key: string) => {
-    const input = optionInput(key);
-    const value = Math.max(+input.value || 0, +input.min || 1);
-    input.value = String(value);
-    return value;
-  };
-  const width = asked("mapWidth");
-  const height = asked("mapHeight");
-
-  Options.set(o => {
-    o.generation.graph.width = width;
-    o.generation.graph.height = height;
-  });
-  // the map on screen keeps the extent its graph was built on - this asks for the next one
-  Pins.set("mapWidth", width);
-  Pins.set("mapHeight", height);
-
-  if (options.generation.graph.width > window.innerWidth || options.generation.graph.height > window.innerHeight) {
-    const size = `${window.innerWidth} x ${window.innerHeight}`;
-    tip(t("Map size is larger than the window ({{size}}). It can affect performance", { size }), false, "warn", 4000);
-  }
-}
-
-/** Back to the window size, which is what most maps want */
-function restoreDefaultMapSize(): void {
-  Options.set(o => {
-    o.generation.graph.width = window.innerWidth;
-    o.generation.graph.height = window.innerHeight;
-  });
-  Pins.clear("mapWidth");
-  Pins.clear("mapHeight");
-  syncOptionInputs();
-}
-
-/** A preset is only a sampling and jitter pair: it writes both, the preset select follows them */
-function applyGraphPreset(id: string): void {
-  const preset = GRAPH_PRESETS[id];
-  if (!preset) return;
-  Options.set(o => Object.assign(o.generation.graph, { sampling: preset.sampling, jitter: preset.jitter }));
-  syncOption("sampling");
-  syncOption("jitter");
-}
-
-/** The Points slider picks a density step; the readout shows the cell count it resolves to */
+/** The density step of the next map, as the submap and transform tools ask for it */
 export function changeCellsDensity(density: number): void {
   Options.set(o => (o.generation.graph.density = density));
-  syncCellsDensity();
 }
 
 /** Re-shield every emblem that has not been customised, and re-render the ones on screen */
@@ -904,21 +710,11 @@ function changeLanguage(select: HTMLSelectElement): void {
 }
 
 /**
- * Restore what the tab itself shows: the lock icons, the saved style presets and the interface
- * settings. The values themselves are restored by `Options.restore` before this runs
+ * Restore what the settings themselves show. The values themselves are restored by `Options.restore` before this runs
  */
 const defaultUiSize = (): number => minmax(rn(window.innerWidth / 1280, 1), 1, maxUiSize());
 
 export function restoreUi(): void {
-  const template = options.generation.template;
-  if (template) {
-    const name = heightmapTemplates[template]?.name || precreatedHeightmaps[template]?.name || template;
-    applyOption(optionInput("template"), template, name);
-  }
-
-  bindPinIcons(ensureEl("options"), currentValue);
-  bindPinIcons(ensureEl(ADVANCED_OPTIONS_ID), currentValue);
-
   // `syncInputs` has already put every preference in its control; these are the ones that also do
   // something the moment they are read back. See docs/architecture/configuration.md
   const { ui, emblems } = options.app;

@@ -73,7 +73,7 @@ class OptionsModel {
           winds: [225, 45, 225, 315, 135, 315]
         },
         cultures: { set: "world" },
-        lore: { name: "", description: "", calendar: { year: 1000, era: "Era", eraShort: "E" } },
+        lore: { name: "", calendar: { year: 1000 } },
         units: {
           distance: { unit: isImperial() ? "mi" : "km", scale: 3 },
           area: { unit: "square" },
@@ -231,6 +231,8 @@ class OptionsModel {
 
     // the slider holds a density step; the cell count it stands for is derived where it is used
     graph.density = Pins.rolls("points") ? DEFAULT_DENSITY : Pins.valueOr("points", graph.density);
+    graph.sampling = Pins.rolls("sampling") ? "square" : Pins.valueOr("sampling", graph.sampling);
+    graph.jitter = Pins.rolls("jitter") ? DEFAULT_JITTER : Pins.valueOr("jitter", graph.jitter);
     generation.resolveDepressionsSteps = Pins.valueOr("resolveDepressionsSteps", generation.resolveDepressionsSteps);
     generation.lakeElevationLimit = Pins.valueOr("lakeElevationLimit", generation.lakeElevationLimit);
     generation.geography = {
@@ -294,16 +296,7 @@ class OptionsModel {
     units.distance.scale = Pins.rolls("distanceScale")
       ? gauss(3, 1, 1, 5)
       : Pins.valueOr("distanceScale", units.distance.scale);
-    lore.calendar.year = Pins.rolls("year") ? rand(100, 2000) : Pins.valueOr("year", lore.calendar.year);
-
-    if (Pins.rolls("era")) {
-      lore.calendar.era = Names.getEra();
-      lore.calendar.eraShort = Names.getEraShort(lore.calendar.era);
-    } else {
-      lore.calendar.era = Pins.valueOr("era", lore.calendar.era);
-      lore.calendar.eraShort = Pins.valueOr("eraShort", lore.calendar.eraShort);
-    }
-
+    lore.calendar.year = rand(100, 2000);
     lore.name = Pins.rolls("mapName") ? Names.getMapName() : Pins.valueOr("mapName", lore.name);
     units.distance.unit = Pins.valueOr("distanceUnit", units.distance.unit);
     units.area.unit = Pins.valueOr("areaUnit", units.area.unit);

@@ -187,12 +187,12 @@ describe("a pin outlives the map it was made on", () => {
 
   it("restores a pinned map value onto a newly seeded map", () => {
     Pins.set("prec", 350);
-    Pins.set("year", 777);
+    Pins.set("mapName", "Kept");
 
     Options.randomize();
 
     expect(options.map.climate.precipitation).toBe(350);
-    expect(options.map.lore.calendar.year).toBe(777);
+    expect(options.map.lore.name).toBe("Kept");
   });
 });
 
@@ -353,12 +353,10 @@ describe("a new map keeps what the user pinned", () => {
   });
 
   it("keeps nothing else of the map it replaces", () => {
-    options.map.lore.description = "the previous author's note";
     options.map.climate.winds = [0, 0, 0, 0, 0, 0];
 
     Options.randomize();
 
-    expect(options.map.lore.description).toBe("");
     expect(options.map.climate.winds).toEqual(defaults().climate.winds);
   });
 
@@ -495,29 +493,23 @@ describe("a request and what it produced are not the same field", () => {
   });
 });
 
-describe("the map carries its own lore", () => {
-  it("round-trips a description through a file", () => {
+describe("the map carries its own name", () => {
+  it("round-trips the name and the year through a file", () => {
     const file = savedFile(map => {
       map.lore.name = "Narnia";
-      map.lore.description = "A world of talking beasts, under a long winter.";
-      map.lore.calendar = { year: 1300, era: "Winter Era", eraShort: "WE" };
+      map.lore.calendar = { year: 1300 };
     });
-
     load(file);
-    expect(options.map.lore.description).toBe("A world of talking beasts, under a long winter.");
-    expect(options.map.lore.calendar.eraShort).toBe("WE");
-
-    load(savedFile(() => {})); // another map: nothing of the first one's lore survives
-    expect(options.map.lore.description).toBe("");
+    expect(options.map.lore).toEqual({ name: "Narnia", calendar: { year: 1300 } });
   });
 
-  it("leaves a description absent from an older file empty, not undefined", () => {
+  it("drops the era and description of an older file", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     const older = JSON.parse(savedFile(map => (map.lore.name = "old"))) as MapData;
-    delete (older.lore as Partial<MapData["lore"]>).description;
+    Object.assign(older.lore, { description: "A note", calendar: { year: 900, era: "Winter Era", eraShort: "WE" } });
 
     load(JSON.stringify(older));
-    expect(options.map.lore).toEqual({ name: "old", description: "", calendar: defaults().lore.calendar });
+    expect(options.map.lore).toEqual({ name: "old", calendar: { year: 900 } });
   });
 });
 

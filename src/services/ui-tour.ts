@@ -3,7 +3,6 @@ import { type DriveStep, driver } from "driver.js";
 import { closePanel, openPanel } from "@/app/chrome/options-panel";
 import { ensureEl } from "@/utils/node-utils";
 import "driver.js/dist/driver.css";
-import { Controllers } from "@/controllers";
 import { App } from "@/ui/app-commands";
 import { Dialog } from "@/ui/dialog/dialog";
 import { t } from "@/utils/i18n";
@@ -189,67 +188,33 @@ function start() {
         }
       },
 
-      // ── Options tab ──────────────────────────────────────────────────────────
+      // ── World Wizard and settings ───────────────────────────────────────────
       {
-        element: "#optionsTab",
+        element: "#wizardButton",
         onHighlightStarted: () => {
           closePanel();
-          ensureEl("optionsTab")?.click();
         },
         popover: {
-          title: t("Options Tab"),
+          title: t("World Wizard"),
           description: t(
-            "The Options tab lets you configure world generation parameters like the number of states, cultures and other settings that shape the generated world."
+            "Set up the next map step by step: its size, terrain and climate, the continents and countries, and each country's regions."
           ),
-          side: "bottom"
+          side: "top"
         }
       },
       {
-        element: "#optionsContent",
+        element: "#interfaceContent",
         onHighlightStarted: () => {
-          closePanel();
-          ensureEl("optionsTab")?.click();
+          openPanel("settings");
         },
         popover: {
-          title: t("Generation Options"),
+          title: t("Interface settings"),
           description: t(
-            "Set world parameters like the number of cultures and states before generating a new map. Interface preferences are under the gear in the bottom bar."
+            "The gear in the bottom bar holds this browser's preferences: language, interface size, theme, autosave and more."
           ),
-          side: "right"
-        }
-      },
-      {
-        element: "#configureWorld",
-        onHighlightStarted: () => {
-          Dialog.closeAll();
-          closePanel();
-          ensureEl("optionsTab")?.click();
-        },
-        popover: {
-          title: t("Climate"),
-          description: t(
-            "This button opens the World Configurator where you can set the map's position on the globe, adjust equatorial and polar temperatures, and configure precipitation to shape the world's climate."
-          ),
-          side: "right",
+          side: "top",
           onNextClick: () => {
-            advanceTour(tour);
-          }
-        }
-      },
-      {
-        element: "#worldConfigurator",
-        disableActiveInteraction: false,
-        onHighlightStarted: () => {
-          void Controllers.WorldConfigurator.open();
-        },
-        popover: {
-          title: t("Climate"),
-          description: t(
-            "Here you set how warm, cold and wet the map is. Changes affect biome and climate generation."
-          ),
-          side: "right",
-          onNextClick: () => {
-            Dialog.closeAll();
+            closePanel();
             ensureEl("toolsTab")?.click();
             advanceTour(tour);
           }
@@ -265,7 +230,7 @@ function start() {
         popover: {
           title: t("Tools Tab"),
           description: t(
-            "The Tools tab gives you direct access to all of the map's editors: terrain, biomes, states, cultures, religions, routes, and more."
+            "The Tools tab gives you direct access to all of the map's editors: terrain, biomes, states, cultures, routes, and more."
           ),
           side: "bottom"
         }
@@ -307,31 +272,20 @@ function start() {
         }
       },
 
-      // ── About tab ────────────────────────────────────────────────────────────
-      {
-        element: "#aboutTab",
-        onHighlightStarted: () => {
-          ensureEl("aboutTab")?.click();
-        },
-        popover: {
-          title: t("About Tab"),
-          description: t(
-            "The About tab has links to documentation, video tutorials, the community Discord, and version information."
-          ),
-          side: "bottom"
-        }
-      },
+      // ── About ────────────────────────────────────────────────────────────────
       {
         element: "#aboutContent",
         onHighlightStarted: () => {
-          ensureEl("aboutTab")?.click();
+          openPanel("about");
         },
         popover: {
-          title: t("About & Resources"),
-          description: t(
-            "Find the Quick Start guide, video tutorials, hotkey reference, Discord community, and changelog here. The project is open source and actively maintained."
-          ),
-          side: "right"
+          title: t("About"),
+          description: t("What this app is and the generator it is built on."),
+          side: "top",
+          onNextClick: () => {
+            closePanel();
+            advanceTour(tour);
+          }
         }
       },
 
@@ -420,10 +374,7 @@ const EDITING_STEPS = [
   "#styleTab",
   "#stylePreset",
   "#styleElementSelect",
-  "#optionsTab",
-  "#optionsContent",
-  "#configureWorld",
-  "#worldConfigurator",
+  "#wizardButton",
   "#toolsTab",
   "#editHeightmapButton",
   "#heightmapMenu",

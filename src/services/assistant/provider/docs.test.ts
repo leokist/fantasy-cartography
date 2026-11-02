@@ -46,7 +46,7 @@ it("lists the registered operations with their signatures and doc lines", async 
 it("lists only the asked models' operations, with types only when they name one", async () => {
   const rivers = await readDocs(["Operations: Rivers, lore"]);
   expect(rivers).toContain("Rivers.setWidth(riverId: number");
-  expect(rivers).toContain("Lore.setYear(year: number)");
+  expect(rivers).toContain("Lore.rename(name: string)");
   expect(rivers).not.toContain("Burgs.rename");
   expect(rivers).not.toContain("interface EmblemCharge");
   expect(await readDocs(["Operations: Markers"])).toContain("type MarkerDetails");

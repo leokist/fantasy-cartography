@@ -17,7 +17,7 @@ vi.mock("@/ui/dialog/dialog", async importOriginal => {
   const { Dialog } = await importOriginal<typeof import("@/ui/dialog/dialog")>();
   return { Dialog: Object.assign(Dialog, { confirm: vi.fn() }) };
 });
-vi.mock("@/app/chrome/tabs/options-tab", () => ({ syncOptionInputs: vi.fn() }));
+vi.mock("@/app/chrome/interface-settings", () => ({ syncOptionInputs: vi.fn() }));
 vi.mock("@/app/shell", () => ({ initShell: vi.fn(), warnIfServerless: vi.fn() }));
 vi.mock("@/ui/map/zoom", () => ({ invokeActiveZooming: vi.fn(), resetZoom: vi.fn() }));
 vi.mock("@/services/url-params", () => ({ checkLoadParameters: vi.fn() }));

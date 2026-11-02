@@ -18,7 +18,6 @@ import { log } from "@/utils/logger";
 
 import { Options } from "@/model/options/options-model";
 import { Pins } from "@/model/options/pins";
-import { Services } from "@/services";
 import { Dialog } from "@/ui/dialog/dialog";
 import { dialogState } from "@/ui/dialog/state";
 import { tip } from "@/ui/tooltips";
@@ -138,9 +137,6 @@ function showUpdateWindow(storedVersion: string | null): void {
   localStorage.setItem("version", VERSION);
 
   const changelog = "https://github.com/Azgaar/Fantasy-Map-Generator/wiki/Changelog";
-  const reddit = "https://www.reddit.com/r/FantasyMapGenerator";
-  const discord = "https://discordapp.com/invite/X7E84HU";
-  const patreon = "https://www.patreon.com/azgaar";
 
   Dialog.message({
     message: /* html */ `${t(
@@ -157,18 +153,7 @@ function showUpdateWindow(storedVersion: string | null): void {
       ${latestPublicChanges()
         .map(change => `<li>${change}</li>`)
         .join("")}
-    </ul>
-
-    ${isElectron() ? "" : `<p>${t("The Generator is also available as a {{- app}} that works offline.", { app: `<a id="updateAppOffer" href="#">${t("desktop app")}</a>` })}</p>`}
-
-    <p>${t(
-      "Join our {{- discord}} and {{- reddit}} to ask questions, share maps, discuss the Generator and Worldbuilding, report bugs and propose new features.",
-      {
-        discord: `<a href="${discord}" target="_blank">${t("Discord server")}</a>`,
-        reddit: `<a href="${reddit}" target="_blank">${t("Reddit community")}</a>`
-      }
-    )}</p>
-    <span><i>${t("Thanks for all supporters on {{- patreon}}!", { patreon: `<a href="${patreon}" target="_blank">Patreon</a>` })}</i></span>`,
+    </ul>`,
     title: t("Fantasy Cartography update"),
     width: "28em",
     position: { my: "center center-4em", at: "center", of: "svg" },
@@ -182,10 +167,6 @@ function showUpdateWindow(storedVersion: string | null): void {
       },
       { label: t("Don't show again") }
     ]
-  });
-  findEl("updateAppOffer")?.addEventListener("click", event => {
-    event.preventDefault();
-    Services.AppOffer.open();
   });
 }
 

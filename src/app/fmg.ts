@@ -1,10 +1,11 @@
 // `window.FMG`: what the browser console and the Assistant's read_map scripts reach. The app never reads it
+
+import { changeCellsDensity } from "@/app/chrome/interface-settings";
 import { hideOptions, toggleOptions } from "@/app/chrome/options-panel";
-import { changeCellsDensity } from "@/app/chrome/tabs/options-tab";
 import { drawCellsValue, drawPath, drawPoint, drawPolygons, drawRouteConnections } from "@/app/debug-drawing";
 import { applyLayersPreset, applyURLLayers } from "@/app/layers-presets";
 import { regenerateMap, regeneratePrompt } from "@/app/lifecycle";
-import { generateMapWithSeed, restoreSeed, showSeedHistoryDialog } from "@/app/seed";
+import { restoreSeed, showSeedHistoryDialog } from "@/app/seed";
 import { Controllers } from "@/controllers";
 import { heightmapTemplates } from "@/data/heightmap-templates";
 import { precreatedHeightmaps } from "@/data/precreated-heightmaps";
@@ -202,7 +203,6 @@ const FMG = {
 
   regenerateMap,
   regeneratePrompt,
-  generateMapWithSeed,
   restoreSeed,
   showSeedHistoryDialog,
   applyLayersPreset,

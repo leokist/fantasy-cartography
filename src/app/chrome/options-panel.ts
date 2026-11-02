@@ -12,9 +12,7 @@ import { t } from "@/utils/i18n";
 import { ensureEl, findEl } from "@/utils/node-utils";
 
 const TAB_CONTENT: Record<string, string> = {
-  optionsTab: "optionsContent",
-  toolsTab: "toolsContent",
-  aboutTab: "aboutContent"
+  toolsTab: "toolsContent"
 };
 
 function showOptions(event?: Event): void {
@@ -45,10 +43,11 @@ const PANELS: Record<string, { content: string; title: () => string }> = {
   layers: { content: "layersContent", title: () => t("Layers") },
   view: { content: "viewContent", title: () => t("View mode") },
   style: { content: "styleContent", title: () => t("Style") },
-  settings: { content: "interfaceContent", title: () => t("Interface settings") }
+  settings: { content: "interfaceContent", title: () => t("Interface settings") },
+  about: { content: "aboutContent", title: () => t("About") }
 };
 // the bottom bar took over these tabs; commands and the style editor still open them by their old ids
-const PANEL_OF_TAB: Record<string, string> = { layersTab: "layers", styleTab: "style" };
+const PANEL_OF_TAB: Record<string, string> = { layersTab: "layers", styleTab: "style", aboutTab: "about" };
 
 let openPanelName: string | null = null;
 

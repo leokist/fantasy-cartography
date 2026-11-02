@@ -3,8 +3,10 @@
 import { CULTURE_SETS } from "@/data/culture-sets";
 import { getPointsNumber, MAX_DENSITY, MIN_DENSITY } from "@/data/graph-density";
 import { heightmapTemplates } from "@/data/heightmap-templates";
+import { SAMPLING_LABELS } from "@/data/id-labels";
 import { precreatedHeightmaps } from "@/data/precreated-heightmaps";
 import type { AuthoringData, SpecField } from "@/model/authoring/world-spec";
+import { MAX_JITTER, SAMPLINGS } from "@/model/graph/lattice";
 import { AUTO_BURG_LIMIT, pinSchemas } from "@/model/options/options-schema";
 import { Pins } from "@/model/options/pins";
 import { t } from "@/utils/i18n";
@@ -52,6 +54,7 @@ const cultureSets = (): [string, string][] => {
   };
   return Object.entries(CULTURE_SETS).map(([id, { name }]) => [id, names[id] ?? name]);
 };
+const samplings = (): [string, string][] => SAMPLINGS.map(id => [id, SAMPLING_LABELS[id]]);
 const distanceUnits = (): [string, string][] => [
   ["km", t("Kilometer (km)")],
   ["mi", t("Mile (mi)")]
@@ -65,22 +68,6 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
     hint: t("Used for file names and the map title"),
     input: text,
     current: () => options.map.lore.name
-  },
-  {
-    key: "year",
-    step: "map",
-    label: t("Current year"),
-    hint: t("The year the map shows"),
-    input: number(-100000, 100000),
-    current: () => options.map.lore.calendar.year
-  },
-  {
-    key: "era",
-    step: "map",
-    label: t("Era"),
-    hint: t("The name of the current era"),
-    input: text,
-    current: () => options.map.lore.calendar.era
   },
   {
     key: "mapWidth",
@@ -105,6 +92,33 @@ export const SPEC_FIELDS: SpecFieldDef[] = [
     hint: t("More cells give finer coasts and borders, but a slower map. 10K is recommended"),
     input: choice(densities),
     current: () => options.generation.graph.density
+  },
+  {
+    key: "sampling",
+    step: "map",
+    advanced: true,
+    label: t("Cell lattice"),
+    hint: t("The grid the map cells are built on. Square with high jitter is the classic natural look"),
+    input: choice(samplings),
+    current: () => options.generation.graph.sampling
+  },
+  {
+    key: "jitter",
+    step: "map",
+    advanced: true,
+    label: t("Jitter"),
+    hint: t("How far cell centers move off the lattice. 0 keeps perfectly regular cells, as on a game board"),
+    input: number(0, MAX_JITTER, 0.05),
+    current: () => options.generation.graph.jitter
+  },
+  {
+    key: "cultures",
+    step: "map",
+    advanced: true,
+    label: t("Number of cultures"),
+    hint: t("Used only when you declare no countries; each declared country is its own people"),
+    input: number(1, 100),
+    current: () => options.generation.cultures.limit
   },
   {
     key: "distanceScale",

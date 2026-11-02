@@ -2200,7 +2200,7 @@ export function migrateLegacySettings(mapVersion: string, data: string[]): void 
       winds: [225, 45, 225, 315, 135, 315]
     },
     cultures: { set: "world" },
-    lore: { name: "", description: "", calendar: { year: 1000, era: "Era", eraShort: "E" } },
+    lore: { name: "", calendar: { year: 1000 } },
     units: {
       distance: { unit: "km", scale: 3 },
       area: { unit: "square" },
@@ -2294,8 +2294,6 @@ export function migrateLegacySettings(mapVersion: string, data: string[]): void 
   if (oldOptions.prec !== undefined) migrated.climate.precipitation = oldOptions.prec;
   if (oldOptions.winds) migrated.climate.winds = oldOptions.winds;
   if (oldOptions.year !== undefined) migrated.lore.calendar.year = oldOptions.year;
-  if (oldOptions.era) migrated.lore.calendar.era = oldOptions.era;
-  if (oldOptions.eraShort) migrated.lore.calendar.eraShort = oldOptions.eraShort;
 
   // v1.140.0 moved the label settings into the labels section and the naming mode onto the state group
   // a pre-1.140 map carries no groups at all, so there is usually nothing here to write the mode onto

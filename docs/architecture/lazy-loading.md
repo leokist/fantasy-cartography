@@ -25,8 +25,7 @@ properties are its public methods.
 
 The mechanism is **dispatch-only**: callers invoke methods, they don't read properties off the
 resolved object. A module that exposes data or a nested object must wrap it in a method facade (e.g.
-`CloudStorage` wraps the Dropbox provider), OR be imported eagerly instead (e.g. the small
-credits string, `supporters` in `src/data/supporters.ts`).
+`CloudStorage` wraps the Dropbox provider), OR be imported eagerly instead.
 
 Both `index.ts` files are imported eagerly by the composition root, `app/index.ts`, so the registries
 exist at startup. They hold only loader thunks, so the eager cost is a few bytes, not module bodies.

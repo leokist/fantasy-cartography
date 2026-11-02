@@ -166,7 +166,7 @@ export const METHODS = {
   ],
   Goods: ["rename", "setIcon", "recolor", "setPrice", "setUnit", "setTags", "setProduction"],
   Markets: ["rename", "recolor"],
-  Lore: ["rename", "setYear", "setEra", "setDescription"],
+  Lore: ["rename"],
   Notes: ["write"],
   Styles: ["setValue"],
   StylePresets: ["apply"]

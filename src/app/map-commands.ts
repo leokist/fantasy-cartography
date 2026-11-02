@@ -7,7 +7,7 @@ import {
   showLoadPane,
   showSavePane
 } from "@/app/chrome/io-panes";
-import { openTab, toggleOptions } from "@/app/chrome/options-panel";
+import { openPanel, openTab, toggleOptions } from "@/app/chrome/options-panel";
 import { LAYER_PRESETS } from "@/app/chrome/tabs/layers-tab";
 import { applyPreset, savePreset } from "@/app/layers-presets";
 import { regeneratePrompt } from "@/app/lifecycle";
@@ -259,15 +259,8 @@ export const MAP_COMMANDS: MapCommand[] = [
     id: "editNotesButton",
     name: t("Notes Editor"),
     link: true,
-    aliases: "lore descriptions legends",
+    aliases: "descriptions legends",
     run: () => Controllers.NotesEditor.open()
-  },
-  {
-    id: "lore",
-    name: t("Setup Lore"),
-    link: true,
-    aliases: "description history story",
-    run: () => Controllers.LoreEditor.open()
   },
   {
     id: "editNamesBaseButton",
@@ -359,13 +352,6 @@ export const MAP_COMMANDS: MapCommand[] = [
     link: true,
     aliases: "roads paths trails types",
     run: () => Controllers.RouteGroupsEditor.open()
-  },
-  {
-    id: "world",
-    name: t("Climate"),
-    link: true,
-    aliases: "climate temperature precipitation world configurator",
-    run: () => Controllers.WorldConfigurator.open()
   },
   {
     id: "overviewCellsButton",
@@ -606,18 +592,18 @@ export const MAP_COMMANDS: MapCommand[] = [
     run: () => openTab("styleTab")
   },
   {
-    id: "optionsTab",
-    name: t("Options Tab"),
+    id: "settingsButton",
+    name: t("Interface settings"),
     link: true,
-    aliases: "menu panel settings",
-    run: () => openTab("optionsTab")
+    aliases: "options preferences language theme gear",
+    run: () => openPanel("settings")
   },
   { id: "toolsTab", name: t("Tools Tab"), link: true, aliases: "menu panel", run: () => openTab("toolsTab") },
   {
     id: "aboutTab",
-    name: t("About Tab"),
+    name: t("About"),
     link: true,
-    aliases: "menu panel info credits",
+    aliases: "info credits",
     run: () => openTab("aboutTab")
   },
   {
@@ -745,7 +731,7 @@ export const MAP_COMMANDS: MapCommand[] = [
   {
     id: "exportCsvNotes",
     name: `${t("Export to CSV")}: ${t("Notes")}`,
-    aliases: "download table lore legends descriptions",
+    aliases: "download table legends descriptions",
     run: () => Controllers.NotesEditor.exportCsv()
   },
   {
@@ -755,12 +741,6 @@ export const MAP_COMMANDS: MapCommand[] = [
     run: () => Controllers.ZonesEditor.exportCsv()
   },
   { id: "showInfo", name: t("Show App Info"), link: true, aliases: "about version help", run: () => showInfo() },
-  {
-    id: "getApp",
-    name: t("Get Desktop App"),
-    aliases: "install download electron",
-    run: () => Services.AppOffer.open()
-  },
   {
     id: "toggleSaveReminder",
     name: t("Toggle Save Reminder"),

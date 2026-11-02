@@ -1,6 +1,6 @@
 // The app and map lifecycle: start the app, erase what is on screen, generate a new world, put it back
 
-import { restoreUi, syncOptionInputs } from "@/app/chrome/tabs/options-tab";
+import { restoreUi, syncOptionInputs } from "@/app/chrome/interface-settings";
 import { hideLoading, showLoading } from "@/app/loading";
 import { setSeed } from "@/app/seed";
 import { initShell, warnIfServerless } from "@/app/shell";
@@ -30,7 +30,6 @@ import { clearMainTip, tip } from "@/ui/tooltips";
 import { debounce, parseError } from "@/utils/common-utils";
 import { t } from "@/utils/i18n";
 import { log } from "@/utils/logger";
-import { findEl } from "@/utils/node-utils";
 
 /** Bring the app up */
 export async function boot(): Promise<void> {
@@ -125,7 +124,7 @@ export const regenerateMap = debounce(async (config?: GenerationConfig | string)
   const shouldShowLoading = getPointsNumber(options.generation.graph.density) > 10000;
   shouldShowLoading && showLoading();
 
-  Dialog.closeAll("#worldConfigurator, #options3d");
+  Dialog.closeAll("#options3d");
   options.app.mode = null;
   resetZoom(1000);
   undraw();
@@ -133,7 +132,6 @@ export const regenerateMap = debounce(async (config?: GenerationConfig | string)
   Layers.drawAll();
 
   if (is3dView()) Controllers.View3d.redraw();
-  if (findEl("worldConfigurator")?.offsetParent) Controllers.WorldConfigurator.open();
 
   fitMapToScreen();
   shouldShowLoading && hideLoading();

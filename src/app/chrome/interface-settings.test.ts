@@ -34,9 +34,8 @@ vi.mock("@/ui/dialog/dialog", async importOriginal => {
 });
 vi.mock("@/ui/assistant-bubble", () => ({ toggleAssistant: vi.fn() }));
 
-let tab: typeof import("./options-tab");
+let tab: typeof import("./interface-settings");
 const control = (key: string): HTMLInputElement => document.querySelector(`[data-option="${key}"]`)!;
-const output = (key: string): HTMLOutputElement => document.querySelector(`[data-option-output="${key}"]`)!;
 const edit = (input: HTMLInputElement, value: string, event = "input") => {
   input.value = value;
   input.dispatchEvent(new Event(event, { bubbles: true }));
@@ -50,8 +49,8 @@ beforeAll(async () => {
   vi.stubGlobal("pack", { cells: {}, cultures: [], states: [], provinces: [], burgs: [] });
   vi.stubGlobal("styles", { labels: { groups: { capital: { attrs: {} }, states: { attrs: {} } } } });
   await import("@/ui/elements/slider-input");
-  await import("./heightmap-tab");
-  tab = await import("./options-tab");
+  await import("./tabs/heightmap-tab");
+  tab = await import("./interface-settings");
   await import("@/app/chrome/options-panel");
 
   // Exercise the actual markup and listeners without relying on any option control ID.
@@ -77,37 +76,11 @@ afterAll(() => {
   vi.unstubAllGlobals();
 });
 
-describe("options tab bindings", () => {
-  it("syncs replacement options and derived readouts after control IDs change", () => {
-    options.generation.graph.density = 5;
-    options.generation.burgs.limit = 123;
-    options.generation.cultures.limit = 7;
-    options.generation.template = "volcano";
+describe("interface settings bindings", () => {
+  it("syncs the controls from the preferences", () => {
     options.app.autosave.interval = 27;
     tab.syncOptionInputs();
-
-    expect(control("points").value).toBe("5");
-    expect(output("points").value).toBe("20K");
-    expect(output("manors").value).toBe("123");
-    expect(control("template").value).toBe("volcano");
-    expect([...document.querySelectorAll<HTMLInputElement>('[data-option="cultures"]')].map(el => el.value)).toEqual([
-      "7",
-      "7"
-    ]);
     expect(control("autosaveInterval").value).toBe("27");
-  });
-
-  it("pairs controls by binding without overwriting an unrelated draft", () => {
-    const inputs = document.querySelectorAll<HTMLInputElement>('[data-option="cultures"]');
-    control("mapWidth").value = "777";
-    edit(inputs[1], "5");
-
-    expect(options.generation.cultures.limit).toBe(5);
-    expect(inputs[0].value).toBe("5");
-    expect(control("mapWidth").value).toBe("777");
-    expect(Pins.all()).toEqual({ cultures: 5 });
-    inputs[1].dispatchEvent(new Event("change", { bubbles: true }));
-    expect(JSON.parse(localStorage.getItem("fmg-options")!).generation.cultures.limit).toBe(5);
   });
 
   it("writes and pins the heightmap controls outside the tab", () => {
@@ -117,20 +90,6 @@ describe("options tab bindings", () => {
     expect(options.generation.resolveDepressionsSteps).toBe(300);
     expect(inputs[0].value).toBe("300");
     expect(Pins.valueOr("resolveDepressionsSteps", 0)).toBe(300);
-  });
-
-  it("handles the slider's forwarded event once and persists its final value", () => {
-    const set = vi.spyOn(Options, "set");
-    const slider = control("statesNumber");
-    const range = slider.querySelector<HTMLInputElement>('input[type="range"]')!;
-    edit(range, "30");
-    range.dispatchEvent(new Event("change", { bubbles: true }));
-
-    expect(set).toHaveBeenCalledTimes(1);
-    expect(options.generation.states.limit).toBe(30);
-    expect(Pins.valueOr("statesNumber", 0)).toBe(30);
-    expect(slider.querySelector<HTMLInputElement>('input[type="number"]')!.value).toBe("30");
-    expect(JSON.parse(localStorage.getItem("fmg-options")!).generation.states.limit).toBe(30);
   });
 
   it("applies select effects once, after updating the preference", () => {
@@ -165,44 +124,6 @@ describe("options tab bindings", () => {
     expect(options.app.emblems.shape).toBe("heater");
   });
 
-  it("keeps linked growth rates and culture limits synchronized", () => {
-    edit(control("growthRate"), "1.5");
-    expect(options.generation.states.growthRate).toBe(1.5);
-    expect(options.generation.cultures.growthRate).toBe(1.5);
-    expect(Pins.valueOr("growthRate", 0)).toBe(1.5);
-
-    options.generation.cultures.limit = 30;
-    edit(control("culturesSet"), "english");
-    expect(options.generation.cultures.limit).toBe(10);
-    for (const input of document.querySelectorAll<HTMLInputElement>('[data-option="cultures"]')) {
-      expect(input.max).toBe("10");
-      expect(input.value).toBe("10");
-    }
-  });
-
-  it("preserves the automatic burg readout alongside the legacy panel listener", () => {
-    edit(control("manors"), "400");
-    expect(output("manors").value).toBe("400");
-    edit(control("manors"), "1000");
-    expect(output("manors").value).toBe("Auto");
-    expect(Pins.valueOr("manors", 0)).toBe(1000);
-  });
-
-  it("commits map dimensions together on change, leaving the current map intact", () => {
-    const graph = { ...options.map.graph };
-    edit(control("mapWidth"), "100");
-    control("mapHeight").value = "600";
-    expect(options.generation.graph.width).toBe(1280);
-    expect(Pins.has("mapWidth")).toBe(false);
-
-    control("mapWidth").dispatchEvent(new Event("change", { bubbles: true }));
-    expect(options.generation.graph.width).toBe(240);
-    expect(options.generation.graph.height).toBe(600);
-    expect(Pins.valueOr("mapWidth", 0)).toBe(240);
-    expect(Pins.valueOr("mapHeight", 0)).toBe(600);
-    expect(options.map.graph).toEqual(graph);
-  });
-
   it("normalizes zoom endpoints together on change", () => {
     control("zoomExtentMax").value = "10";
     edit(control("zoomExtentMin"), "15");
@@ -231,13 +152,6 @@ describe("options tab bindings", () => {
       .insertAdjacentHTML("beforeend", '<input id="legacyScaleInput" /><input id="legacyScaleOutput" />');
     edit(document.getElementById("legacyScaleInput") as HTMLInputElement, "3");
     expect((document.getElementById("legacyScaleOutput") as HTMLInputElement).value).toBe("3");
-  });
-
-  it("reads lock values from the binding config", () => {
-    tab.restoreUi();
-    options.generation.states.limit = 42;
-    document.getElementById("lock_statesNumber")!.click();
-    expect(Pins.valueOr("statesNumber", 0)).toBe(42);
   });
 });
 

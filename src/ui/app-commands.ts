@@ -1,9 +1,9 @@
 // The composition root's commands, for the controllers and services below it. `app/index` binds them at start-up:
 // a handle like the `Controllers` and `Services` registries, so no module imports upward into `app/`
 
+import type { changeCellsDensity, syncOptionInputs } from "@/app/chrome/interface-settings";
 import type { pickMapFile, showExportPane } from "@/app/chrome/io-panes";
 import type { openTab } from "@/app/chrome/options-panel";
-import type { changeCellsDensity, syncOptionInputs } from "@/app/chrome/tabs/options-tab";
 import type { applyLayersPreset, applyURLLayers } from "@/app/layers-presets";
 import type { generate, regenerateMap, regeneratePrompt } from "@/app/lifecycle";
 import type { isLinkable, MAP_COMMANDS } from "@/app/map-commands";
