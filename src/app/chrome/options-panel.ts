@@ -152,7 +152,6 @@ function initialize(): void {
   ensureEl("sticked").addEventListener("click", event => {
     const id = (event.target as HTMLElement).id;
     if (id === "newMapButton") regeneratePrompt();
-    else if (id === "wizardButton") Controllers.WorldWizard.open();
     else if (id === "saveButton") showSavePane();
     else if (id === "exportButton") showExportPane();
     else if (id === "loadButton") void showLoadPane();
@@ -165,8 +164,12 @@ function initialize(): void {
   ensureEl("regenerate").addEventListener("click", () => regeneratePrompt());
   ensureEl("optionsHide").addEventListener("click", hideOptions);
   ensureEl("bottomBar").addEventListener("click", event => {
-    const name = (event.target as HTMLElement).closest<HTMLElement>("[data-panel]")?.dataset.panel;
-    if (name) togglePanel(name);
+    const button = (event.target as HTMLElement).closest<HTMLElement>("button");
+    if (button?.dataset.panel) togglePanel(button.dataset.panel);
+    else if (button?.id === "wizardButton") {
+      closePanel();
+      Controllers.WorldWizard.open();
+    }
   });
   ensureEl("bottomPanelClose").addEventListener("click", closePanel);
 }
