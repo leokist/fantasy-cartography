@@ -16,6 +16,9 @@ const spot = { x: z.number().min(0).max(100), y: z.number().min(0).max(100) };
 // how much of the map a continent or a country takes
 export const CONTINENT_SIZES = ["small", "medium", "large", "huge"] as const;
 export const COUNTRY_SIZES = ["small", "medium", "large"] as const;
+// how countries are sized: by a relative size that sets how far each spreads, or by a share of the map's area
+export const SIZINGS = ["size", "area"] as const;
+export const COUNTRY_AREA = { min: 0.5, max: 60, default: 4 }; // percent of the map
 // what a province is like; absent means the generator decides
 export const RELIEFS = ["plains", "hills", "mountains", "plateau"] as const;
 export const CLIMATES = ["hot", "temperate", "cold"] as const;
@@ -48,6 +51,7 @@ const stateSeed = z.strictObject({
   language: z.number().int().min(0).optional(), // a name base id: the country is its own people, named in it
   emblem: z.string().min(1).optional(), // an icon id: a picture used as the whole emblem
   size: z.enum(COUNTRY_SIZES).optional(),
+  area: z.number().min(COUNTRY_AREA.min).max(COUNTRY_AREA.max).optional(), // percent of the map, with sizing "area"
   continent: z.number().int().min(0).optional(), // index of a continent seed
   neighbors: z.array(z.number().int().min(0)).optional(), // indexes of state seeds it borders
   cities: z.array(citySeed).optional()
@@ -63,6 +67,7 @@ const speciesSeed = z.strictObject({
 });
 
 export const seedsSchema = z.strictObject({
+  sizing: z.enum(SIZINGS).optional(), // "size" when absent
   continents: z.array(continentSeed),
   states: z.array(stateSeed),
   provinces: z.array(provinceSeed),
@@ -114,5 +119,14 @@ export function cleanSeeds(seeds: Seeds): Seeds {
     .filter(province => province.name && states.remap.has(province.state))
     .map(province => ({ ...structuredClone(province), state: states.remap.get(province.state) as number }));
   const species = seeds.species.filter(item => item.name).map(item => structuredClone(item));
-  return { continents: continents.items, states: states.items, provinces, species };
+  // a country is sized one way only
+  const byArea = seeds.sizing === "area";
+  for (const state of states.items) {
+    if (byArea) {
+      state.area ??= COUNTRY_AREA.default;
+      delete state.size;
+    } else delete state.area;
+  }
+  const sizing = byArea ? { sizing: "area" as const } : {};
+  return { ...sizing, continents: continents.items, states: states.items, provinces, species };
 }

@@ -34,9 +34,11 @@ Every map sits on the same latitude band (`GAME_GEOGRAPHY` in [`coordinates.ts`]
 `authoring.seeds` holds what the author declared, each at a spot given in percent of the map ([`world-spec.ts`](../../src/model/authoring/world-spec.ts)):
 
 - **continents**: a name and a size;
-- **countries** (`states`): capital spot and name, size, form, color, picture emblem, language (a name base), continent, the countries it borders and its cities;
+- **countries** (`states`): capital spot and name, size or area, form, color, picture emblem, language (a name base), continent, the countries it borders and its cities;
 - **provinces**: the country they belong to, with relief, climate, water and nature (a biome), each optional;
 - **species**.
+
+Countries are sized one way (`sizing`). By size (the default), small, medium or large set the land raised around the capital and how far the country spreads (`EXPANSIONISM`), so the result depends on terrain and neighbours. By area, each asks for a percent of the map: the land raised is a circle a little larger, and the country grows from its capital over the cheapest land until it holds that area (`growToArea`), or runs out of land.
 
 Each declared country is its own people: culture k takes country k's name, color and language and covers exactly its land and burgs. The generator still makes cultures for land outside the countries.
 
@@ -51,7 +53,7 @@ When continents or countries are declared, the land is theirs ([`land.ts`](../..
 | `cultureSeeds` | `cultures` | culture k starts at country k's spot, in its language; it spreads in `culturesExpand` |
 | `settleSeeds` | `culturesExpand` | land no culture reached, such as a lone island, takes the nearest culture |
 | `capitalSeeds` | `burgs` | seed k moves capital k, so country k is founded there |
-| `stateSizes` | `states` | growth by size, the land of declared provinces claimed, declared borders joined, each country's land given to its people |
+| `stateSizes` | `states` | growth by size or to the area, the land of declared provinces claimed, declared borders joined, each country's land given to its people |
 | `citySeeds` | `noReligion` | the declared cities as burgs |
 | `stateSeeds` | `stateForms` | names, form, color and a picture emblem (`{ icon }`) |
 | `provinceSeeds` | `provinces` | a country with declared provinces is divided into them |

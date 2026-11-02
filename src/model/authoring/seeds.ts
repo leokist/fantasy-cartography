@@ -6,12 +6,14 @@ import { Authoring } from "@/model/authoring/authoring";
 import {
   foundCities,
   foundProvinces,
+  growToArea,
   joinBorders,
   makePeople,
   nearestCell,
   settleLand
 } from "@/model/authoring/country";
 import {
+  countryArea,
   type Noise,
   provinceWeight,
   shapeBiomes,
@@ -189,7 +191,8 @@ class WorldSeedsModule {
     }
   }
 
-  /** After `states`: each country grows as large as declared, then touches the countries it should border */
+  /** After `states`: each country grows as large as declared, by size or to its area, then touches the countries it
+   * should border */
   applySizes(): void {
     if (!this.plan?.states.length) return;
     const { states } = pack;
@@ -199,6 +202,13 @@ class WorldSeedsModule {
     }
     States.expandStates();
     States.normalize();
+    const targets = new Map<number, number>();
+    for (const [index, seed] of this.plan.states.entries()) {
+      const area = countryArea(seed);
+      const id = this.seededStates[index];
+      if (area !== undefined && id !== undefined && !states[id]?.removed) targets.set(id, area);
+    }
+    if (targets.size) growToArea(targets, cell => !pack.burgs[pack.cells.burg[cell]]?.capital);
     this.claimProvinces();
     for (const [index, seed] of this.plan.states.entries())
       for (const other of seed.neighbors ?? []) joinBorders(this.seededStates[index], this.seededStates[other]);

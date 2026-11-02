@@ -94,6 +94,44 @@ describe("world seeds", () => {
   });
 });
 
+describe("countries sized by area", () => {
+  const share = (id: number) => {
+    const { width, height } = options.map.graph;
+    const area = cellsOf(pack.cells.state, id).reduce((sum, cell) => sum + pack.cells.area[cell], 0);
+    return (area / (width * height)) * 100;
+  };
+
+  it("grow to their share of the map", async () => {
+    WorldSeeds.planNext({
+      ...getDefaultSeeds(),
+      sizing: "area",
+      continents: [{ name: "Midland", x: 50, y: 50, size: "huge" }],
+      states: [
+        { name: "Small", x: 30, y: 45, area: 3 },
+        { name: "Large", x: 65, y: 55, area: 10 }
+      ]
+    });
+    await generateMap({ seed: "area-1" });
+    const [small, large] = [pack.states[1], pack.states[2]];
+    expect([small.name, large.name]).toEqual(["Small", "Large"]);
+    expect(share(small.i)).toBeGreaterThan(3 * 0.75);
+    expect(share(small.i)).toBeLessThan(3 * 1.25);
+    expect(share(large.i)).toBeGreaterThan(10 * 0.75);
+    expect(share(large.i)).toBeLessThan(10 * 1.25);
+  });
+
+  it("an added country grows to its share without touching locked ones", async () => {
+    await generateMap({ seed: "area-2" });
+    const [locked] = living(pack.states);
+    Authoring.markEdited("states", locked.i);
+    const lockedCells = cellsOf(pack.cells.state, locked.i);
+    const id = Additions.addState({ name: "Nova", x: 50, y: 50, area: 4 });
+    expect(cellsOf(pack.cells.state, locked.i)).toEqual(lockedCells);
+    expect(share(id)).toBeGreaterThan(4 * 0.5);
+    expect(share(id)).toBeLessThan(4 * 1.25);
+  });
+});
+
 describe("additions to a generated map", () => {
   it("add a state without changing anything locked", async () => {
     await generateMap({ seed: "additions-1" });
