@@ -1,5 +1,6 @@
 // The Save, Export and Load dialogs behind the sticked menu, plus the tile-export screen; this module owns their markup
 import { select } from "d3";
+import { Controllers } from "@/controllers";
 import { Options } from "@/model/options/options-model";
 import { Layers } from "@/renderers/layers";
 import { Services } from "@/services";
@@ -57,6 +58,10 @@ const TEMPLATE = /* html */ `
       <button data-action="jsonGridCells" data-tip="${t("Download map metadata and grid cells data in JSON")}">${t("Grid cells")}</button>
     </div>
     <p>${t("Export in JSON format can be used as an API replacement.")}</p>
+    <div style="margin: 1em 0 0.3em; font-weight: bold">${t("Export to Godot")}</div>
+    <div>
+      <button data-action="godot" data-tip="${t("Heightmap in meters, maps, rivers, roads, places and borders for Godot with Terrain3D")}">${t("Godot package")}</button>
+    </div>
   </div>
 
   <div id="saveMapData" style="display: none" class="dialog">
@@ -157,6 +162,7 @@ const ACTIONS: Record<string, (event: MouseEvent) => void> = {
   jsonMinimal: () => Services.ExportJson.exportToJson("Minimal"),
   jsonPackCells: () => Services.ExportJson.exportToJson("PackCells"),
   jsonGridCells: () => Services.ExportJson.exportToJson("GridCells"),
+  godot: () => Controllers.GodotExport.open(),
   saveToMachine: event => Services.Save.toMachine(event.shiftKey, isViewOnlyCopy()),
   saveToDropbox: () => Services.Save.toDropbox(isViewOnlyCopy()),
   saveToStorage: () => Services.Save.toStorage(),

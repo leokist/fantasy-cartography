@@ -1,0 +1,12 @@
+; Example project for the FMG Importer. Install Terrain3D 1.1+ into addons/terrain_3d first (see README.md).
+
+config_version=5
+
+[application]
+
+config/name="Fantasy Cartography World"
+config/features=PackedStringArray("4.5")
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/terrain_3d/plugin.cfg", "res://addons/fmg_importer/plugin.cfg")
