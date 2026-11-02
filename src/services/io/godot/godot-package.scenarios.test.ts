@@ -61,6 +61,14 @@ describe("godot package", () => {
     const river = source.rivers.findIndex(({ points }) => points.length > 20);
     for (const [i, point] of source.rivers[river].points.entries())
       expect(sampleHeight(raster, toPixel(point))).toBeLessThanOrEqual(raster.riverSurfaces[river][i] + 0.5);
+    let blended = 0;
+    for (let i = 0; i < raster.biomes.length; i++) {
+      if (!raster.blendWeights[i]) continue;
+      blended++;
+      expect(raster.blendBiomes[i]).not.toBe(raster.biomes[i]); // a pixel fades into a different biome
+    }
+    expect(blended / raster.biomes.length).toBeGreaterThan(0.01); // borders are soft...
+    expect(blended / raster.biomes.length).toBeLessThan(0.5); // ...and biomes stay pure inside
     const road = source.roads.findIndex(({ points }) => points.length > 20);
     const offsets = source.roads[road].points.map((point, i) =>
       Math.abs(sampleHeight(raster, toPixel(point)) - raster.roadHeights[road][i])
