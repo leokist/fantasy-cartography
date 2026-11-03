@@ -409,16 +409,7 @@
           </button>
           <button id="toolsTab" data-tip="Click to open tools menu" class="options active">Tools</button>
         </div>
-        <div id="toolsContent" class="tabcontent" style="display: block"></div>
         <div id="heightmapMenu" class="tabcontent"></div>
-        <div id="sticked">
-          <button id="newMapButton" data-tip="Generate a new map based on options" data-shortcut="F2">New Map</button>
-          <button id="exportButton" data-tip="Select format to download image or export map data">Export</button>
-          <button id="saveButton" data-tip="Save fully-functional map file">Save</button>
-          <button id="loadButton" data-tip="Load fully-functional map (.map or .gz formats)">Load</button>
-          <button id="zoomReset" data-tip="Reset map zoom" data-shortcut="0 (zero)">Zoom out</button>
-          <button id="searchButton" data-tip="Search map and commands" data-shortcut="Space">Search</button>
-        </div>
       </div>
     </div>
     <div id="bottomPanel" style="display: none">
@@ -431,6 +422,7 @@
       <div id="editContent" class="panelcontent"></div>
       <div id="addContent" class="panelcontent"></div>
       <div id="regenerateContent" class="panelcontent"></div>
+      <div id="fileContent" class="panelcontent"></div>
       <div id="styleContent" class="panelcontent"></div>
       <div id="interfaceContent" class="panelcontent"></div>
       <div id="aboutContent" class="panelcontent"></div>
@@ -443,6 +435,8 @@
       <button id="editButton" type="button" data-panel="edit" data-tip="Edit"><i class="icon-pencil"></i></button>
       <button id="addButton" type="button" data-panel="add" data-tip="Add"><i class="icon-plus"></i></button>
       <button id="regenerateButton" type="button" data-panel="regenerate" data-tip="Regenerate"><i class="icon-arrows-cw"></i></button>
+      <button id="fileButton" type="button" data-panel="file" data-tip="Export, save and load"><i class="icon-folder-open-empty"></i></button>
+      <button id="searchButton" type="button" data-tip="Search map and commands" data-shortcut="Space"><i class="icon-search"></i></button>
       <button id="settingsButton" type="button" data-panel="settings" data-tip="Interface settings"><i class="icon-cog"></i></button>
       <button id="aboutButton" type="button" data-panel="about" data-tip="About"><i class="icon-info-circled"></i></button>
       <button id="assistantBubble" type="button" data-tip="Open Fantasy Cartography Assistant"

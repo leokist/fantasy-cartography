@@ -30,6 +30,7 @@ import { undraw } from "@/renderers/undraw";
 import { viewport } from "@/renderers/viewport/viewport";
 import { Services } from "@/services";
 import { getFileName } from "@/services/io/file-name";
+import { App } from "@/ui/app-commands";
 import { Dialog } from "@/ui/dialog/dialog";
 import { refreshEditors } from "@/ui/dialog/dialog-helpers";
 
@@ -371,6 +372,7 @@ function enterHeightmapEditMode(mode: string, tool?: string): void {
   ensureEl("options").querySelector(".tab > .active")!.classList.remove("active");
   ensureEl("heightmapMenu").style.display = "block";
   ensureEl("toolsTab").classList.add("active");
+  App.setCustomizationMenu(true);
   ensureEl("heightmapEditMode").innerHTML = mode;
   for (const key of EDITOR_OPTIONS) ensureEl<HTMLInputElement>(key).checked = options.app.heightmapEditor[key];
 
@@ -482,9 +484,7 @@ async function finalizeHeightmap(): Promise<void> {
 
   options.app.mode = null;
   ensureEl("heightmapMenu").style.display = "none";
-  if (ensureEl("options").querySelector<HTMLElement>(".tab > button.active")!.id === "toolsTab") {
-    ensureEl("toolsContent").style.display = "block";
-  }
+  App.setCustomizationMenu(false);
   ensureEl<HTMLSelectElement>("layersPreset").disabled = false;
   ensureEl("heightmapFinalize").style.display = "none"; // hide finalize button
 

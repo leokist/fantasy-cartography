@@ -20,7 +20,7 @@ import { applyLayersPreset, applyURLLayers } from "./layers-presets";
 import "@/ui/map/canvas";
 import { pickMapFile, showExportPane } from "./chrome/io-panes";
 import "@/renderers/view-mode";
-import { openTab } from "./chrome/options-panel";
+import { openTab, setCustomizationMenu } from "./chrome/options-panel";
 import "./seed";
 import { generate, regenerateMap, regeneratePrompt } from "./lifecycle";
 import "@/ui/dialog/dialog"; // tracks Shift for confirmations from boot
@@ -44,6 +44,7 @@ bindApp({
   syncOptionInputs,
   changeCellsDensity,
   openTab,
+  setCustomizationMenu,
   pickMapFile,
   showExportPane,
   applyLayersPreset,

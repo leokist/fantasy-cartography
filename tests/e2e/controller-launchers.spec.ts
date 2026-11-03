@@ -11,7 +11,6 @@ test.describe("controller launchers", () => {
   });
 
   test("opens Markers generation settings from Markers Overview", async ({page}) => {
-    await page.click("#optionsTrigger");
     await page.click("#editButton");
     await page.click("#overviewMarkersButton");
     await expect(page.locator("#markersOverview")).toBeVisible();
@@ -35,7 +34,6 @@ test.describe("controller launchers", () => {
       Goods.sync();
     });
 
-    await page.click("#optionsTrigger");
     await page.click("#editButton");
     await page.click("#editGoods");
 
@@ -44,7 +42,6 @@ test.describe("controller launchers", () => {
   });
 
   test("opens Relief Editor by clicking a relief icon", async ({page}) => {
-    await page.click("#optionsTrigger");
     await page.click("#layersTab");
     const reliefToggle = page.locator("#mapLayers > button[data-layer='relief']");
     if (await reliefToggle.evaluate(element => element.classList.contains("buttonoff"))) {
@@ -76,7 +73,6 @@ test.describe("controller launchers", () => {
       });
     });
 
-    await page.click("#optionsTrigger");
     await page.click("#editButton");
     await page.click("#editUnitsButton");
 
