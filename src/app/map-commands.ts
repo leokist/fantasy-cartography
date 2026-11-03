@@ -542,7 +542,14 @@ export const MAP_COMMANDS: MapCommand[] = [
     aliases: "options preferences language theme gear",
     run: () => openPanel("settings")
   },
-  { id: "toolsTab", name: t("Tools Tab"), link: true, aliases: "menu panel", run: () => openTab("toolsTab") },
+  { id: "editButton", name: t("Edit"), link: true, aliases: "menu panel tools", run: () => openPanel("edit") },
+  {
+    id: "fileButton",
+    name: t("Export, save and load"),
+    link: true,
+    aliases: "menu panel file",
+    run: () => openPanel("file")
+  },
   {
     id: "aboutTab",
     name: t("About"),

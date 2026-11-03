@@ -17,7 +17,6 @@ test.describe("States", () => {
   });
 
   test("merging as provinces keeps each merged state as a province of the ruling state", async ({page}) => {
-    await page.click("#optionsTrigger");
     await page.click("#editButton");
     await page.click("#editStatesButton");
     await page.waitForSelector("#statesEditor", {state: "visible", timeout: 5000});
@@ -83,7 +82,6 @@ test.describe("States", () => {
     const pageErrors: string[] = [];
     page.on("pageerror", error => pageErrors.push(error.message));
 
-    await page.click("#optionsTrigger");
     await page.click("#editButton");
     await page.click("#editStatesButton");
     await page.waitForSelector("#statesEditor", {state: "visible"});

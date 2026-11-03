@@ -1,19 +1,13 @@
-// The collapsible panel on the right and the sticked menu below it, and the bottom bar: its icons open the layers,
-// the view mode, the style editor and the interface settings in a panel above it
-import { showExportPane, showLoadPane, showSavePane } from "@/app/chrome/io-panes";
+// The bottom bar, whose icons open the map's panels above it, and the menu behind the arrow, which holds only the
+// heightmap customization tools and so shows only while they are in use
 import { regeneratePrompt } from "@/app/lifecycle";
 import { Controllers } from "@/controllers";
 import { ARROW_TIP_KEY } from "@/services/versioning";
 import { makeDraggable } from "@/ui/draggable";
-import { resetZoom } from "@/ui/map/zoom";
 import { clearMainTip } from "@/ui/tooltips";
 import { changeViewMode } from "@/ui/view-mode-switch";
 import { t } from "@/utils/i18n";
 import { ensureEl, findEl } from "@/utils/node-utils";
-
-const TAB_CONTENT: Record<string, string> = {
-  toolsTab: "toolsContent"
-};
 
 function showOptions(event?: Event): void {
   if (!localStorage.getItem(ARROW_TIP_KEY)) {
@@ -34,6 +28,12 @@ export function hideOptions(event?: Event): void {
   event?.stopPropagation();
 }
 
+export function setCustomizationMenu(on: boolean): void {
+  document.body.classList.toggle("customizing", on);
+  if (on) showOptions();
+  else hideOptions();
+}
+
 export function toggleOptions(event?: Event): void {
   if (ensureEl("options").style.display === "none") showOptions(event);
   else hideOptions(event);
@@ -46,6 +46,7 @@ const PANELS: Record<string, { content: string; title: () => string }> = {
   edit: { content: "editContent", title: () => t("Edit") },
   add: { content: "addContent", title: () => t("Add") },
   regenerate: { content: "regenerateContent", title: () => t("Regenerate") },
+  file: { content: "fileContent", title: () => t("Export, save and load") },
   settings: { content: "interfaceContent", title: () => t("Interface settings") },
   about: { content: "aboutContent", title: () => t("About") }
 };
@@ -103,8 +104,7 @@ function selectTab(id: string): void {
     content.style.display = "none";
   }
 
-  const shown = id === "toolsTab" && options.app.mode === "heightmap" ? "heightmapMenu" : TAB_CONTENT[id];
-  if (shown) ensureEl(shown).style.display = "block";
+  if (id === "toolsTab" && options.app.mode === "heightmap") ensureEl("heightmapMenu").style.display = "block";
 }
 
 /** Keep every `<x>Input` and its `<x>Output` showing the same value */
@@ -151,16 +151,6 @@ function initialize(): void {
     ensureEl(id).addEventListener("input", onPanelInput);
   }
 
-  ensureEl("sticked").addEventListener("click", event => {
-    const id = (event.target as HTMLElement).id;
-    if (id === "newMapButton") regeneratePrompt();
-    else if (id === "saveButton") showSavePane();
-    else if (id === "exportButton") showExportPane();
-    else if (id === "loadButton") void showLoadPane();
-    else if (id === "zoomReset") resetZoom(1000);
-    else if (id === "searchButton") Controllers.Omnibar.open();
-  });
-
   ensureEl("viewMode").addEventListener("click", changeViewMode);
   ensureEl("optionsTrigger").addEventListener("click", showOptions);
   ensureEl("regenerate").addEventListener("click", () => regeneratePrompt());
@@ -168,7 +158,10 @@ function initialize(): void {
   ensureEl("bottomBar").addEventListener("click", event => {
     const button = (event.target as HTMLElement).closest<HTMLElement>("button");
     if (button?.dataset.panel) togglePanel(button.dataset.panel);
-    else if (button?.id === "wizardButton") {
+    else if (button?.id === "searchButton") {
+      closePanel();
+      Controllers.Omnibar.open();
+    } else if (button?.id === "wizardButton") {
       closePanel();
       Controllers.WorldWizard.open();
     }

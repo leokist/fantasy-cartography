@@ -3,7 +3,7 @@
 
 import type { changeCellsDensity, syncOptionInputs } from "@/app/chrome/interface-settings";
 import type { pickMapFile, showExportPane } from "@/app/chrome/io-panes";
-import type { openTab } from "@/app/chrome/options-panel";
+import type { openTab, setCustomizationMenu } from "@/app/chrome/options-panel";
 import type { applyLayersPreset, applyURLLayers } from "@/app/layers-presets";
 import type { generate, regenerateMap, regeneratePrompt } from "@/app/lifecycle";
 import type { isLinkable, MAP_COMMANDS } from "@/app/map-commands";
@@ -15,6 +15,7 @@ interface AppCommands {
   syncOptionInputs: typeof syncOptionInputs;
   changeCellsDensity: typeof changeCellsDensity;
   openTab: typeof openTab;
+  setCustomizationMenu: typeof setCustomizationMenu;
   pickMapFile: typeof pickMapFile;
   showExportPane: typeof showExportPane;
   applyLayersPreset: typeof applyLayersPreset;

@@ -90,24 +90,6 @@ function start() {
           align: "center"
         }
       },
-      {
-        element: "#optionsTrigger",
-        onHighlightStarted: () => {
-          document.body.classList.remove("tour-free-roam");
-          closeOptionsPanel();
-        },
-        popover: {
-          title: t("Open the Options Menu"),
-          description: t("Click this arrow button to open the main options panel where all configuration tabs live."),
-          side: "right",
-          onNextClick: () => {
-            const options = ensureEl("options");
-            if (options.style.display === "none") ensureEl("optionsTrigger").click();
-            advanceTour(tour);
-          }
-        }
-      },
-
       // ── Layers tab ──────────────────────────────────────────────────────────
       {
         element: "#layersTab",
@@ -229,7 +211,7 @@ function start() {
         popover: {
           title: t("Edit"),
           description: t(
-            "The pencil in the bottom bar opens the map's editors, by subject: terrain and nature, countries and peoples, economy and annotations. The icons beside it add things to the map and regenerate parts of it."
+            "The pencil in the bottom bar opens the map's editors, by subject: terrain and nature, countries, economy, annotations and the whole map. The icons beside it add things to the map, regenerate it or parts of it, and export, save and load it."
           ),
           side: "top"
         }
@@ -247,7 +229,6 @@ function start() {
           side: "top",
           onNextClick: () => {
             closePanel();
-            if (ensureEl("options").style.display === "none") ensureEl("optionsTrigger").click();
             advanceTour(tour);
           }
         }
@@ -256,10 +237,8 @@ function start() {
         element: "#heightmapMenu",
         disableActiveInteraction: false,
         onHighlightStarted: () => {
-          const toolsContent = ensureEl("toolsContent");
-          const heightmapMenu = ensureEl("heightmapMenu");
-          toolsContent.style.display = "none";
-          heightmapMenu.style.display = "block";
+          App.setCustomizationMenu(true);
+          ensureEl("heightmapMenu").style.display = "block";
         },
         onDeselected: () => {
           hideHeightmapCustomizationPanel();
@@ -295,6 +274,7 @@ function start() {
         element: "#exportButton",
         onHighlightStarted: () => {
           Dialog.closeAll();
+          openPanel("file");
         },
         popover: {
           title: t("Export"),
@@ -327,6 +307,9 @@ function start() {
       },
       {
         element: "#saveButton",
+        onHighlightStarted: () => {
+          openPanel("file");
+        },
         popover: {
           title: t("Save and Load Maps"),
           description: t(
@@ -335,7 +318,7 @@ function start() {
           side: "top",
           onNextClick: () => {
             tour.destroy();
-            closeOptionsPanel();
+            closePanel();
           }
         }
       }
@@ -391,7 +374,7 @@ function hideHeightmapCustomizationPanel() {
   const heightmapMenu = ensureEl("heightmapMenu");
   if (heightmapMenu.style.display !== "block") return;
   heightmapMenu.style.display = "none";
-  ensureEl("toolsContent").style.display = "block";
+  if (options.app.mode !== "heightmap") App.setCustomizationMenu(false);
 }
 
 // Let the browser finish the click before Driver.js replaces its popover. Several tour steps
